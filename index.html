@@ -645,7 +645,174 @@
 </main>
 
     <!-- VIEW 2: FINANCE REPORT PAGE (ซ้าย: ตัวกรอง + ตารางติดตาม / ขวา: การ์ดสถานะ 4 ใบ, มือถือเรียงคอลัมน์เดียว) -->
-    <main id="view-finance" class="p-3 sm:p-4 pt-2 hidden">
+        <!-- VIEW 2: FINANCE REPORT PAGE -->
+    <main id="view-finance" class="p-3 sm:p-4 pt-2 space-y-4 hidden">
+
+      <!-- TOP FULL-WIDTH CARD: สรุปภาพรวมรายเดือน / รายงวดงบประมาณ -->
+      <section class="bg-white rounded-2xl p-5 card-shadow border border-slate-100">
+        <!-- Header & Filters Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+          <div>
+            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-sm shadow-xs">📊</span>
+              <span>สรุปภาพรวมงบการเงินรายงวด</span>
+            </h2>
+            <p id="monthly-summary-subtitle" class="text-xs text-slate-400 mt-0.5">
+              สรุปความคืบหน้างบการเงินรายส่วนงาน ประจำปีงบประมาณ <span id="summary-badge-year" class="font-bold text-brand-600">2570</span> • งวด <span id="summary-badge-period" class="font-bold text-brand-600">ตุลาคม</span>
+            </p>
+          </div>
+
+          <!-- Dual Filters: ปีงบประมาณ & งวดงบ/ไตรมาส -->
+          <div class="flex flex-wrap items-center gap-2.5 text-xs">
+            <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
+              <label class="text-[11px] font-semibold text-slate-500 whitespace-nowrap">ปีงบประมาณ:</label>
+              <select id="fin-summary-year" onchange="onSummaryFilterChange()" class="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                <option value="2570" selected>2570</option>
+                <option value="2569">2569</option>
+                <option value="2568">2568</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
+              <label class="text-[11px] font-semibold text-slate-500 whitespace-nowrap">งวดงบ / ไตรมาส:</label>
+              <select id="fin-summary-period" onchange="onSummaryFilterChange()" class="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                <optgroup label="รายเดือน (Monthly)">
+                  <option value="ตุลาคม" selected>ตุลาคม (ต.ค.)</option>
+                  <option value="พฤศจิกายน">พฤศจิกายน (พ.ย.)</option>
+                  <option value="ธันวาคม">ธันวาคม (ธ.ค.)</option>
+                  <option value="มกราคม">มกราคม (ม.ค.)</option>
+                  <option value="กุมภาพันธ์">กุมภาพันธ์ (ก.พ.)</option>
+                  <option value="มีนาคม">มีนาคม (มี.ค.)</option>
+                  <option value="เมษายน">เมษายน (เม.ย.)</option>
+                  <option value="พฤษภาคม">พฤษภาคม (พ.ค.)</option>
+                  <option value="มิถุนายน">มิถุนายน (มิ.ย.)</option>
+                  <option value="กรกฎาคม">กรกฎาคม (ก.ค.)</option>
+                  <option value="สิงหาคม">สิงหาคม (ส.ค.)</option>
+                  <option value="กันยายน">กันยายน (ก.ย.)</option>
+                </optgroup>
+                <optgroup label="รายไตรมาส (Quarterly)">
+                  <option value="ไตรมาส 1">ไตรมาส 1 (ต.ค. - ธ.ค.)</option>
+                  <option value="ไตรมาส 2">ไตรมาส 2 (ม.ค. - มี.ค.)</option>
+                  <option value="ไตรมาส 3">ไตรมาส 3 (เม.ย. - มิ.ย.)</option>
+                  <option value="ไตรมาส 4">ไตรมาส 4 (ก.ค. - ก.ย.)</option>
+                </optgroup>
+                <optgroup label="ภาพรวมทั้งปี">
+                  <option value="all">ภาพรวมทุกงวดทั้งปี (ต.ค. - ก.ย.)</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 Metrics Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <!-- 1. จำนวนงบทั้งหมดในงวด -->
+          <div class="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-purple-300" onclick="showMonthlySummaryModal('total')" title="คลิกดูรายชื่อส่วนงานทั้งหมดในงวดนี้">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-purple-900">1. งบทั้งหมดในงวด</span>
+              <span class="w-6 h-6 rounded-lg bg-purple-200/80 text-purple-800 flex items-center justify-center text-xs">📋</span>
+            </div>
+            <div class="my-2">
+              <div id="summary-total-budgets" class="text-2xl sm:text-3xl font-extrabold text-purple-950 tracking-tight">40</div>
+              <div id="summary-total-sub" class="text-[10px] text-purple-700/80 mt-0.5">ส่วนงานที่ต้องส่งงวดนี้</div>
+            </div>
+            <div class="text-[10px] font-semibold text-purple-800 bg-purple-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
+              100% ครบทุกงบ
+            </div>
+          </div>
+
+          <!-- 2. ผอ.เห็นชอบแล้ว / เสนออธิการบดีแล้ว (สถานะ 5, 6) -->
+          <div class="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-emerald-300" onclick="showMonthlySummaryModal('approved')" title="คลิกดูรายชื่อส่วนงานที่ ผอ.เห็นชอบ/เสนออธิการบดีแล้ว">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-emerald-900">2. ผอ.เห็นชอบแล้ว</span>
+              <span class="w-6 h-6 rounded-lg bg-emerald-200/80 text-emerald-800 flex items-center justify-center text-xs">✅</span>
+            </div>
+            <div class="my-2">
+              <div id="summary-approved-count" class="text-2xl sm:text-3xl font-extrabold text-emerald-900 tracking-tight">0</div>
+              <div class="text-[10px] text-emerald-700/80 mt-0.5">เสนออธิการฯ / เห็นชอบ</div>
+            </div>
+            <div id="summary-approved-pct" class="text-[10px] font-semibold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
+              0.0%
+            </div>
+          </div>
+
+          <!-- 3. อยู่ระหว่างแก้ไข (สถานะ 4) -->
+          <div class="bg-rose-50/60 border border-rose-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-rose-300" onclick="showMonthlySummaryModal('editing')" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างแก้ไข">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-rose-900">3. อยู่ระหว่างแก้ไข</span>
+              <span class="w-6 h-6 rounded-lg bg-rose-200/80 text-rose-800 flex items-center justify-center text-xs">✏️</span>
+            </div>
+            <div class="my-2">
+              <div id="summary-editing-count" class="text-2xl sm:text-3xl font-extrabold text-rose-900 tracking-tight">0</div>
+              <div class="text-[10px] text-rose-700/80 mt-0.5">ผอ.ส่งกลับปรับปรุง</div>
+            </div>
+            <div id="summary-editing-pct" class="text-[10px] font-semibold text-rose-800 bg-rose-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
+              0.0%
+            </div>
+          </div>
+
+          <!-- 4. อยู่ระหว่างเสนอ ผอ. (สถานะ 3) -->
+          <div class="bg-indigo-50/60 border border-indigo-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-indigo-300" onclick="showMonthlySummaryModal('dean')" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างเสนอ ผอ.">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-indigo-900">4. อยู่ระหว่างเสนอ ผอ.</span>
+              <span class="w-6 h-6 rounded-lg bg-indigo-200/80 text-indigo-800 flex items-center justify-center text-xs">📨</span>
+            </div>
+            <div class="my-2">
+              <div id="summary-dean-count" class="text-2xl sm:text-3xl font-extrabold text-indigo-900 tracking-tight">0</div>
+              <div class="text-[10px] text-indigo-700/80 mt-0.5">รอ ผอ. ตรวจสอบ/ลงนาม</div>
+            </div>
+            <div id="summary-dean-pct" class="text-[10px] font-semibold text-indigo-800 bg-indigo-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
+              0.0%
+            </div>
+          </div>
+
+          <!-- 5. อยู่ระหว่างดำเนินการ (สถานะ 2) -->
+          <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-amber-300" onclick="showMonthlySummaryModal('progress')" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างดำเนินการ">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-amber-900">5. อยู่ระหว่างดำเนินการ</span>
+              <span class="w-6 h-6 rounded-lg bg-amber-200/80 text-amber-800 flex items-center justify-center text-xs">⏳</span>
+            </div>
+            <div class="my-2">
+              <div id="summary-progress-count" class="text-2xl sm:text-3xl font-extrabold text-amber-900 tracking-tight">0</div>
+              <div class="text-[10px] text-amber-700/80 mt-0.5">ผู้ตรวจกำลังตรวจงบ</div>
+            </div>
+            <div id="summary-progress-pct" class="text-[10px] font-semibold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
+              0.0%
+            </div>
+          </div>
+
+          <!-- 6. รอเอกสาร (สถานะ 1) -->
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-slate-300" onclick="showMonthlySummaryModal('waiting')" title="คลิกดูรายชื่อส่วนงานที่รอเอกสาร">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-slate-700">6. รอเอกสาร</span>
+              <span class="w-6 h-6 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center text-xs">📥</span>
+            </div>
+            <div class="my-2">
+              <div id="summary-waiting-count" class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">0</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">ส่วนงานยังไม่ส่งงบ</div>
+            </div>
+            <div id="summary-waiting-pct" class="text-[10px] font-semibold text-slate-700 bg-slate-200/70 px-2 py-0.5 rounded-md inline-block w-fit">
+              0.0%
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Bar & Verification Banner -->
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="flex items-center justify-between text-[11px] mb-1.5">
+            <span class="font-semibold text-slate-600">สัดส่วนสถานะงบการเงินในงวด:</span>
+            <span id="summary-verify-label" class="font-bold text-slate-700">รวมข้อ 2 - 6 = 40 / 40 งบ (100.0%)</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+            <div id="summary-bar-approved" class="h-full bg-emerald-500 transition-all" style="width: 0%" title="ผอ.เห็นชอบ"></div>
+            <div id="summary-bar-editing" class="h-full bg-rose-500 transition-all" style="width: 0%" title="อยู่ระหว่างแก้ไข"></div>
+            <div id="summary-bar-dean" class="h-full bg-indigo-500 transition-all" style="width: 0%" title="อยู่ระหว่างเสนอ ผอ."></div>
+            <div id="summary-bar-progress" class="h-full bg-amber-500 transition-all" style="width: 0%" title="อยู่ระหว่างดำเนินการ"></div>
+            <div id="summary-bar-waiting" class="h-full bg-slate-300 transition-all" style="width: 100%" title="รอเอกสาร"></div>
+          </div>
+        </div>
+      </section>
+
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
         <!-- LEFT COLUMN: ตัวกรอง + ตารางติดตามงบการเงินรายส่วนงาน -->
@@ -3115,7 +3282,308 @@
       `;
     }
 
+    // -------------------------------------------------------------
+    // MONTHLY & PERIOD FINANCE SUMMARY CARD (สรุปภาพรวมรายเดือน/งวดงบประมาณ)
+    // -------------------------------------------------------------
+    function onSummaryFilterChange() {
+      const yearVal = document.getElementById('fin-summary-year')?.value;
+      const periodVal = document.getElementById('fin-summary-period')?.value;
+
+      // Sync with table filters below
+      const finYearSel = document.getElementById('fin-filter-year');
+      if (finYearSel && yearVal) {
+        finYearSel.value = yearVal;
+      }
+      const finPeriodSel = document.getElementById('fin-filter-period');
+      if (finPeriodSel && periodVal) {
+        const hasOpt = Array.from(finPeriodSel.options).some(o => o.value === periodVal);
+        if (hasOpt) finPeriodSel.value = periodVal;
+      }
+
+      renderMonthlyFinanceSummaryCard();
+      renderFinanceMatrix();
+    }
+
+    let monthlySummaryModalData = { total: [], approved: [], editing: [], dean: [], progress: [], waiting: [] };
+
+    function showMonthlySummaryModal(category) {
+      const modal = document.getElementById('kpi-detail-modal');
+      const titleEl = document.getElementById('kpi-modal-title');
+      const subtitleEl = document.getElementById('kpi-modal-subtitle');
+      const tbody = document.getElementById('kpi-modal-tbody');
+      const countEl = document.getElementById('kpi-modal-total-count');
+
+      const fy = document.getElementById('fin-summary-year')?.value || '2570';
+      const period = document.getElementById('fin-summary-period')?.value || 'ตุลาคม';
+
+      const catMeta = {
+        total: { title: '1. จำนวนงบทั้งหมดในงวดงบนี้', icon: '📋' },
+        approved: { title: '2. งบที่ ผอ.เห็นชอบแล้ว / เสนออธิการบดีแล้ว (สถานะ 5, 6)', icon: '✅' },
+        editing: { title: '3. งบที่อยู่ระหว่างแก้ไข (สถานะ 4)', icon: '✏️' },
+        dean: { title: '4. งบที่อยู่ระหว่างเสนอ ผอ. (สถานะ 3)', icon: '📨' },
+        progress: { title: '5. งบที่อยู่ระหว่างดำเนินการ (สถานะ 2)', icon: '⏳' },
+        waiting: { title: '6. งบที่รอเอกสาร (สถานะ 1)', icon: '📥' }
+      };
+
+      const meta = catMeta[category] || catMeta.total;
+      const list = monthlySummaryModalData[category] || [];
+
+      titleEl.innerHTML = `<span>${meta.icon}</span> ${meta.title}`;
+      subtitleEl.textContent = `ปีงบประมาณ ${fy} • งวด ${period === 'all' ? 'ทุกงวดทั้งปี' : period} • ทั้งหมด ${list.length} รายการ`;
+      countEl.textContent = `ทั้งหมด ${list.length} รายการ`;
+
+      tbody.innerHTML = '';
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-8 text-center text-slate-400">
+              ไม่มีรายการในหมวดนี้สำหรับงวด ${period} ปีงบประมาณ ${fy}
+            </td>
+          </tr>
+        `;
+      } else {
+        list.forEach((item, idx) => {
+          const editCount = item.editCount || 0;
+          const editSummaryBadge = editCount > 0
+            ? `<div class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">🔄 แก้ไข ${editCount} ครั้ง</div>`
+            : '';
+
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="py-3 px-3 text-slate-400 font-mono text-[11px]">${idx + 1}</td>
+              <td class="py-3 px-3 font-semibold text-slate-800">
+                <div>${item.deptName}</div>
+                <div class="text-[10px] text-slate-400 font-normal mt-0.5">รอบ: ${item.cycle}</div>
+              </td>
+              <td class="py-3 px-3 text-slate-600 font-medium">${item.period}</td>
+              <td class="py-3 px-3 text-slate-600">${item.auditor || '-'}</td>
+              <td class="py-3 px-3 text-slate-500 whitespace-nowrap text-[11px]">${item.dateReceived || '-'}</td>
+              <td class="py-3 px-3">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${item.status.color}">
+                  <span class="w-1.5 h-1.5 rounded-full ${item.status.dot}"></span>
+                  <span>${item.status.code}. ${item.status.label}</span>
+                </span>
+                ${editSummaryBadge}
+              </td>
+              <td class="py-3 px-3 text-right">
+                <button onclick="closeKpiListModal(); openFinanceModal('${item.deptName}', '${item.period}')" class="px-2.5 py-1 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-semibold transition-all">
+                  ตรวจดู
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function renderMonthlyFinanceSummaryCard() {
+      const yearSel = document.getElementById('fin-summary-year');
+      const periodSel = document.getElementById('fin-summary-period');
+      if (!yearSel || !periodSel) return;
+
+      const fy = (yearSel.value || '2570').toString().trim();
+      const period = (periodSel.value || 'ตุลาคม').toString().trim();
+
+      // Update subtitle badges
+      const badgeY = document.getElementById('summary-badge-year');
+      const badgeP = document.getElementById('summary-badge-period');
+      if (badgeY) badgeY.textContent = fy;
+      if (badgeP) badgeP.textContent = period === 'all' ? 'ทุกงวดทั้งปี' : period;
+
+      const monthDefs = [
+        { key: '10', name: 'ตุลาคม', q: 'ไตรมาส 1' },
+        { key: '11', name: 'พฤศจิกายน', q: 'ไตรมาส 1' },
+        { key: '12', name: 'ธันวาคม', q: 'ไตรมาส 1' },
+        { key: '01', name: 'มกราคม', q: 'ไตรมาส 2' },
+        { key: '02', name: 'กุมภาพันธ์', q: 'ไตรมาส 2' },
+        { key: '03', name: 'มีนาคม', q: 'ไตรมาส 2' },
+        { key: '04', name: 'เมษายน', q: 'ไตรมาส 3' },
+        { key: '05', name: 'พฤษภาคม', q: 'ไตรมาส 3' },
+        { key: '06', name: 'มิถุนายน', q: 'ไตรมาส 3' },
+        { key: '07', name: 'กรกฎาคม', q: 'ไตรมาส 4' },
+        { key: '08', name: 'สิงหาคม', q: 'ไตรมาส 4' },
+        { key: '09', name: 'กันยายน', q: 'ไตรมาส 4' }
+      ];
+
+      const monthMatch = monthDefs.find(m => m.name === period);
+      const isQuarter = ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].includes(period);
+
+      let depts = sheetData.departments || [];
+      if (currentUser && (currentUser.role === 'auditor' || currentUser.role === 'supervisor')) {
+        depts = depts.filter(d => {
+          const aud = findAuditorRecord(d.auditor);
+          return aud && aud.group === currentUser.group;
+        });
+      }
+
+      const slots = [];
+      depts.forEach(d => {
+        const isQDept = (d.cycle === 'รายไตรมาส');
+        if (monthMatch) {
+          // Single month: monthly departments have a budget in this month
+          if (!isQDept) {
+            slots.push({ dept: d, pLabel: monthMatch.name, mKey: monthMatch.key, isQSlot: false, qName: '' });
+          }
+        } else if (isQuarter) {
+          // Specific quarter: monthly depts have 3 budgets, quarterly dept has 1
+          const qMonths = monthDefs.filter(m => m.q === period);
+          if (!isQDept) {
+            qMonths.forEach(qm => {
+              slots.push({ dept: d, pLabel: qm.name, mKey: qm.key, isQSlot: false, qName: '' });
+            });
+          } else {
+            slots.push({ dept: d, pLabel: period, mKey: qMonths[qMonths.length - 1].key, isQSlot: true, qName: period });
+          }
+        } else if (period === 'all') {
+          // All year: monthly depts have 12 budgets, quarterly dept has 4
+          if (!isQDept) {
+            monthDefs.forEach(m => {
+              slots.push({ dept: d, pLabel: m.name, mKey: m.key, isQSlot: false, qName: '' });
+            });
+          } else {
+            ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].forEach(q => {
+              slots.push({ dept: d, pLabel: q, mKey: '', isQSlot: true, qName: q });
+            });
+          }
+        }
+      });
+
+      const tracksFY = (sheetData.trackingList || []).filter(t => (t.fiscalYear || '').toString().trim() === fy);
+
+      let cApproved = 0; // 2. ผอ.เห็นชอบ / เสนออธิการบดี (code 5, 6)
+      let cEdit = 0;     // 3. อยู่ระหว่างแก้ไข (code 4)
+      let cDean = 0;     // 4. อยู่ระหว่างเสนอ ผอ. (code 3)
+      let cProgress = 0; // 5. อยู่ระหว่างดำเนินการ (code 2)
+      let cWait = 0;     // 6. รอเอกสาร (code 1)
+
+      const listTotal = [];
+      const listApproved = [];
+      const listEditing = [];
+      const listDean = [];
+      const listProgress = [];
+      const listWaiting = [];
+
+      slots.forEach(slot => {
+        let matching = null;
+        for (let i = 0; i < tracksFY.length; i++) {
+          const t = tracksFY[i];
+          if (t.department !== slot.dept.name) continue;
+          if (slot.isQSlot) {
+            if (isTrackMatchMonth(t, slot.mKey, true, true, slot.qName)) {
+              matching = t;
+              break;
+            }
+          } else {
+            if (isTrackMatchMonth(t, slot.mKey, false, false, '')) {
+              matching = t;
+              break;
+            }
+          }
+        }
+
+        const st = getStatusRule(matching);
+        const editStats = matching && matching.trackingId ? computeEditStatsForTracking(matching.trackingId) : { editCount: 0, totalDays: 0 };
+        const itemInfo = {
+          deptName: slot.dept.name,
+          cycle: slot.dept.cycle,
+          auditor: slot.dept.auditor,
+          period: slot.pLabel,
+          fiscalYear: fy,
+          dateReceived: matching ? (formatInputDate(matching.dateAuditorReceived || matching.dateReceivedFromDept) || '-') : '-',
+          editCount: editStats.editCount,
+          status: st
+        };
+
+        listTotal.push(itemInfo);
+
+        if (st.code === 5 || st.code === 6) {
+          cApproved++;
+          listApproved.push(itemInfo);
+        } else if (st.code === 4) {
+          cEdit++;
+          listEditing.push(itemInfo);
+        } else if (st.code === 3) {
+          cDean++;
+          listDean.push(itemInfo);
+        } else if (st.code === 2) {
+          cProgress++;
+          listProgress.push(itemInfo);
+        } else {
+          cWait++;
+          listWaiting.push(itemInfo);
+        }
+      });
+
+      monthlySummaryModalData = {
+        total: listTotal,
+        approved: listApproved,
+        editing: listEditing,
+        dean: listDean,
+        progress: listProgress,
+        waiting: listWaiting
+      };
+
+      const total = slots.length;
+      const sumStatuses = cApproved + cEdit + cDean + cProgress + cWait;
+
+      // Update counters
+      const elTotal = document.getElementById('summary-total-budgets');
+      const elApprove = document.getElementById('summary-approved-count');
+      const elEdit = document.getElementById('summary-editing-count');
+      const elDean = document.getElementById('summary-dean-count');
+      const elProg = document.getElementById('summary-progress-count');
+      const elWait = document.getElementById('summary-waiting-count');
+
+      if (elTotal) elTotal.textContent = total;
+      if (elApprove) elApprove.textContent = cApproved;
+      if (elEdit) elEdit.textContent = cEdit;
+      if (elDean) elDean.textContent = cDean;
+      if (elProg) elProg.textContent = cProgress;
+      if (elWait) elWait.textContent = cWait;
+
+      // Update percentages
+      const calcPct = (cnt) => total > 0 ? ((cnt / total) * 100).toFixed(1) : '0.0';
+      const pctApprove = calcPct(cApproved);
+      const pctEdit = calcPct(cEdit);
+      const pctDean = calcPct(cDean);
+      const pctProg = calcPct(cProgress);
+      const pctWait = calcPct(cWait);
+
+      const elPctApprove = document.getElementById('summary-approved-pct');
+      const elPctEdit = document.getElementById('summary-editing-pct');
+      const elPctDean = document.getElementById('summary-dean-pct');
+      const elPctProg = document.getElementById('summary-progress-pct');
+      const elPctWait = document.getElementById('summary-waiting-pct');
+
+      if (elPctApprove) elPctApprove.textContent = `${pctApprove}%`;
+      if (elPctEdit) elPctEdit.textContent = `${pctEdit}%`;
+      if (elPctDean) elPctDean.textContent = `${pctDean}%`;
+      if (elPctProg) elPctProg.textContent = `${pctProg}%`;
+      if (elPctWait) elPctWait.textContent = `${pctWait}%`;
+
+      // Update Progress Bar
+      const barApprove = document.getElementById('summary-bar-approved');
+      const barEdit = document.getElementById('summary-bar-editing');
+      const barDean = document.getElementById('summary-bar-dean');
+      const barProg = document.getElementById('summary-bar-progress');
+      const barWait = document.getElementById('summary-bar-waiting');
+
+      if (barApprove) { barApprove.style.width = `${pctApprove}%`; barApprove.title = `2. ผอ.เห็นชอบ: ${cApproved} (${pctApprove}%)`; }
+      if (barEdit) { barEdit.style.width = `${pctEdit}%`; barEdit.title = `3. อยู่ระหว่างแก้ไข: ${cEdit} (${pctEdit}%)`; }
+      if (barDean) { barDean.style.width = `${pctDean}%`; barDean.title = `4. อยู่ระหว่างเสนอ ผอ.: ${cDean} (${pctDean}%)`; }
+      if (barProg) { barProg.style.width = `${pctProg}%`; barProg.title = `5. อยู่ระหว่างดำเนินการ: ${cProgress} (${pctProg}%)`; }
+      if (barWait) { barWait.style.width = `${pctWait}%`; barWait.title = `6. รอเอกสาร: ${cWait} (${pctWait}%)`; }
+
+      const verifyLabel = document.getElementById('summary-verify-label');
+      if (verifyLabel) {
+        verifyLabel.innerHTML = `รวมข้อ 2 - 6 = <span class="text-brand-600 font-extrabold">${sumStatuses}</span> / ${total} งบ (100.0%)`;
+      }
+    }
+
     function renderFinanceMatrix() {
+      renderMonthlyFinanceSummaryCard();
       const tbody = document.getElementById('finance-matrix-body');
       if (!tbody) return;
       tbody.innerHTML = '';
