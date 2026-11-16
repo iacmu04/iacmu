@@ -642,66 +642,7 @@
 
       </div>
 
-      <!-- SECTION 3: Multi-tab Individual Details Table (Full Width) -->
-      <div class="w-full bg-white rounded-2xl p-5 card-shadow border border-slate-100">
-        
-        <!-- Tab Buttons & Actions -->
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
-            <button id="tab-btn-fin" onclick="switchDetailTab('fin')" 
-              class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all bg-brand-500 text-white shadow-sm">
-              รายงานงบการเงิน
-            </button>
-            <button id="tab-btn-train" onclick="switchDetailTab('train')" 
-              class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-brand-600">
-              ประวัติการอบรม
-            </button>
-            <button id="tab-btn-pay" onclick="switchDetailTab('pay')" 
-              class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-brand-600 flex items-center gap-1">
-              <span>🔒 เงินเดือน</span>
-              <span id="tab-pay-badge" class="text-[9px] bg-purple-200 text-purple-800 px-1.5 py-0.2 rounded-full">Dean/Admin</span>
-            </button>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button onclick="exportTableToCSV()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-              <span>Export CSV</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Table Container -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="text-slate-400 font-semibold border-b border-slate-100">
-              <tr id="table-dynamic-headers">
-                <th class="py-2.5 px-3">TRANSACTION DATE</th>
-                <th class="py-2.5 px-3">NAME PERSON</th>
-                <th class="py-2.5 px-3">AMOUNT</th>
-                <th class="py-2.5 px-3">CATEGORY</th>
-                <th class="py-2.5 px-3">NOTE</th>
-                <th class="py-2.5 px-3 text-right">ACTION</th>
-              </tr>
-            </thead>
-            <tbody id="table-dynamic-body" class="divide-y divide-slate-50">
-              <!-- Populated dynamically via JS -->
-            </tbody>
-          </table>
-        </div>
-
-        <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-100 mt-2">
-          <span id="table-row-count">แสดงรายการ</span>
-          <div class="flex items-center gap-2">
-            <button class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600">‹ ก่อนหน้า</button>
-            <span class="font-medium text-slate-700">1</span>
-            <button class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600">ถัดไป ›</button>
-          </div>
-        </div>
-
-      </div>
-
-    </main>
+</main>
 
     <!-- VIEW 2: FINANCE REPORT PAGE (ซ้าย: ตัวกรอง + ตารางติดตาม / ขวา: การ์ดสถานะ 4 ใบ, มือถือเรียงคอลัมน์เดียว) -->
     <main id="view-finance" class="p-3 sm:p-4 pt-2 hidden">
@@ -959,7 +900,7 @@
             <button onclick="resetBudgetFilters()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
               รีเซ็ตตัวกรอง
             </button>
-            <button onclick="openExpenseModal('add')" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5">
+            <button id="btn-budget-add-expense" onclick="openExpenseModal('add')" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5">
               <span>+</span> เพิ่มค่าใช้จ่าย
             </button>
           </div>
@@ -1060,7 +1001,7 @@
       </div>
 
       <!-- Table 2: รายละเอียดการเบิกจ่าย ปีงบประมาณ .... (ตัวกรองแยกอิสระ) -->
-      <div class="bg-white rounded-2xl p-5 card-shadow border border-slate-100 space-y-4">
+      <div id="budget-expense-section" class="bg-white rounded-2xl p-5 card-shadow border border-slate-100 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 class="text-sm font-bold text-slate-800">รายละเอียดการเบิกจ่าย ปีงบประมาณ <span id="expense-table-title-year">2570</span></h3>
@@ -1810,6 +1751,30 @@
         return { ...normalizeYearPair(y), month: m, day: d };
       }
 
+      // Thai text format: e.g. "12 สิงหาคม 2569", "1 มกราคม 2570", "12 ส.ค. 2569"
+      const thMatch = str.match(/^(\d{1,2})\s+([^\d\s]+)\s+(\d{4})$/);
+      if (thMatch) {
+        const d = parseInt(thMatch[1], 10);
+        const mName = thMatch[2].trim();
+        const y = parseInt(thMatch[3], 10);
+        const THAI_MONTHS_MAP = {
+          'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
+          'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12,
+          'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6,
+          'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12,
+          'ม.ค': 1, 'ก.พ': 2, 'มี.ค': 3, 'เม.ย': 4, 'พ.ค': 5, 'มิ.ย': 6,
+          'ก.ค': 7, 'ส.ค': 8, 'ก.ย': 9, 'ต.ค': 10, 'พ.ย': 11, 'ธ.ค': 12
+        };
+        let m = THAI_MONTHS_MAP[mName];
+        if (!m) {
+          const matchKey = Object.keys(THAI_MONTHS_MAP).find(k => mName.includes(k) || k.includes(mName));
+          if (matchKey) m = THAI_MONTHS_MAP[matchKey];
+        }
+        if (m) {
+          return { ...normalizeYearPair(y), month: m, day: d };
+        }
+      }
+
       // YYYY-MM-DD
       if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(str)) {
         const parts = str.split('-');
@@ -1864,6 +1829,7 @@
 
     function isHoliday(day, monthIndex, yearBE) {
       const monthNum = monthIndex + 1;
+      const yearCE = yearBE > 2400 ? yearBE - 543 : yearBE;
       const monthNames = [
         'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
         'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
@@ -1871,20 +1837,19 @@
       const thMonthName = monthNames[monthIndex];
 
       return (sheetData.holidays || []).find(h => {
-        if (h.year && h.year !== '') {
-          const yVal = parseInt(h.year, 10);
-          if (!isNaN(yVal)) {
-            if (yVal !== yearBE && yVal !== (yearBE - 543)) return false;
-          }
-        }
         if (h.day !== day) return false;
+        if (h.yearBE && h.yearBE !== yearBE && h.yearCE !== yearCE) return false;
         if (h.month) {
-          const mStr = h.month.toString().trim();
-          const mNum = parseInt(mStr, 10);
-          if (!isNaN(mNum)) {
-            if (mNum !== monthNum) return false;
+          if (typeof h.month === 'number') {
+            if (h.month !== monthNum) return false;
           } else {
-            if (!mStr.includes(thMonthName) && !thMonthName.includes(mStr)) return false;
+            const mStr = h.month.toString().trim();
+            const mNum = parseInt(mStr, 10);
+            if (!isNaN(mNum)) {
+              if (mNum !== monthNum) return false;
+            } else if (!mStr.includes(thMonthName) && !thMonthName.includes(mStr)) {
+              return false;
+            }
           }
         }
         return true;
@@ -1986,6 +1951,7 @@
       updateRoleUI();
       renderAttendanceList();
       renderFinanceMatrix();
+      updateBudgetPermissionsUI();
       renderRecentFinanceTable();
     }
 
@@ -2134,16 +2100,35 @@
         });
 
         // 6. Holiday (วันหยุดนักขัตฤกษ์)
-        // Cols: A:ปี, B:เดือน, C:วันที่, D:วันหยุดอะไร
+        // รองรับทั้งโครงสร้างใหม่ 2 คอลัมน์ (A: วันเดือนปี เช่น '12 สิงหาคม 2569', B: รายการ)
+        // และโครงสร้างเดิม 4 คอลัมน์ (A: ปี, B: เดือน, C: วันที่, D: รายการ)
         const holidays = [];
         holRows.forEach(r => {
-          if (r[0] && r[0] !== 'ปี') {
+          const col0 = (r[0] || '').toString().trim();
+          if (!col0 || col0 === 'วันที่' || col0 === 'ปี') return;
+
+          if (r.length >= 4 && r[2] && !isNaN(parseInt(r[2], 10)) && parseInt(r[0], 10) > 2000) {
+            const y = parseInt(r[0], 10);
+            const yrs = normalizeYearPair(y);
             holidays.push({
-              year: (r[0] || '').toString().trim(),
-              month: (r[1] || '').toString().trim(),
+              yearBE: yrs.yearBE,
+              yearCE: yrs.yearCE,
+              month: parseInt(r[1], 10) || 0,
+              monthName: (r[1] || '').toString().trim(),
               day: parseInt(r[2], 10) || 0,
               reason: (r[3] || '').toString().trim()
             });
+          } else {
+            const parsed = parseDateComponents(col0);
+            if (parsed) {
+              holidays.push({
+                yearBE: parsed.yearBE,
+                yearCE: parsed.yearCE,
+                month: parsed.month,
+                day: parsed.day,
+                reason: (r[1] || '').toString().trim()
+              });
+            }
           }
         });
 
@@ -2521,17 +2506,16 @@
           // วันเสาร์อาทิตย์: ไม่ต้องแสดงจำนวนคนเข้า office ให้เป็นช่องว่าง
           attendanceBadges = '';
         } else if (holiday) {
-          // วันหยุดนักขัตฤกษ์: ไม่ต้องแสดงจำนวนคนเข้า office
+          // วันหยุดนักขัตฤกษ์: ไม่ต้องแสดงจำนวนคนมาทำงาน ให้เป็นช่องว่างเหมือนวันหยุดเสาร์อาทิตย์ เพื่อให้รู้ว่าเป็นวันหยุด
+          // และแสดงชื่อวันหยุดชัดเจนในกล่องสีแดง/กุหลาบ
           attendanceBadges = `
-            <div class="mt-1 text-[9px] text-red-500 font-medium truncate" title="${holiday.reason}">
+            <div class="mt-1 text-[9px] text-rose-600 font-semibold truncate leading-tight bg-rose-50/90 px-1 py-0.5 rounded border border-rose-200" title="${holiday.reason || 'วันหยุด'}">
               🎌 ${holiday.reason || 'วันหยุด'}
             </div>
           `;
         } else {
           // วันทำงานปกติ: สันนิษฐานเบื้องต้นเข้า Office ทั้งหมด (16 คน)
-          // หักลบคนที่ Col D ไม่ใช่ "เข้า Office"
           const dayDateObj = { yearBE: currentCalendarYear, yearCE: yearCE, month: currentCalendarMonth + 1, day: day };
-          
           const dayOffices = sheetData.officeList.filter(o => isSameDay(o.date, dayDateObj));
 
           const nonOfficeAmUsers = new Set();
@@ -2552,7 +2536,6 @@
           const officeAm = Math.max(0, totalAuditors - nonOfficeAmUsers.size);
           const officePm = Math.max(0, totalAuditors - nonOfficePmUsers.size);
 
-          // หากคนมาไม่ครบ ให้เปลี่ยนจากแถบสีม่วงเป็นสีเหลืองอมส้ม
           const amBadgeClass = officeAm < totalAuditors
             ? 'bg-amber-100 text-amber-800 border border-amber-200'
             : 'bg-purple-100 text-brand-700';
@@ -2568,21 +2551,67 @@
           `;
         }
 
-        let borderClasses = 'border-slate-100 hover:border-brand-300';
-        if (isSelected) {
-          borderClasses = 'border-brand-500 bg-brand-50/60 ring-2 ring-brand-500/50 shadow-sm';
+        // ความแตกต่างระหว่าง "วันที่ปัจจุบัน (Today)" กับ "วันที่คลิกเลือก (Selected)"
+        let borderClasses = 'border-slate-100 hover:border-brand-300 bg-white';
+        let dayHeaderHtml = '';
+
+        if (isToday && isSelected) {
+          // วันที่ปัจจุบัน และถูกคลิกเลือกอยู่ด้วย: ได้ทั้งป้าย "วันนี้" และกรอบเน้น Selection
+          borderClasses = 'border-2 border-brand-600 ring-2 ring-indigo-500 ring-offset-1 bg-purple-50/70 shadow-md';
+          dayHeaderHtml = `
+            <div class="flex items-center justify-between w-full">
+              <span class="w-5 h-5 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-[10px] shadow-xs">${day}</span>
+              <span class="text-[9px] font-extrabold text-brand-700 bg-brand-100 px-1.5 py-0.2 rounded-full border border-brand-200">วันนี้</span>
+            </div>
+          `;
         } else if (isToday) {
-          borderClasses = 'border-brand-400 bg-purple-50/30 ring-1 ring-brand-400';
+          // วันที่ปัจจุบัน: เด่นชัดด้วยกรอบสีม่วงสด ป้าย "วันนี้" และตัวเลขในวงกลมม่วง
+          borderClasses = 'border-2 border-brand-500 bg-brand-50/50 shadow-xs';
+          dayHeaderHtml = `
+            <div class="flex items-center justify-between w-full">
+              <span class="w-5 h-5 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-[10px] shadow-xs">${day}</span>
+              <span class="text-[9px] font-extrabold text-brand-700 bg-brand-100 px-1.5 py-0.2 rounded-full border border-brand-200">วันนี้</span>
+            </div>
+          `;
+        } else if (isSelected) {
+          // วันที่คลิกเลือก (ไม่ใช่วันนี้): กรอบสีน้ำเงินครามเข้ม หนา 2 ชั้น ring-2 ชัดเจน แตกต่างจากสีม่วงของวันนี้
+          borderClasses = 'border-2 border-indigo-600 ring-2 ring-indigo-500/40 bg-indigo-50/40 shadow-md';
+          dayHeaderHtml = `
+            <div class="flex items-center justify-between w-full">
+              <span class="font-extrabold text-indigo-900 text-[11px]">${day}</span>
+              <span class="w-2 h-2 rounded-full bg-indigo-600 shadow-xs" title="วันที่เลือกดู"></span>
+            </div>
+          `;
+        } else if (holiday) {
+          // วันหยุดนักขัตฤกษ์: กรอบและพื้นหลังสีระเรื่ออ่อน ตัวเลขสีแดง
+          borderClasses = 'border-rose-200 bg-rose-50/30';
+          dayHeaderHtml = `
+            <div class="flex items-center justify-between w-full">
+              <span class="font-bold text-rose-500 text-[11px]">${day}</span>
+              <span class="text-[8.5px] font-bold text-rose-500">วันหยุด</span>
+            </div>
+          `;
         } else if (isWeekend) {
+          // เสาร์-อาทิตย์: สีเทาจาง
           borderClasses = 'border-slate-100 bg-slate-50/50';
+          dayHeaderHtml = `
+            <div class="flex items-center justify-between w-full">
+              <span class="font-bold text-slate-400 text-[11px]">${day}</span>
+            </div>
+          `;
+        } else {
+          // วันธรรมดาปกติ
+          borderClasses = 'border-slate-100 hover:border-brand-300 bg-white';
+          dayHeaderHtml = `
+            <div class="flex items-center justify-between w-full">
+              <span class="font-bold text-slate-700 text-[11px]">${day}</span>
+            </div>
+          `;
         }
 
         container.innerHTML += `
           <div onclick="onSelectCalendarDate(${day})" class="p-1.5 border ${borderClasses} rounded-xl transition-all min-h-[58px] cursor-pointer flex flex-col justify-between select-none">
-            <div class="flex items-center justify-between">
-              <span class="font-bold ${isWeekend ? 'text-slate-400' : 'text-slate-700'} text-[11px]">${day}</span>
-              ${isToday ? '<span class="w-1.5 h-1.5 rounded-full bg-brand-500" title="วันนี้"></span>' : ''}
-            </div>
+            ${dayHeaderHtml}
             ${attendanceBadges}
           </div>
         `;
@@ -4399,9 +4428,44 @@
       renderExpenseDetailTable();
     }
 
+        // -------------------------------------------------------------
+    // BUDGET PERMISSIONS & ACCESS CONTROL (ชีท ผู้ตรวจสอบ คอลัมน์ E)
+    // -------------------------------------------------------------
+    function canManageBudgetExpenses() {
+      if (!currentUser) return false;
+      const grp = (currentUser.group || '').trim();
+      const role = (currentUser.role || '').trim().toLowerCase();
+
+      // สิทธิ์: เฉพาะพนักงานในกลุ่ม "งานบริหารและธุรการ" และ "ผู้อำนวยการ" (ชีท ผู้ตรวจสอบ คอลัมน์ E)
+      if (grp.includes('งานบริหารและธุรการ') || grp.includes('ผู้อำนวยการ')) {
+        return true;
+      }
+      if (role === 'dean' || role === 'admin') {
+        return true;
+      }
+      return false;
+    }
+
+    function updateBudgetPermissionsUI() {
+      const allowed = canManageBudgetExpenses();
+      const expSection = document.getElementById('budget-expense-section');
+      if (expSection) {
+        if (allowed) expSection.classList.remove('hidden');
+        else expSection.classList.add('hidden');
+      }
+      const addBtnTop = document.getElementById('btn-budget-add-expense');
+      if (addBtnTop) {
+        if (allowed) addBtnTop.classList.remove('hidden');
+        else addBtnTop.classList.add('hidden');
+      }
+    }
+
     function renderBudgetView() {
+      updateBudgetPermissionsUI();
       renderBudgetOverviewSection();
-      renderExpenseDetailTable();
+      if (canManageBudgetExpenses()) {
+        renderExpenseDetailTable();
+      }
     }
 
     function renderBudgetOverviewSection() {
@@ -4651,6 +4715,10 @@
     }
 
     function openExpenseModal(mode, expIndex = -1) {
+      if (!canManageBudgetExpenses()) {
+        alert('ขออภัย คุณไม่มีสิทธิ์จัดการข้อมูลค่าใช้จ่าย (เฉพาะบุคลากรกลุ่มงานบริหารและธุรการ และผู้อำนวยการเท่านั้น)');
+        return;
+      }
       const modal = document.getElementById('expense-modal');
       if (!modal) return;
       const currentFY = document.getElementById('exp-filter-year')?.value || getCurrentThaiFiscalYearBE();
@@ -4713,6 +4781,10 @@
 
     async function saveExpenseRecord(event) {
       event.preventDefault();
+      if (!canManageBudgetExpenses()) {
+        alert('ขออภัย คุณไม่มีสิทธิ์บันทึกข้อมูลค่าใช้จ่าย');
+        return;
+      }
       const codeVal = document.getElementById('exp-modal-code').value.trim();
       if (!codeVal) {
         alert('กรุณาเลือกรหัสงบประมาณจากชีท Budget ก่อนบันทึก');
@@ -4782,6 +4854,10 @@
     }
 
     async function deleteExpenseRecord(expIndex) {
+      if (!canManageBudgetExpenses()) {
+        alert('ขออภัย คุณไม่มีสิทธิ์ลบข้อมูลค่าใช้จ่าย');
+        return;
+      }
       const target = sheetData.expenses[expIndex];
       if (!target) return;
       if (!confirm(`ต้องการลบรายการ "${target.item}" (${formatMoney2(target.amount)} บาท) ใช่หรือไม่?`)) return;
@@ -4843,140 +4919,6 @@
           plugins: { legend: { display: false } }
         }
       });
-    }
-
-    const DETAIL_RECORDS = {
-      fin: [
-        { date: '21/01/2568 • 12:22 น.', person: 'Billie McCalister', amount: '฿7,200.00', cat: 'Expend', note: 'Phone Repair', status: 'Approved' },
-        { date: '21/01/2568 • 09:22 น.', person: 'Alexandria Mora', amount: '฿3,500.00', cat: 'Income', note: 'Investment', status: 'Completed' },
-        { date: '21/01/2568 • 08:30 น.', person: 'Tamara Lee', amount: '฿16,000.00', cat: 'Income', note: 'Freelance Job', status: 'Completed' }
-      ],
-      train: [
-        { date: '15/01/2568 • 09:00 น.', person: 'เพลินพิศ (เพลิน)', amount: '6 ชม.', cat: 'อบรมวิชาชีพ', note: 'มาตรฐาน IIA 2025', status: 'ผ่านการอบรม' },
-        { date: '10/01/2568 • 13:30 น.', person: 'กิมจิ', amount: '3 ชม.', cat: 'สัมมนา', note: 'การตรวจสอบไซเบอร์', status: 'ผ่านการอบรม' }
-      ],
-      pay: [
-        { date: '25/01/2568', person: 'ผอ. หยก', amount: '฿85,000.00', cat: 'เงินเดือน', note: 'เงินเดือน + ค่าตอบแทน', status: 'โอนสำเร็จ' },
-        { date: '25/01/2568', person: 'เพลินพิศ (เพลิน)', amount: '฿42,500.00', cat: 'เงินเดือน', note: 'เงินเดือน ม.ค. 2568', status: 'โอนสำเร็จ' }
-      ]
-    };
-
-    function switchDetailTab(tabKey) {
-      if (tabKey === 'pay' && currentUser && currentUser.role !== 'dean' && currentUser.role !== 'admin') {
-        alert('เฉพาะผู้บริหาร (Dean) และ Admin เท่านั้นที่สามารถดูแท็บเงินเดือนได้');
-        return;
-      }
-
-      activeDetailTab = tabKey;
-      ['fin', 'train', 'pay'].forEach(k => {
-        const btn = document.getElementById(`tab-btn-${k}`);
-        if (btn) {
-          btn.classList.remove('bg-brand-500', 'text-white', 'shadow-sm');
-          btn.classList.add('text-slate-600');
-        }
-      });
-
-      const active = document.getElementById(`tab-btn-${tabKey}`);
-      if (active) {
-        active.classList.remove('text-slate-600');
-        active.classList.add('bg-brand-500', 'text-white', 'shadow-sm');
-      }
-
-      renderDetailTable();
-    }
-
-    function renderDetailTable() {
-      const headers = document.getElementById('table-dynamic-headers');
-      const body = document.getElementById('table-dynamic-body');
-      const countLabel = document.getElementById('table-row-count');
-      if (!headers || !body) return;
-
-      const data = DETAIL_RECORDS[activeDetailTab] || [];
-      if (countLabel) countLabel.textContent = `แสดง ${data.length} รายการ`;
-      body.innerHTML = '';
-
-      if (activeDetailTab === 'fin') {
-        headers.innerHTML = `
-          <th class="py-2.5 px-3">TRANSACTION DATE</th>
-          <th class="py-2.5 px-3">NAME PERSON</th>
-          <th class="py-2.5 px-3">AMOUNT</th>
-          <th class="py-2.5 px-3">CATEGORY</th>
-          <th class="py-2.5 px-3">NOTE</th>
-          <th class="py-2.5 px-3 text-right">ACTION</th>
-        `;
-        data.forEach(r => {
-          body.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-all">
-              <td class="py-3 px-3 text-slate-500">${r.date}</td>
-              <td class="py-3 px-3 font-semibold text-slate-800">${r.person}</td>
-              <td class="py-3 px-3 font-bold text-slate-800">${r.amount}</td>
-              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-medium ${r.cat === 'Income' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}">${r.cat}</span></td>
-              <td class="py-3 px-3 text-slate-600">${r.note}</td>
-              <td class="py-3 px-3 text-right text-slate-400 hover:text-slate-700 cursor-pointer">•••</td>
-            </tr>
-          `;
-        });
-      } else if (activeDetailTab === 'train') {
-        headers.innerHTML = `
-          <th class="py-2.5 px-3">วันที่จัดอบรม</th>
-          <th class="py-2.5 px-3">ชื่อบุคลากร</th>
-          <th class="py-2.5 px-3">ชั่วโมงสะสม</th>
-          <th class="py-2.5 px-3">ประเภทหลักสูตร</th>
-          <th class="py-2.5 px-3">ชื่อหลักสูตร / หัวข้อ</th>
-          <th class="py-2.5 px-3 text-right">สถานะ</th>
-        `;
-        data.forEach(r => {
-          body.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-all">
-              <td class="py-3 px-3 text-slate-500">${r.date}</td>
-              <td class="py-3 px-3 font-semibold text-slate-800">${r.person}</td>
-              <td class="py-3 px-3 font-bold text-brand-700">${r.amount}</td>
-              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-50 text-brand-700">${r.cat}</span></td>
-              <td class="py-3 px-3 text-slate-600">${r.note}</td>
-              <td class="py-3 px-3 text-right"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${r.status}</span></td>
-            </tr>
-          `;
-        });
-      } else if (activeDetailTab === 'pay') {
-        headers.innerHTML = `
-          <th class="py-2.5 px-3">งวดโอนเงิน</th>
-          <th class="py-2.5 px-3">ชื่อ-สกุล บุคลากร</th>
-          <th class="py-2.5 px-3">ยอดเงินสุทธิ</th>
-          <th class="py-2.5 px-3">ประเภท</th>
-          <th class="py-2.5 px-3">คำอธิบาย</th>
-          <th class="py-2.5 px-3 text-right">สถานะโอน</th>
-        `;
-        data.forEach(r => {
-          body.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-all">
-              <td class="py-3 px-3 text-slate-500">${r.date}</td>
-              <td class="py-3 px-3 font-semibold text-slate-800">${r.person}</td>
-              <td class="py-3 px-3 font-bold text-indigo-700">${r.amount}</td>
-              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700">${r.cat}</span></td>
-              <td class="py-3 px-3 text-slate-600">${r.note}</td>
-              <td class="py-3 px-3 text-right"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${r.status}</span></td>
-            </tr>
-          `;
-        });
-      }
-    }
-
-    function exportTableToCSV() {
-      const data = DETAIL_RECORDS[activeDetailTab] || [];
-      if (data.length === 0) return alert('ไม่มีข้อมูลสำหรับส่งออก');
-      let csv = "DATA EXPORT (" + activeDetailTab.toUpperCase() + ")\n";
-      csv += Object.keys(data[0]).join(",") + "\n";
-      data.forEach(row => {
-        csv += Object.values(row).map(v => `"${v}"`).join(",") + "\n";
-      });
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `IACMU_${activeDetailTab}_export.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     }
 
     function showPendingModal() {
