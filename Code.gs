@@ -16,7 +16,11 @@ const SHEETS = {
   OFFICE: 'Office',
   HOLIDAY: 'Holiday',
   BUDGET: 'Budget',
-  EXPENSE: 'Expense'
+  EXPENSE: 'Expense',
+  COURSE: 'Course',
+  COURSEDETAIL: 'CourseDetail',
+  HRREC: 'HRRec',
+  TRAINING: 'Training'
 };
 
 /**
@@ -101,6 +105,18 @@ function doPost(e) {
     if (typeof payload.expenseData === 'string') {
       try { payload.expenseData = JSON.parse(payload.expenseData); } catch (e) {}
     }
+    if (typeof payload.trainingData === 'string') {
+      try { payload.trainingData = JSON.parse(payload.trainingData); } catch (e) {}
+    }
+    if (typeof payload.courseData === 'string') {
+      try { payload.courseData = JSON.parse(payload.courseData); } catch (e) {}
+    }
+    if (typeof payload.courseDetailData === 'string') {
+      try { payload.courseDetailData = JSON.parse(payload.courseDetailData); } catch (e) {}
+    }
+    if (typeof payload.hrData === 'string') {
+      try { payload.hrData = JSON.parse(payload.hrData); } catch (e) {}
+    }
     
     const action = payload.action;
     const result = handleApiRequest(action, payload);
@@ -162,6 +178,22 @@ function handleApiRequest(action, data) {
       return saveExpense(data.expenseData, data.email);
     case 'deleteExpense':
       return deleteExpense(data.expenseData, data.email);
+    case 'saveCourse':
+      return saveCourse(data.courseData, data.email);
+    case 'deleteCourse':
+      return deleteCourse(data.courseData, data.email);
+    case 'saveCourseDetail':
+      return saveCourseDetail(data.courseDetailData, data.email);
+    case 'deleteCourseDetail':
+      return deleteCourseDetail(data.courseDetailData, data.email);
+    case 'saveHRRec':
+      return saveHRRec(data.hrData, data.email);
+    case 'deleteHRRec':
+      return deleteHRRec(data.hrData, data.email);
+    case 'saveTraining':
+      return saveTraining(data.trainingData, data.email);
+    case 'deleteTraining':
+      return deleteTraining(data.trainingData, data.email);
     default:
       throw new Error('ไม่พบ Action ที่ระบุ: ' + action);
   }
@@ -1611,6 +1643,377 @@ function deleteExpense(expenseData, email) {
       success: true,
       deletedRow: targetRow
     };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+/* =========================================================================
+ * 9. ระบบการอบรมและพัฒนาบุคลากร (Training & Development)
+ * ========================================================================= */
+
+/**
+ * บันทึก / แก้ไขข้อมูลหลักสูตร (Sheet: Course)
+ * Cols: A:Course_ID, B:หลักสูตร, C:สถาบันรับรอง, D:ระดับ
+ */
+function saveCourse(courseData, email) {
+  if (!courseData) throw new Error('ไม่พบข้อมูลหลักสูตร (courseData)');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const ss = getSpreadsheet();
+    let sheet = ss.getSheetByName(SHEETS.COURSE);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEETS.COURSE);
+      sheet.appendRow(['Course_ID', 'หลักสูตร', 'สถาบันรับรอง', 'ระดับ']);
+    }
+
+    const courseId = (courseData.courseId || '').toString().trim();
+    const courseName = (courseData.name || '').toString().trim();
+    const institute = (courseData.institute || 'CGIA').toString().trim();
+    const level = (courseData.level || '1').toString().trim();
+
+    if (!courseName) throw new Error('กรุณาระบุชื่อหลักสูตร');
+
+    let targetRow = -1;
+    const lastRow = sheet.getLastRow();
+    if (lastRow >= 2 && courseId) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i][0] || '').toString().trim() === courseId) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    const finalCourseId = courseId || ('T' + (new Date().getFullYear() + 543) + '-' + String(lastRow >= 2 ? lastRow : 1).padStart(4, '0'));
+    const rowValues = [finalCourseId, courseName, institute, level];
+
+    if (targetRow > 1) {
+      sheet.getRange(targetRow, 1, 1, 4).setValues([rowValues]);
+    } else {
+      targetRow = lastRow + 1;
+      sheet.getRange(targetRow, 1, 1, 4).setValues([rowValues]);
+    }
+
+    sheet.getRange(targetRow, 1).setNumberFormat('@');
+    sheet.getRange(targetRow, 4).setNumberFormat('@');
+
+    return { success: true, courseId: finalCourseId, rowNumber: targetRow };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * ลบหลักสูตร (Sheet: Course)
+ */
+function deleteCourse(courseData, email) {
+  if (!courseData || !courseData.courseId) throw new Error('ไม่พบรหัสหลักสูตรที่ต้องการลบ');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const ss = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEETS.COURSE);
+    if (!sheet) throw new Error('ไม่พบชีท ' + SHEETS.COURSE);
+
+    const courseId = courseData.courseId.toString().trim();
+    const lastRow = sheet.getLastRow();
+    let targetRow = -1;
+    if (lastRow >= 2) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i][0] || '').toString().trim() === courseId) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    if (targetRow < 2) throw new Error('ไม่พบหลักสูตร ' + courseId + ' ในชีท Course');
+    sheet.deleteRow(targetRow);
+    return { success: true, deletedCourseId: courseId };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * บันทึก / แก้ไขรอบการอบรม (Sheet: CourseDetail)
+ * Cols: A:Schedule_ID, B:Course_ID, C:ปีที่จัดอบรม, D:วันรับสมัคร, E:วันเดือนปีที่จัดอบรม, F:วันสอบ, G:สถานที่จัดอบรม, H:ค่าลงทะเบียน
+ */
+function saveCourseDetail(detailData, email) {
+  if (!detailData) throw new Error('ไม่พบข้อมูลรอบการอบรม (detailData)');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const ss = getSpreadsheet();
+    let sheet = ss.getSheetByName(SHEETS.COURSEDETAIL);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEETS.COURSEDETAIL);
+      sheet.appendRow(['Schedule_ID', 'Course_ID', 'ปีที่จัดอบรม', 'วันรับสมัคร', 'วันเดือนปีที่จัดอบรม', 'วันสอบ', 'สถานที่จัดอบรม', 'ค่าลงทะเบียน']);
+    }
+
+    const scheduleId = (detailData.scheduleId || '').toString().trim();
+    const courseId = (detailData.courseId || '').toString().trim();
+    const fiscalYear = (detailData.fiscalYear || '').toString().trim();
+    const applyDate = (detailData.applyDate || '').toString().trim();
+    const trainDate = (detailData.trainDate || '').toString().trim();
+    const examDate = (detailData.examDate || '').toString().trim();
+    const location = (detailData.location || '').toString().trim();
+    const fee = (detailData.fee || '').toString().trim();
+
+    if (!courseId) throw new Error('กรุณาระบุหลักสูตร');
+
+    let targetRow = -1;
+    const lastRow = sheet.getLastRow();
+    if (lastRow >= 2 && scheduleId) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i][0] || '').toString().trim() === scheduleId) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    const finalScheduleId = scheduleId || ('SCH-' + Date.now().toString().slice(-6));
+    const rowValues = [finalScheduleId, courseId, fiscalYear, applyDate, trainDate, examDate, location, fee];
+
+    if (targetRow > 1) {
+      sheet.getRange(targetRow, 1, 1, 8).setValues([rowValues]);
+    } else {
+      targetRow = lastRow + 1;
+      sheet.getRange(targetRow, 1, 1, 8).setValues([rowValues]);
+    }
+
+    sheet.getRange(targetRow, 1).setNumberFormat('@');
+    sheet.getRange(targetRow, 2).setNumberFormat('@');
+    sheet.getRange(targetRow, 3).setNumberFormat('@');
+
+    return { success: true, scheduleId: finalScheduleId, rowNumber: targetRow };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * ลบรอบการอบรม (Sheet: CourseDetail)
+ */
+function deleteCourseDetail(detailData, email) {
+  if (!detailData || !detailData.scheduleId) throw new Error('ไม่พบ Schedule_ID ที่ต้องการลบ');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const ss = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEETS.COURSEDETAIL);
+    if (!sheet) throw new Error('ไม่พบชีท ' + SHEETS.COURSEDETAIL);
+
+    const scheduleId = detailData.scheduleId.toString().trim();
+    const lastRow = sheet.getLastRow();
+    let targetRow = -1;
+    if (lastRow >= 2) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i][0] || '').toString().trim() === scheduleId) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    if (targetRow < 2) throw new Error('ไม่พบ Schedule ' + scheduleId + ' ในชีท CourseDetail');
+    sheet.deleteRow(targetRow);
+    return { success: true, deletedScheduleId: scheduleId };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * บันทึก / แก้ไขคำแนะนำหลักสูตรจาก HR (Sheet: HRRec)
+ * Cols: A:Rec_ID, B:รหัสบุคลากร, C:Course_ID, D:ปีงบประมาณ, E:หมายเหตุ/เหตุผลจาก HR
+ */
+function saveHRRec(hrData, email) {
+  if (!hrData) throw new Error('ไม่พบข้อมูลคำแนะนำ HR (hrData)');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const ss = getSpreadsheet();
+    let sheet = ss.getSheetByName(SHEETS.HRREC);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEETS.HRREC);
+      sheet.appendRow(['Rec_ID', 'รหัสบุคลากร', 'Course_ID', 'ปีงบประมาณ', 'หมายเหตุ/เหตุผลจาก HR']);
+    }
+
+    const recId = (hrData.recId || '').toString().trim();
+    const userCode = (hrData.userCode || '').toString().trim();
+    const courseId = (hrData.courseId || '').toString().trim();
+    const fiscalYear = (hrData.fiscalYear || '').toString().trim();
+    const note = (hrData.note || '').toString().trim();
+
+    if (!userCode || !courseId) throw new Error('กรุณาระบุบุคลากรและหลักสูตร');
+
+    let targetRow = -1;
+    const lastRow = sheet.getLastRow();
+    if (lastRow >= 2 && recId) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i][0] || '').toString().trim() === recId) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    const finalRecId = recId || ('REC-' + Date.now().toString().slice(-6));
+    const rowValues = [finalRecId, userCode, courseId, fiscalYear, note];
+
+    if (targetRow > 1) {
+      sheet.getRange(targetRow, 1, 1, 5).setValues([rowValues]);
+    } else {
+      targetRow = lastRow + 1;
+      sheet.getRange(targetRow, 1, 1, 5).setValues([rowValues]);
+    }
+
+    sheet.getRange(targetRow, 1).setNumberFormat('@');
+    sheet.getRange(targetRow, 2).setNumberFormat('@');
+    sheet.getRange(targetRow, 3).setNumberFormat('@');
+    sheet.getRange(targetRow, 4).setNumberFormat('@');
+
+    return { success: true, recId: finalRecId, rowNumber: targetRow };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * ลบคำแนะนำหลักสูตรจาก HR (Sheet: HRRec)
+ */
+function deleteHRRec(hrData, email) {
+  if (!hrData || !hrData.recId) throw new Error('ไม่พบ Rec_ID ที่ต้องการลบ');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const ss = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEETS.HRREC);
+    if (!sheet) throw new Error('ไม่พบชีท ' + SHEETS.HRREC);
+
+    const recId = hrData.recId.toString().trim();
+    const lastRow = sheet.getLastRow();
+    let targetRow = -1;
+    if (lastRow >= 2) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i][0] || '').toString().trim() === recId) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    if (targetRow < 2) throw new Error('ไม่พบรายการคำแนะนำ ' + recId + ' ในชีท HRRec');
+    sheet.deleteRow(targetRow);
+    return { success: true, deletedRecId: recId };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * บันทึก / แก้ไขประวัติการอบรม (Sheet: Training)
+ * Cols: A:Record_ID, B:รหัสบุคลากร, C:Course_ID, D:Schedule_ID, E:วันเดือนปีที่จัดอบรม, F:ปีที่จัดอบรม, G:สถานที่จัดอบรม, H:ค่าใช้จ่ายอื่นๆ, I:ผลการอบรม, J:ลิงก์ใบประกาศนียบัตร
+ */
+function saveTraining(trainingData, email) {
+  if (!trainingData) throw new Error('ไม่พบข้อมูลประวัติการอบรม (trainingData)');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const ss = getSpreadsheet();
+    let sheet = ss.getSheetByName(SHEETS.TRAINING);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEETS.TRAINING);
+      sheet.appendRow(['Record_ID', 'รหัสบุคลากร', 'Course_ID', 'Schedule_ID', 'วันเดือนปีที่จัดอบรม', 'ปีที่จัดอบรม', 'สถานที่จัดอบรม', 'ค่าใช้จ่ายอื่นๆ', 'ผลการอบรม', 'ลิงก์ใบประกาศนียบัตร']);
+    }
+
+    const recordId = (trainingData.recordId || '').toString().trim();
+    const userCode = (trainingData.userCode || '').toString().trim();
+    const courseId = (trainingData.courseId || '').toString().trim();
+    const scheduleId = (trainingData.scheduleId || '').toString().trim();
+    const trainDate = (trainingData.trainDate || '').toString().trim();
+    const fiscalYear = (trainingData.fiscalYear || '').toString().trim();
+    const location = (trainingData.location || '').toString().trim();
+    const otherExpense = (trainingData.otherExpense || '').toString().trim();
+    const result = (trainingData.result || 'ผ่าน').toString().trim();
+    const certUrl = (trainingData.certUrl || '').toString().trim();
+
+    if (!userCode || !courseId) throw new Error('กรุณาระบุบุคลากรและหลักสูตร');
+
+    let targetRow = -1;
+    const lastRow = sheet.getLastRow();
+    if (lastRow >= 2 && recordId) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i][0] || '').toString().trim() === recordId) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    const finalRecordId = recordId || ('TRN-' + Date.now().toString().slice(-6));
+    const rowValues = [finalRecordId, userCode, courseId, scheduleId, trainDate, fiscalYear, location, otherExpense, result, certUrl];
+
+    if (targetRow > 1) {
+      sheet.getRange(targetRow, 1, 1, 10).setValues([rowValues]);
+    } else {
+      targetRow = lastRow + 1;
+      sheet.getRange(targetRow, 1, 1, 10).setValues([rowValues]);
+    }
+
+    sheet.getRange(targetRow, 1).setNumberFormat('@');
+    sheet.getRange(targetRow, 2).setNumberFormat('@');
+    sheet.getRange(targetRow, 3).setNumberFormat('@');
+    sheet.getRange(targetRow, 4).setNumberFormat('@');
+    sheet.getRange(targetRow, 6).setNumberFormat('@');
+    sheet.getRange(targetRow, 10).setNumberFormat('@');
+
+    return { success: true, recordId: finalRecordId, rowNumber: targetRow };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * ลบประวัติการอบรม (Sheet: Training)
+ */
+function deleteTraining(trainingData, email) {
+  if (!trainingData || !trainingData.recordId) throw new Error('ไม่พบ Record_ID ที่ต้องการลบ');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const ss = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEETS.TRAINING);
+    if (!sheet) throw new Error('ไม่พบชีท ' + SHEETS.TRAINING);
+
+    const recordId = trainingData.recordId.toString().trim();
+    const lastRow = sheet.getLastRow();
+    let targetRow = -1;
+    if (lastRow >= 2) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i][0] || '').toString().trim() === recordId) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    if (targetRow < 2) throw new Error('ไม่พบรายการประวัติ ' + recordId + ' ในชีท Training');
+    sheet.deleteRow(targetRow);
+    return { success: true, deletedRecordId: recordId };
   } finally {
     lock.releaseLock();
   }

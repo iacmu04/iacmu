@@ -1321,6 +1321,191 @@
       </div>
     </main>
 
+    <!-- ============================================================== -->
+    <!-- VIEW: 4. ประวัติการอบรม (Training & Development)               -->
+    <!-- ============================================================== -->
+    <main id="view-training" class="p-3 sm:p-5 space-y-5 hidden">
+      <!-- TOP SECTION: 2 Columns (Left: ภาพรวมการอบรม, Right: กำหนดการอบรม CGIA) -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+        
+        <!-- CARD 1 (Top Left, 7 cols): ตารางสรุปภาพรวมการอบรมผู้ตรวจสอบภายใน -->
+        <div class="xl:col-span-7 bg-white rounded-2xl p-5 card-shadow border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm">
+                  🎓
+                </div>
+                <div>
+                  <h2 class="text-base font-bold text-slate-800">ตารางสรุปภาพรวมการอบรมผู้ตรวจสอบภายใน</h2>
+                  <p class="text-xs text-slate-500">ผลการสอบผ่านหลักสูตรวุฒิบัตร CGIA ระดับ 1 - 3 (อ้างอิงชีท Training)</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Table Container with horizontal scroll for responsiveness -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr class="bg-brand-500 text-white divide-x divide-white/20 text-center font-bold">
+                    <th rowspan="2" class="px-3 py-3 w-36 text-center text-slate-800 bg-purple-50 font-bold border-b border-slate-200">บุคลากร</th>
+                    <th class="px-2 py-2 text-center bg-brand-600">ระดับ 1</th>
+                    <th colspan="4" class="px-2 py-2 text-center bg-brand-700">ระดับ 2</th>
+                    <th class="px-2 py-2 text-center bg-brand-800">ระดับ 3</th>
+                  </tr>
+                  <tr class="bg-purple-100/70 text-slate-700 divide-x divide-slate-200 text-center font-semibold text-[11px] border-b border-slate-200">
+                    <th class="px-2 py-2">Fundamental</th>
+                    <th class="px-2 py-2">Performance</th>
+                    <th class="px-2 py-2">Information</th>
+                    <th class="px-2 py-2">Governance</th>
+                    <th class="px-2 py-2">Financial</th>
+                    <th class="px-2 py-2">Expert</th>
+                  </tr>
+                </thead>
+                <tbody id="training-matrix-tbody" class="divide-y divide-slate-100 bg-white">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+            <span class="flex items-center gap-1.5">
+              <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓</span> ผ่านการอบรมและทดสอบ
+            </span>
+            <span id="training-matrix-count" class="font-medium text-slate-500"></span>
+          </div>
+        </div>
+
+        <!-- CARD 2 (Top Right, 5 cols): ตารางการอบรม CGIA ประจำปี -->
+        <div class="xl:col-span-5 bg-white rounded-2xl p-5 card-shadow border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl shadow-sm">
+                  📅
+                </div>
+                <div>
+                  <h2 class="text-base font-bold text-slate-800">ตารางการอบรม CGIA</h2>
+                  <p class="text-xs text-slate-500">กำหนดการรับสมัคร วันจัดอบรม และวันสอบ</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <select id="cgia-filter-year" onchange="renderCgiaScheduleTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-bold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                  <option value="2570" selected>ปี 2570</option>
+                  <option value="2569">ปี 2569</option>
+                  <option value="2568">ปี 2568</option>
+                  <option value="2567">ปี 2567</option>
+                </select>
+                <button type="button" onclick="openCourseManagementModal()" title="จัดการหลักสูตรและรอบอบรม (ชีท Course & CourseDetail)" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all">
+                  ⚙️
+                </button>
+                <button type="button" onclick="openHrRecModal()" title="HR กำหนดหลักสูตรแนะนำ (ชีท HRRec)" class="px-2.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1">
+                  ⭐ แนะนำ (HR)
+                </button>
+              </div>
+            </div>
+
+            <!-- HR Rec Highlight Explanation -->
+            <div class="mb-3 px-3 py-1.5 bg-purple-50 border border-purple-200/80 rounded-xl text-[11px] text-purple-900 flex items-center gap-2">
+              <span class="text-amber-500 text-sm">⭐</span>
+              <span><b class="text-purple-800">แถบสีม่วงเข้ม</b> = หลักสูตรที่ฝ่าย HR แนะนำสำหรับ <span id="cgia-current-user-name" class="font-bold text-brand-600">คุณ</span> ในปีงบประมาณนี้</span>
+            </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-700 border-b border-slate-200 text-center font-bold">
+                    <th class="px-3 py-2.5 text-left">หลักสูตร</th>
+                    <th class="px-2 py-2.5">ลงทะเบียน</th>
+                    <th class="px-2 py-2.5">วันอบรม</th>
+                    <th class="px-2 py-2.5">วันสอบ</th>
+                  </tr>
+                </thead>
+                <tbody id="cgia-schedule-tbody" class="divide-y divide-slate-100 bg-white">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+            <span>* คลิกปุ่ม ⚙️ เพื่อจัดการรอบอบรม หรือ ⭐ เพื่อบันทึกคำแนะนำจาก HR</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM SECTION: ตารางประวัติการอบรมบุคลากร -->
+      <div class="bg-white rounded-2xl p-5 card-shadow border border-slate-100 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-sm">
+              📚
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-slate-800">ตารางประวัติการอบรมบุคลากร</h2>
+              <p class="text-xs text-slate-500">บันทึกประวัติการอบรม ผลการทดสอบ และแนบลิงก์ใบประกาศนียบัตร (ชีท Training)</p>
+            </div>
+          </div>
+
+          <!-- Action & Filter Bar -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Filter Year -->
+            <select id="training-hist-filter-year" onchange="renderTrainingHistoryTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <option value="">-- ทุกปีงบประมาณ --</option>
+              <option value="2570">ปี 2570</option>
+              <option value="2569">ปี 2569</option>
+              <option value="2568">ปี 2568</option>
+              <option value="2567">ปี 2567</option>
+            </select>
+
+            <!-- Filter Course -->
+            <select id="training-hist-filter-course" onchange="renderTrainingHistoryTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <option value="">-- ทุกหลักสูตร --</option>
+            </select>
+
+            <!-- Filter Auditor -->
+            <select id="training-hist-filter-auditor" onchange="renderTrainingHistoryTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <option value="">-- บุคลากรทุกคน --</option>
+            </select>
+
+            <!-- Add Button -->
+            <button type="button" onclick="openTrainingRecordModal()" class="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5">
+              <span>+</span> บันทึกประวัติการอบรม
+            </button>
+          </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-purple-100/80 text-brand-900 border-b border-purple-200 text-center font-bold">
+                <th class="px-3 py-3 w-12 text-center">ลำดับ</th>
+                <th class="px-3 py-3 text-left">บุคลากร</th>
+                <th class="px-3 py-3 w-20 text-center">ปีงบประมาณ</th>
+                <th class="px-3 py-3 text-left">หลักสูตร</th>
+                <th class="px-3 py-3 text-center">สถาบันรับรอง</th>
+                <th class="px-3 py-3 text-left">วันเดือนปี / สถานที่จัดอบรม</th>
+                <th class="px-3 py-3 text-center">ผลการอบรม</th>
+                <th class="px-3 py-3 text-center">มีใบประกาศ</th>
+                <th class="px-3 py-3 text-center">ดูใบประกาศนียบัตร</th>
+                <th class="px-3 py-3 text-center w-24">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="training-hist-tbody" class="divide-y divide-slate-100 bg-white">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-500 pt-2">
+          <span id="training-hist-count">กำลังโหลดข้อมูล...</span>
+          <span>💡 สามารถคลิกปุ่ม 🔗 เพื่อเปิดดูใบประกาศนียบัตรได้โดยตรง</span>
+        </div>
+      </div>
+    </main>
+
     <!-- VIEW 3: OTHER VIEWS -->
     <main id="view-other" class="p-8 hidden flex items-center justify-center min-h-[60vh]">
       <div class="bg-white rounded-2xl p-10 card-shadow border border-slate-100 max-w-md text-center">
@@ -1961,6 +2146,313 @@
   </div>
 
   <!-- ============================================================== -->
+  <!-- MODAL: บันทึก/แก้ไขประวัติการอบรม (ชีท Training)             -->
+  <!-- ============================================================== -->
+  <div id="modal-training-record" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-6 card-shadow border border-slate-100 my-8">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📚</span>
+          <h3 id="modal-trn-title" class="text-base font-bold text-slate-800">บันทึกประวัติการอบรม (ชีท Training)</h3>
+        </div>
+        <button type="button" onclick="closeTrainingRecordModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <form id="form-training-record" onsubmit="saveTrainingRecord(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="modal-trn-record-id" value="">
+        <input type="hidden" id="modal-trn-row-num" value="">
+
+        <!-- Row 1: บุคลากร & หลักสูตร -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">บุคลากร (ผู้รับการอบรม) *</label>
+            <select id="modal-trn-auditor" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">หลักสูตร *</label>
+            <select id="modal-trn-course" onchange="onModalTrainingCourseChange()" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2: ปีงบประมาณ & เลือกรอบการอบรมจากตาราง CGIA (ถ้ามี) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">ปีที่จัดอบรม / ปีงบประมาณ *</label>
+            <input type="text" id="modal-trn-year" required placeholder="เช่น 2570, 2569" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">รอบอบรม (Schedule_ID - เลือกเพื่อกรอกวันอัตโนมัติ)</label>
+            <select id="modal-trn-schedule" onchange="onModalScheduleSelectChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <option value="">-- กำหนดวันเอง / ไม่ผูกรอบ --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 3: วันที่จัดอบรม & สถานที่จัดอบรม -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">วันเดือนปีที่จัดอบรม (Col E)</label>
+            <input type="text" id="modal-trn-date" placeholder="เช่น 16 - 20 และ 23 - 27 พ.ย. 2569" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">สถานที่จัดอบรม (Col G)</label>
+            <input type="text" id="modal-trn-location" placeholder="เช่น อบรมออนไลน์ หรือ โรงแรม..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Row 4: ค่าใช้จ่ายอื่นๆ & ผลการอบรม -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">ค่าใช้จ่ายอื่นๆ (บาท) (Col H)</label>
+            <input type="text" id="modal-trn-expense" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">ผลการอบรม / สอบ (Col I) *</label>
+            <select id="modal-trn-result" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <option value="ผ่าน" class="text-emerald-700">ผ่าน</option>
+              <option value="ไม่ผ่าน" class="text-rose-700">ไม่ผ่าน</option>
+              <option value="รอผล" class="text-amber-700">รอผล</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 5: ลิงก์ใบประกาศนียบัตร (Col J) -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ลิงก์ใบประกาศนียบัตร (Col J)</label>
+          <input type="url" id="modal-trn-cert" placeholder="https://drive.google.com/... หรือ ลิงก์ไฟล์ภาพ/PDF" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <p class="text-[11px] text-slate-400 mt-1">สามารถนำลิงก์ Google Drive หรือไฟล์ใบประกาศนียบัตรมาวาง เพื่อให้คลิกดูได้ในตาราง</p>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 mt-4">
+          <button type="button" onclick="closeTrainingRecordModal()" class="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 font-medium">ยกเลิก</button>
+          <button type="submit" id="btn-save-trn-record" class="px-5 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-semibold shadow-sm transition-all">บันทึกข้อมูล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: จัดการหลักสูตรและกำหนดการ (Course & CourseDetail)        -->
+  <!-- ============================================================== -->
+  <div id="modal-course-management" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-5 sm:p-6 card-shadow border border-slate-100 my-8">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⚙️</span>
+          <h3 class="text-base font-bold text-slate-800">จัดการหลักสูตรและรอบการอบรม CGIA</h3>
+        </div>
+        <button type="button" onclick="closeCourseManagementModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-2 border-b border-slate-200 mb-4 text-xs font-bold">
+        <button type="button" id="tab-btn-schedules" onclick="switchCourseModalTab('schedules')" class="px-4 py-2 border-b-2 border-brand-500 text-brand-600 font-bold">
+          📅 กำหนดการอบรม (ชีท CourseDetail)
+        </button>
+        <button type="button" id="tab-btn-courses" onclick="switchCourseModalTab('courses')" class="px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700">
+          🎓 รายการหลักสูตร (ชีท Course)
+        </button>
+      </div>
+
+      <!-- TAB 1: Schedules (CourseDetail) -->
+      <div id="tab-content-schedules" class="space-y-4">
+        <!-- Add schedule form -->
+        <form id="form-course-detail" onsubmit="saveCourseDetailRecord(event)" class="bg-purple-50/50 border border-purple-200 rounded-2xl p-4 text-xs space-y-3">
+          <h4 class="font-bold text-brand-900 flex items-center gap-1.5">
+            <span>+</span> เพิ่ม / แก้ไขกำหนดการรอบอบรม
+          </h4>
+          <input type="hidden" id="cd-modal-sch-id" value="">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">หลักสูตร *</label>
+              <select id="cd-modal-course-id" required class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 font-semibold focus:outline-none">
+                <!-- Course options -->
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">ปีที่จัดอบรม *</label>
+              <input type="text" id="cd-modal-year" required placeholder="เช่น 2570" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 font-medium focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">วันรับสมัคร (Col D)</label>
+              <input type="text" id="cd-modal-apply" placeholder="เช่น 5-7 ต.ค. 2569" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">วันเดือนปีที่จัดอบรม (Col E)</label>
+              <input type="text" id="cd-modal-train" placeholder="เช่น 16 - 20 และ 23 - 27 พ.ย. 2569" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">วันสอบ (Col F)</label>
+              <input type="text" id="cd-modal-exam" placeholder="เช่น 29 พ.ย. 2569" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">สถานที่จัดอบรม (Col G)</label>
+              <input type="text" id="cd-modal-location" placeholder="เช่น ออนไลน์" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none">
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="resetCourseDetailForm()" class="px-3 py-1.5 border border-slate-200 rounded-xl text-slate-600">ล้างฟอร์ม</button>
+            <button type="submit" id="btn-save-course-detail" class="px-4 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold shadow-sm">บันทึกรอบอบรม</button>
+          </div>
+        </form>
+
+        <!-- Current schedules table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-60">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 font-bold text-slate-700">
+              <tr>
+                <th class="p-2">ปี</th>
+                <th class="p-2">หลักสูตร</th>
+                <th class="p-2">วันรับสมัคร</th>
+                <th class="p-2">วันอบรม</th>
+                <th class="p-2">วันสอบ</th>
+                <th class="p-2 text-center w-20">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="modal-cd-tbody" class="divide-y divide-slate-100">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: Courses (Course) -->
+      <div id="tab-content-courses" class="space-y-4 hidden">
+        <form id="form-course-main" onsubmit="saveCourseRecord(event)" class="bg-purple-50/50 border border-purple-200 rounded-2xl p-4 text-xs space-y-3">
+          <h4 class="font-bold text-brand-900 flex items-center gap-1.5">
+            <span>+</span> เพิ่ม / แก้ไขหลักสูตร (ชีท Course)
+          </h4>
+          <input type="hidden" id="c-modal-course-id" value="">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">ชื่อหลักสูตร *</label>
+              <input type="text" id="c-modal-name" required placeholder="เช่น Fundamental, Expert" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 font-medium focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">สถาบันรับรอง *</label>
+              <input type="text" id="c-modal-institute" value="CGIA" required class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 font-medium focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">ระดับ (Level 1, 2, 3) *</label>
+              <select id="c-modal-level" required class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 font-semibold focus:outline-none">
+                <option value="1">ระดับ 1</option>
+                <option value="2">ระดับ 2</option>
+                <option value="3">ระดับ 3</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="resetCourseForm()" class="px-3 py-1.5 border border-slate-200 rounded-xl text-slate-600">ล้างฟอร์ม</button>
+            <button type="submit" id="btn-save-course" class="px-4 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold shadow-sm">บันทึกหลักสูตร</button>
+          </div>
+        </form>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-60">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 font-bold text-slate-700">
+              <tr>
+                <th class="p-2">Course_ID</th>
+                <th class="p-2">หลักสูตร</th>
+                <th class="p-2">สถาบันรับรอง</th>
+                <th class="p-2 text-center">ระดับ</th>
+                <th class="p-2 text-center w-20">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="modal-c-tbody" class="divide-y divide-slate-100">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-4 border-t border-slate-100 mt-4">
+        <button type="button" onclick="closeCourseManagementModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-medium text-xs">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: HR กำหนดหลักสูตรแนะนำ (ชีท HRRec)                    -->
+  <!-- ============================================================== -->
+  <div id="modal-hr-rec" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-5 sm:p-6 card-shadow border border-slate-100 my-8">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⭐</span>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">ฝ่าย HR กำหนดหลักสูตรแนะนำ (ชีท HRRec)</h3>
+            <p class="text-xs text-slate-500">กำหนดหลักสูตรที่บุคลากรควรเรียนในปีงบประมาณ ซึ่งจะแสดงเป็นแถบสีม่วงเข้มในตาราง CGIA</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeHrRecModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <!-- Add Recommendation Form -->
+      <form id="form-hr-rec" onsubmit="saveHrRecRecord(event)" class="bg-purple-50/60 border border-purple-200 rounded-2xl p-4 text-xs space-y-3 mb-4">
+        <h4 class="font-bold text-purple-900 flex items-center gap-1.5">
+          <span>+</span> ระบุหลักสูตรแนะนำใหม่
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">บุคลากรที่แนะนำ *</label>
+            <select id="hr-modal-auditor" required class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 font-semibold focus:outline-none">
+              <!-- Aud list -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">หลักสูตรที่แนะนำให้เรียน *</label>
+            <select id="hr-modal-course" required class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 font-semibold focus:outline-none">
+              <!-- Course list -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">ปีงบประมาณ *</label>
+            <input type="text" id="hr-modal-year" required value="2570" placeholder="2570" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 font-bold focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">หมายเหตุ / เหตุผลที่ HR แนะนำ (Col E)</label>
+          <input type="text" id="hr-modal-note" placeholder="เช่น แนะนำให้เก็บระดับ 2 เพื่อเตรียมสอบ Expert" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="submit" id="btn-save-hr-rec" class="px-4 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold shadow-sm">บันทึกคำแนะนำ</button>
+        </div>
+      </form>
+
+      <!-- Existing Recommendations Table -->
+      <div class="space-y-2">
+        <h4 class="text-xs font-bold text-slate-700">รายการที่ HR แนะนำทั้งหมดในปัจจุบัน:</h4>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-60">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 font-bold text-slate-700">
+              <tr>
+                <th class="p-2">ปีงบ</th>
+                <th class="p-2">บุคลากร</th>
+                <th class="p-2">หลักสูตรที่แนะนำ</th>
+                <th class="p-2">เหตุผล / หมายเหตุ</th>
+                <th class="p-2 text-center w-16">ลบ</th>
+              </tr>
+            </thead>
+            <tbody id="modal-hr-tbody" class="divide-y divide-slate-100">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-4 border-t border-slate-100 mt-4">
+        <button type="button" onclick="closeHrRecModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-medium text-xs">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
   <!-- 3. JAVASCRIPT LOGIC CORE (REAL-TIME SHEETS & AUTH)             -->
   <!-- ============================================================== -->
   <script>
@@ -1980,7 +2472,11 @@
       holidays: [],
       configs: { KPI_DAYS: 20 },
       budgets: [],
-      expenses: []
+      expenses: [],
+      courses: [],
+      courseDetails: [],
+      hrRecs: [],
+      trainings: []
     };
 
     const initialDateObj = new Date();
@@ -2390,7 +2886,7 @@
       if (syncIcon) syncIcon.classList.add('sync-active');
 
       try {
-        const [deptRows, audRows, trackRows, editRows, cfgRows, offRows, holRows, budgetRows, expenseRows] = await Promise.all([
+        const [deptRows, audRows, trackRows, editRows, cfgRows, offRows, holRows, budgetRows, expenseRows, courseRows, courseDetailRows, hrRecRows, trainingRows] = await Promise.all([
           fetchSheetData('ส่วนงาน').catch(e => []),
           fetchSheetData('ผู้ตรวจสอบ').catch(e => []),
           fetchSheetData('Tracking').catch(e => []),
@@ -2399,7 +2895,11 @@
           fetchSheetData('Office').catch(e => []),
           fetchSheetData('Holiday').catch(e => []),
           fetchSheetData('Budget').catch(e => []),
-          fetchSheetData('Expense').catch(e => [])
+          fetchSheetData('Expense').catch(e => []),
+          fetchSheetData('Course').catch(e => []),
+          fetchSheetData('CourseDetail').catch(e => []),
+          fetchSheetData('HRRec').catch(e => []),
+          fetchSheetData('Training').catch(e => [])
         ]);
 
         // 1. ส่วนงาน (41 ส่วนงาน)
@@ -2594,10 +3094,92 @@
           }
         });
 
-        sheetData = { departments, auditors, trackingList, editList, officeList, holidays, configs, budgets, expenses };
+        // 10. Course
+        const courses = [];
+        courseRows.forEach((r, idx) => {
+          const courseId = (r[0] || '').toString().trim();
+          if (courseId && courseId !== 'Course_ID' && !courseId.includes('Course')) {
+            courses.push({
+              sheetRow: idx + 2,
+              courseId: courseId,
+              name: (r[1] || '').toString().trim(),
+              institute: (r[2] || '').toString().trim() || 'CGIA',
+              level: (r[3] || '').toString().trim()
+            });
+          }
+        });
+        if (courses.length === 0) {
+          courses.push(
+            { courseId: 'T2569-0001', name: 'Fundamental', institute: 'CGIA', level: '1' },
+            { courseId: 'T2569-0002', name: 'Performance', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0003', name: 'Information', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0004', name: 'Governance', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0005', name: 'Financial', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0006', name: 'Expert', institute: 'CGIA', level: '3' }
+          );
+        }
+
+        // 11. CourseDetail
+        const courseDetails = [];
+        courseDetailRows.forEach((r, idx) => {
+          const scheduleId = (r[0] || '').toString().trim();
+          if (scheduleId && scheduleId !== 'Schedule_ID' && !scheduleId.includes('Schedule')) {
+            courseDetails.push({
+              sheetRow: idx + 2,
+              scheduleId: scheduleId,
+              courseId: (r[1] || '').toString().trim(),
+              fiscalYear: (r[2] || '').toString().trim(),
+              applyDate: (r[3] || '').toString().trim(),
+              trainDate: (r[4] || '').toString().trim(),
+              examDate: (r[5] || '').toString().trim(),
+              location: (r[6] || '').toString().trim(),
+              fee: (r[7] || '').toString().trim()
+            });
+          }
+        });
+
+        // 12. HRRec
+        const hrRecs = [];
+        hrRecRows.forEach((r, idx) => {
+          const recId = (r[0] || '').toString().trim();
+          if (recId && recId !== 'Rec_ID' && !recId.includes('Rec')) {
+            hrRecs.push({
+              sheetRow: idx + 2,
+              recId: recId,
+              userCode: (r[1] || '').toString().trim(),
+              courseId: (r[2] || '').toString().trim(),
+              fiscalYear: (r[3] || '').toString().trim(),
+              note: (r[4] || '').toString().trim()
+            });
+          }
+        });
+
+        // 13. Training
+        const trainings = [];
+        trainingRows.forEach((r, idx) => {
+          const recordId = (r[0] || '').toString().trim();
+          if (recordId && recordId !== 'Record_ID' && !recordId.includes('Record')) {
+            trainings.push({
+              sheetRow: idx + 2,
+              recordId: recordId,
+              userCode: (r[1] || '').toString().trim(),
+              courseId: (r[2] || '').toString().trim(),
+              scheduleId: (r[3] || '').toString().trim(),
+              trainDate: (r[4] || '').toString().trim(),
+              fiscalYear: (r[5] || '').toString().trim(),
+              location: (r[6] || '').toString().trim(),
+              otherExpense: (r[7] || '').toString().trim(),
+              result: (r[8] || '').toString().trim(),
+              certUrl: (r[9] || '').toString().trim()
+            });
+          }
+        });
+
+        sheetData = { departments, auditors, trackingList, editList, officeList, holidays, configs, budgets, expenses, courses, courseDetails, hrRecs, trainings };
 
         // Populate dropdowns & matrix & calendar
         populatePersonnelDropdowns();
+        populateTrainingFilters();
         populateDepartmentFilterDropdown();
         populateAuditorFilterDropdown();
         populateBudgetYearFilter();
@@ -2614,6 +3196,7 @@
         renderRecentFinanceTable();
         calculateSummaryKPIs();
         renderEditSummaryTable();
+        renderTrainingDashboard();
         initFlatpickr();
 
         document.getElementById('matrix-status-footer').textContent = `ดึงข้อมูลสำเร็จ: ${departments.length} ส่วนงาน (${new Date().toLocaleTimeString()} น.)`;
@@ -2710,6 +3293,8 @@
       document.getElementById('view-finance').classList.add('hidden');
       const vBudget = document.getElementById('view-budget');
       if (vBudget) vBudget.classList.add('hidden');
+      const vTraining = document.getElementById('view-training');
+      if (vTraining) vTraining.classList.add('hidden');
       document.getElementById('view-other').classList.add('hidden');
 
       if (viewName === 'home') document.getElementById('view-home').classList.remove('hidden');
@@ -2721,6 +3306,11 @@
         vBudget.classList.remove('hidden');
         populateBudgetViewFilters();
         renderBudgetView();
+      }
+      else if (viewName === 'training' && vTraining) {
+        vTraining.classList.remove('hidden');
+        populateTrainingFilters();
+        renderTrainingDashboard();
       } else {
         document.getElementById('view-other').classList.remove('hidden');
         const titles = {
@@ -6246,6 +6836,802 @@
     function showPendingModal() {
       alert('ส่วนงานที่ยังไม่ได้เสนอ ผอ. กำลังแสดงอยู่ในตารางติดตามงบการเงิน');
     }
+
+
+    /* ==============================================================
+     * 10. TRAINING & DEVELOPMENT MODULE (ชีท Course, CourseDetail, HRRec, Training)
+     * ============================================================== */
+
+    // Helper: ค้นหา Auditor จาก code หรือ name หรือ nickname
+    function findAuditor(userRef) {
+      if (!userRef) return null;
+      const ref = userRef.toString().trim().toLowerCase();
+      return (sheetData.auditors || []).find(a => 
+        (a.code || '').toLowerCase() === ref || 
+        (a.name || '').toLowerCase() === ref || 
+        (a.nickname && a.nickname.toLowerCase() === ref)
+      ) || null;
+    }
+
+    // Helper: ค้นหา Course จาก courseId หรือ name
+    function findCourse(courseRef) {
+      if (!courseRef) return null;
+      const ref = courseRef.toString().trim().toLowerCase();
+      return (sheetData.courses || []).find(c => 
+        (c.courseId || '').toLowerCase() === ref || 
+        (c.name || '').toLowerCase() === ref
+      ) || null;
+    }
+
+    function populateTrainingFilters() {
+      // 1. Populate Course Filter Dropdown in Bottom History Table
+      const cFilter = document.getElementById('training-hist-filter-course');
+      if (cFilter) {
+        const curVal = cFilter.value;
+        const cOptions = ['<option value="">-- ทุกหลักสูตร --</option>'];
+        (sheetData.courses || []).forEach(c => {
+          cOptions.push(`<option value="${c.name}">${c.name} (${c.institute} ระดับ ${c.level})</option>`);
+        });
+        cFilter.innerHTML = cOptions.join('');
+        if (curVal) cFilter.value = curVal;
+      }
+
+      // 2. Populate Auditor Filter Dropdown in Bottom History Table
+      const aFilter = document.getElementById('training-hist-filter-auditor');
+      if (aFilter) {
+        const curVal = aFilter.value;
+        const aOptions = ['<option value="">-- บุคลากรทุกคน --</option>'];
+        (sheetData.auditors || []).forEach(a => {
+          aOptions.push(`<option value="${a.code}">${a.name} (${a.group || a.position || ''})</option>`);
+        });
+        aFilter.innerHTML = aOptions.join('');
+        if (curVal) aFilter.value = curVal;
+      }
+
+      // 3. Populate Modal Dropdowns
+      const modalAud = document.getElementById('modal-trn-auditor');
+      if (modalAud) {
+        const cur = modalAud.value;
+        const opts = (sheetData.auditors || []).map(a => 
+          `<option value="${a.code}">${a.name} (${a.nickname || a.code}) - ${a.group || ''}</option>`
+        );
+        modalAud.innerHTML = opts.join('');
+        if (cur) modalAud.value = cur;
+        else if (currentUser) modalAud.value = currentUser.code;
+      }
+
+      const modalCourse = document.getElementById('modal-trn-course');
+      if (modalCourse) {
+        const cur = modalCourse.value;
+        const opts = (sheetData.courses || []).map(c => 
+          `<option value="${c.courseId}">${c.name} (${c.institute} ระดับ ${c.level})</option>`
+        );
+        modalCourse.innerHTML = opts.join('');
+        if (cur) modalCourse.value = cur;
+      }
+
+      const cdCourse = document.getElementById('cd-modal-course-id');
+      if (cdCourse) {
+        const cur = cdCourse.value;
+        const opts = (sheetData.courses || []).map(c => 
+          `<option value="${c.courseId}">${c.name} (${c.institute} ระดับ ${c.level})</option>`
+        );
+        cdCourse.innerHTML = opts.join('');
+        if (cur) cdCourse.value = cur;
+      }
+
+      const hrAud = document.getElementById('hr-modal-auditor');
+      if (hrAud) {
+        const cur = hrAud.value;
+        const opts = (sheetData.auditors || []).map(a => 
+          `<option value="${a.code}">${a.name} - ${a.group || ''}</option>`
+        );
+        hrAud.innerHTML = opts.join('');
+        if (cur) hrAud.value = cur;
+      }
+
+      const hrCourse = document.getElementById('hr-modal-course');
+      if (hrCourse) {
+        const cur = hrCourse.value;
+        const opts = (sheetData.courses || []).map(c => 
+          `<option value="${c.courseId}">${c.name} (${c.institute} ระดับ ${c.level})</option>`
+        );
+        hrCourse.innerHTML = opts.join('');
+        if (cur) hrCourse.value = cur;
+      }
+    }
+
+    function renderTrainingDashboard() {
+      const uNameEl = document.getElementById('cgia-current-user-name');
+      if (uNameEl) {
+        uNameEl.textContent = currentUser ? (currentUser.nickname || currentUser.name) : 'คุณ';
+      }
+      renderTrainingMatrixTable();
+      renderCgiaScheduleTable();
+      renderTrainingHistoryTable();
+    }
+
+    /**
+     * Card 1: ตารางสรุปภาพรวมการอบรมผู้ตรวจสอบภายใน
+     */
+    function renderTrainingMatrixTable() {
+      const tbody = document.getElementById('training-matrix-tbody');
+      if (!tbody) return;
+
+      // Group auditors 1 -> 2 -> 3 with Leader first
+      const eligibleAuditors = (sheetData.auditors || []).filter(a => {
+        const g = (a.group || '').toString().trim();
+        return g.includes('งานตรวจสอบ 1') || g.includes('งานตรวจสอบ 2') || g.includes('งานตรวจสอบ 3') || 
+               g.includes('กลุ่ม 1') || g.includes('กลุ่ม 2') || g.includes('กลุ่ม 3') || 
+               g === '1' || g === '2' || g === '3';
+      });
+
+      const displayAuditors = eligibleAuditors.length > 0 ? eligibleAuditors : (sheetData.auditors || []);
+
+      displayAuditors.sort((a, b) => {
+        const getGroupNum = (aud) => {
+          const g = (aud.group || '').toString();
+          if (g.includes('1')) return 1;
+          if (g.includes('2')) return 2;
+          if (g.includes('3')) return 3;
+          return 99;
+        };
+        const gA = getGroupNum(a);
+        const gB = getGroupNum(b);
+        if (gA !== gB) return gA - gB;
+
+        const isLeadA = (a.role || '').toLowerCase() === 'leader';
+        const isLeadB = (b.role || '').toLowerCase() === 'leader';
+        if (isLeadA && !isLeadB) return -1;
+        if (!isLeadA && isLeadB) return 1;
+
+        return (a.name || '').localeCompare(b.name || '', 'th');
+      });
+
+      const standardCourses = [
+        { key: 'Fundamental', level: '1' },
+        { key: 'Performance', level: '2' },
+        { key: 'Information', level: '2' },
+        { key: 'Governance', level: '2' },
+        { key: 'Financial', level: '2' },
+        { key: 'Expert', level: '3' }
+      ];
+
+      let totalPassedCount = 0;
+      const rowsHtml = displayAuditors.map(aud => {
+        const cellsHtml = standardCourses.map(sc => {
+          const isPassed = (sheetData.trainings || []).some(t => {
+            const matchUser = (t.userCode === aud.code) || (t.userCode === aud.name) || (aud.nickname && t.userCode === aud.nickname);
+            const courseObj = findCourse(t.courseId);
+            const courseName = courseObj ? courseObj.name : t.courseId;
+            const matchCourse = (courseName || '').toLowerCase() === sc.key.toLowerCase() || (t.courseId || '').toLowerCase() === sc.key.toLowerCase();
+            return matchUser && matchCourse && ((t.result || '').trim() === 'ผ่าน');
+          });
+
+          if (isPassed) {
+            totalPassedCount++;
+            return `<td class="px-2 py-3 text-center bg-emerald-50/40">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="ผ่านการอบรมแล้ว">✓</span>
+            </td>`;
+          } else {
+            return `<td class="px-2 py-3 text-center text-slate-300 font-normal">-</td>`;
+          }
+        }).join('');
+
+        const isCurrent = currentUser && (currentUser.code === aud.code || currentUser.name === aud.name);
+        return `
+          <tr class="hover:bg-purple-50/40 transition-colors ${isCurrent ? 'bg-purple-50/70 font-semibold' : ''}">
+            <td class="px-3 py-3 border-r border-slate-200">
+              <div class="font-bold text-slate-800 flex items-center justify-between">
+                <span>${aud.nickname || aud.name}</span>
+                ${(aud.role || '').toLowerCase() === 'leader' ? '<span class="px-1.5 py-0.5 rounded text-[10px] bg-amber-100 text-amber-800 font-bold">Leader</span>' : ''}
+              </div>
+              <div class="text-[10px] text-slate-400 font-normal">${aud.name} · ${aud.group || ''}</div>
+            </td>
+            ${cellsHtml}
+          </tr>
+        `;
+      }).join('');
+
+      tbody.innerHTML = rowsHtml || `<tr><td colspan="7" class="text-center py-6 text-slate-400">ไม่พบรายชื่อบุคลากร</td></tr>`;
+      const countEl = document.getElementById('training-matrix-count');
+      if (countEl) countEl.textContent = `ผ่านการอบรมสะสม: ${totalPassedCount} รายการ (${displayAuditors.length} ท่าน)`;
+    }
+
+    /**
+     * Card 2: ตารางการอบรม CGIA ประจำปี
+     */
+    function renderCgiaScheduleTable() {
+      const tbody = document.getElementById('cgia-schedule-tbody');
+      if (!tbody) return;
+
+      const yearSelect = document.getElementById('cgia-filter-year');
+      const selectedYear = yearSelect ? yearSelect.value.trim() : '2570';
+
+      const standardCourses = [
+        { name: 'Fundamental', level: 'ระดับ 1' },
+        { name: 'Performance', level: 'ระดับ 2' },
+        { name: 'Information', level: 'ระดับ 2' },
+        { name: 'Governance', level: 'ระดับ 2' },
+        { name: 'Financial', level: 'ระดับ 2' },
+        { name: 'Expert', level: 'ระดับ 3' }
+      ];
+
+      // Identify HR recommendations for currentUser in this fiscal year
+      const myRecommendations = (sheetData.hrRecs || []).filter(r => {
+        if (!currentUser) return false;
+        const matchYear = !r.fiscalYear || r.fiscalYear === selectedYear;
+        const matchUser = (r.userCode === currentUser.code) || (r.userCode === currentUser.name) || (currentUser.nickname && r.userCode === currentUser.nickname);
+        return matchYear && matchUser;
+      });
+
+      const rowsHtml = standardCourses.map(sc => {
+        // Find course item in sheetData.courses
+        const courseItem = (sheetData.courses || []).find(c => (c.name || '').toLowerCase() === sc.name.toLowerCase());
+        const courseId = courseItem ? courseItem.courseId : '';
+
+        // Find schedule in sheetData.courseDetails for this year
+        const sch = (sheetData.courseDetails || []).find(d => {
+          const matchCourse = (d.courseId === courseId) || ((d.courseId || '').toLowerCase() === sc.name.toLowerCase());
+          const matchYear = (d.fiscalYear || '').toString().trim() === selectedYear;
+          return matchCourse && matchYear;
+        });
+
+        // Check if HR recommends this course for current user
+        const isRecommended = myRecommendations.some(r => {
+          return (r.courseId === courseId) || ((r.courseId || '').toLowerCase() === sc.name.toLowerCase());
+        });
+
+        const applyText = sch && sch.applyDate ? sch.applyDate : 'ยังไม่มีกำหนดการ';
+        const trainText = sch && sch.trainDate ? sch.trainDate : '-';
+        const examText = sch && sch.examDate ? sch.examDate : '-';
+
+        if (isRecommended) {
+          // Deep Purple strip for HR recommended course!
+          return `
+            <tr class="bg-purple-900 text-white font-semibold shadow-md border-l-4 border-amber-400 transition-all">
+              <td class="px-3 py-3">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-bold text-white">${sc.name}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-purple-950 shadow-sm animate-pulse">⭐ HR แนะนำให้เรียน</span>
+                </div>
+                <div class="text-[10px] text-purple-200 mt-0.5">${sc.level} · CGIA</div>
+              </td>
+              <td class="px-2 py-3 text-center text-purple-100">${applyText}</td>
+              <td class="px-2 py-3 text-center text-amber-200 font-bold">${trainText}</td>
+              <td class="px-2 py-3 text-center text-purple-100">${examText}</td>
+            </tr>
+          `;
+        } else {
+          return `
+            <tr class="hover:bg-purple-50/50 transition-colors">
+              <td class="px-3 py-3">
+                <div class="font-bold text-slate-800">${sc.name}</div>
+                <div class="text-[10px] text-slate-400">${sc.level} · CGIA</div>
+              </td>
+              <td class="px-2 py-3 text-center text-slate-600">${applyText}</td>
+              <td class="px-2 py-3 text-center font-medium text-slate-700">${trainText}</td>
+              <td class="px-2 py-3 text-center text-slate-600">${examText}</td>
+            </tr>
+          `;
+        }
+      }).join('');
+
+      tbody.innerHTML = rowsHtml;
+    }
+
+    /**
+     * Card 3: ตารางประวัติการอบรมบุคลากร
+     */
+    function renderTrainingHistoryTable() {
+      const tbody = document.getElementById('training-hist-tbody');
+      if (!tbody) return;
+
+      const fYear = (document.getElementById('training-hist-filter-year')?.value || '').trim();
+      const fCourse = (document.getElementById('training-hist-filter-course')?.value || '').trim();
+      const fAuditor = (document.getElementById('training-hist-filter-auditor')?.value || '').trim();
+
+      let list = (sheetData.trainings || []).slice();
+
+      if (fYear) {
+        list = list.filter(t => (t.fiscalYear || '').toString().trim() === fYear);
+      }
+      if (fCourse) {
+        list = list.filter(t => {
+          const cObj = findCourse(t.courseId);
+          const cName = cObj ? cObj.name : t.courseId;
+          return (cName || '').toLowerCase() === fCourse.toLowerCase() || (t.courseId || '').toLowerCase() === fCourse.toLowerCase();
+        });
+      }
+      if (fAuditor) {
+        list = list.filter(t => (t.userCode || '').toString().trim() === fAuditor);
+      }
+
+      const countEl = document.getElementById('training-hist-count');
+      if (countEl) {
+        countEl.textContent = `พบข้อมูลประวัติการอบรม ${list.length} รายการ`;
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400">ยังไม่มีข้อมูลประวัติการอบรมตามเงื่อนไขที่เลือก (คลิกปุ่ม "+ บันทึกประวัติการอบรม" เพื่อเพิ่มข้อมูล)</td></tr>`;
+        return;
+      }
+
+      const rowsHtml = list.map((trn, idx) => {
+        const aud = findAuditor(trn.userCode);
+        const audName = aud ? aud.name : (trn.userCode || '-');
+        const audSub = aud ? `${aud.nickname ? aud.nickname + ' · ' : ''}${aud.group || aud.position || ''}` : '';
+
+        const course = findCourse(trn.courseId);
+        const courseName = course ? course.name : (trn.courseId || '-');
+        const institute = course ? course.institute : 'CGIA';
+
+        // Result badge
+        let resultBadge = '';
+        const res = (trn.result || '').trim();
+        if (res === 'ผ่าน') {
+          resultBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">✓ ผ่าน</span>`;
+        } else if (res === 'ไม่ผ่าน') {
+          resultBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">✕ ไม่ผ่าน</span>`;
+        } else {
+          resultBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">⏳ ${res || 'รอผล'}</span>`;
+        }
+
+        // Cert badge & link
+        const hasCert = trn.certUrl && trn.certUrl.trim() !== '';
+        const certBadge = hasCert 
+          ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">มี</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500">ไม่มี</span>`;
+
+        const certLink = hasCert
+          ? `<a href="${trn.certUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 font-semibold text-xs border border-purple-200 shadow-sm transition-all" title="เปิดดูใบประกาศนียบัตร">🔗 คลิกดูใบประกาศ</a>`
+          : `<span class="text-slate-300">-</span>`;
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-3 py-3 text-center text-slate-400 font-medium">${idx + 1}</td>
+            <td class="px-3 py-3">
+              <div class="font-bold text-slate-800">${audName}</div>
+              <div class="text-[10px] text-slate-400">${audSub}</div>
+            </td>
+            <td class="px-3 py-3 text-center font-bold text-slate-700">${trn.fiscalYear || '-'}</td>
+            <td class="px-3 py-3">
+              <span class="font-bold text-brand-700">${courseName}</span>
+              ${course ? `<span class="text-[10px] text-slate-400 block">ระดับ ${course.level}</span>` : ''}
+            </td>
+            <td class="px-3 py-3 text-center text-slate-600 font-medium">${institute}</td>
+            <td class="px-3 py-3">
+              <div class="text-slate-700 font-medium">${trn.trainDate || '-'}</div>
+              <div class="text-[10px] text-slate-400">${trn.location || ''}</div>
+            </td>
+            <td class="px-3 py-3 text-center">${resultBadge}</td>
+            <td class="px-3 py-3 text-center">${certBadge}</td>
+            <td class="px-3 py-3 text-center">${certLink}</td>
+            <td class="px-3 py-3 text-center">
+              <div class="flex items-center justify-center gap-1.5">
+                <button type="button" onclick="openTrainingRecordModal('${trn.recordId}')" class="p-1.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-brand-50 transition-colors" title="แก้ไข">
+                  ✏️
+                </button>
+                <button type="button" onclick="deleteTrainingRecord('${trn.recordId}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="ลบ">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.innerHTML = rowsHtml;
+    }
+
+    // Modal Training Record Handlers
+    function openTrainingRecordModal(recordId = null) {
+      populateTrainingFilters();
+      const form = document.getElementById('form-training-record');
+      if (form) form.reset();
+
+      const modal = document.getElementById('modal-training-record');
+      const title = document.getElementById('modal-trn-title');
+      const idInput = document.getElementById('modal-trn-record-id');
+
+      if (recordId) {
+        const item = (sheetData.trainings || []).find(t => t.recordId === recordId);
+        if (item) {
+          title.textContent = 'แก้ไขประวัติการอบรม';
+          idInput.value = item.recordId;
+          document.getElementById('modal-trn-auditor').value = item.userCode;
+          document.getElementById('modal-trn-course').value = item.courseId;
+          document.getElementById('modal-trn-year').value = item.fiscalYear || '';
+          document.getElementById('modal-trn-date').value = item.trainDate || '';
+          document.getElementById('modal-trn-location').value = item.location || '';
+          document.getElementById('modal-trn-expense').value = item.otherExpense || '';
+          document.getElementById('modal-trn-result').value = item.result || 'ผ่าน';
+          document.getElementById('modal-trn-cert').value = item.certUrl || '';
+          onModalTrainingCourseChange();
+          if (item.scheduleId) {
+            document.getElementById('modal-trn-schedule').value = item.scheduleId;
+          }
+        }
+      } else {
+        title.textContent = 'บันทึกประวัติการอบรมใหม่ (ชีท Training)';
+        idInput.value = '';
+        document.getElementById('modal-trn-year').value = '2570';
+        document.getElementById('modal-trn-result').value = 'ผ่าน';
+        onModalTrainingCourseChange();
+      }
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeTrainingRecordModal() {
+      const modal = document.getElementById('modal-training-record');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function onModalTrainingCourseChange() {
+      const cId = document.getElementById('modal-trn-course')?.value;
+      const schSelect = document.getElementById('modal-trn-schedule');
+      if (!schSelect) return;
+
+      const schedules = (sheetData.courseDetails || []).filter(d => 
+        (d.courseId === cId) || (findCourse(d.courseId)?.name === findCourse(cId)?.name)
+      );
+
+      const opts = ['<option value="">-- กำหนดวันเอง / ไม่ผูกรอบ --</option>'];
+      schedules.forEach(s => {
+        opts.push(`<option value="${s.scheduleId}">ปี ${s.fiscalYear}: ${s.trainDate || ''} (${s.location || 'อบรม'})</option>`);
+      });
+      schSelect.innerHTML = opts.join('');
+    }
+
+    function onModalScheduleSelectChange() {
+      const schId = document.getElementById('modal-trn-schedule')?.value;
+      if (!schId) return;
+      const sch = (sheetData.courseDetails || []).find(d => d.scheduleId === schId);
+      if (sch) {
+        if (sch.trainDate) document.getElementById('modal-trn-date').value = sch.trainDate;
+        if (sch.location) document.getElementById('modal-trn-location').value = sch.location;
+        if (sch.fiscalYear) document.getElementById('modal-trn-year').value = sch.fiscalYear;
+      }
+    }
+
+    async function saveTrainingRecord(event) {
+      event.preventDefault();
+      const submitBtn = document.getElementById('btn-save-trn-record');
+      const origText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'กำลังบันทึก...';
+
+      const recordId = document.getElementById('modal-trn-record-id').value;
+      const payload = {
+        recordId: recordId,
+        userCode: document.getElementById('modal-trn-auditor').value,
+        courseId: document.getElementById('modal-trn-course').value,
+        scheduleId: document.getElementById('modal-trn-schedule').value,
+        fiscalYear: document.getElementById('modal-trn-year').value.trim(),
+        trainDate: document.getElementById('modal-trn-date').value.trim(),
+        location: document.getElementById('modal-trn-location').value.trim(),
+        otherExpense: document.getElementById('modal-trn-expense').value.trim(),
+        result: document.getElementById('modal-trn-result').value,
+        certUrl: document.getElementById('modal-trn-cert').value.trim()
+      };
+
+      try {
+        await sendToAppsScript({
+          action: 'saveTraining',
+          email: currentUser ? currentUser.email : '',
+          trainingData: payload
+        });
+
+        // Update local state
+        if (recordId) {
+          const idx = (sheetData.trainings || []).findIndex(t => t.recordId === recordId);
+          if (idx >= 0) sheetData.trainings[idx] = { ...sheetData.trainings[idx], ...payload };
+        } else {
+          sheetData.trainings.push({
+            recordId: 'TRN-' + Date.now().toString().slice(-6),
+            ...payload
+          });
+        }
+
+        closeTrainingRecordModal();
+        renderTrainingDashboard();
+        alert('บันทึกประวัติการอบรมเรียบร้อยแล้ว');
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการบันทึก: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = origText;
+      }
+    }
+
+    async function deleteTrainingRecord(recordId) {
+      if (!confirm('คุณต้องการลบประวัติการอบรมรายการนี้ใช่หรือไม่?')) return;
+      try {
+        await sendToAppsScript({
+          action: 'deleteTraining',
+          email: currentUser ? currentUser.email : '',
+          trainingData: { recordId }
+        });
+        sheetData.trainings = (sheetData.trainings || []).filter(t => t.recordId !== recordId);
+        renderTrainingDashboard();
+        alert('ลบข้อมูลเรียบร้อยแล้ว');
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการลบ: ' + err.message);
+      }
+    }
+
+    // Modal Course Management Handlers
+    function openCourseManagementModal() {
+      populateTrainingFilters();
+      renderCourseModalTables();
+      const modal = document.getElementById('modal-course-management');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeCourseManagementModal() {
+      const modal = document.getElementById('modal-course-management');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function switchCourseModalTab(tab) {
+      const tabSchBtn = document.getElementById('tab-btn-schedules');
+      const tabCBtn = document.getElementById('tab-btn-courses');
+      const tabSchContent = document.getElementById('tab-content-schedules');
+      const tabCContent = document.getElementById('tab-content-courses');
+
+      if (tab === 'courses') {
+        tabCBtn.className = 'px-4 py-2 border-b-2 border-brand-500 text-brand-600 font-bold';
+        tabSchBtn.className = 'px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700';
+        tabCContent.classList.remove('hidden');
+        tabSchContent.classList.add('hidden');
+      } else {
+        tabSchBtn.className = 'px-4 py-2 border-b-2 border-brand-500 text-brand-600 font-bold';
+        tabCBtn.className = 'px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700';
+        tabSchContent.classList.remove('hidden');
+        tabCContent.classList.add('hidden');
+      }
+    }
+
+    function renderCourseModalTables() {
+      // 1. Course Details Table
+      const cdTbody = document.getElementById('modal-cd-tbody');
+      if (cdTbody) {
+        const rows = (sheetData.courseDetails || []).map(d => {
+          const c = findCourse(d.courseId);
+          const cName = c ? c.name : d.courseId;
+          return `
+            <tr>
+              <td class="p-2 font-bold">${d.fiscalYear || '-'}</td>
+              <td class="p-2 font-semibold text-brand-700">${cName}</td>
+              <td class="p-2 text-slate-600">${d.applyDate || '-'}</td>
+              <td class="p-2 text-slate-600">${d.trainDate || '-'}</td>
+              <td class="p-2 text-slate-600">${d.examDate || '-'}</td>
+              <td class="p-2 text-center">
+                <button type="button" onclick="deleteCourseDetailRecord('${d.scheduleId}')" class="text-rose-500 hover:text-rose-700 font-bold">🗑️</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+        cdTbody.innerHTML = rows || `<tr><td colspan="6" class="text-center py-4 text-slate-400">ยังไม่มีข้อมูลกำหนดการรอบอบรม</td></tr>`;
+      }
+
+      // 2. Courses Table
+      const cTbody = document.getElementById('modal-c-tbody');
+      if (cTbody) {
+        const rows = (sheetData.courses || []).map(c => `
+          <tr>
+            <td class="p-2 font-mono text-[11px] text-slate-500">${c.courseId}</td>
+            <td class="p-2 font-bold text-slate-800">${c.name}</td>
+            <td class="p-2 text-slate-600">${c.institute}</td>
+            <td class="p-2 text-center font-bold text-brand-700">ระดับ ${c.level}</td>
+            <td class="p-2 text-center">
+              <button type="button" onclick="deleteCourseRecord('${c.courseId}')" class="text-rose-500 hover:text-rose-700 font-bold">🗑️</button>
+            </td>
+          </tr>
+        `).join('');
+        cTbody.innerHTML = rows || `<tr><td colspan="5" class="text-center py-4 text-slate-400">ยังไม่มีข้อมูลหลักสูตร</td></tr>`;
+      }
+    }
+
+    function resetCourseDetailForm() {
+      document.getElementById('form-course-detail').reset();
+      document.getElementById('cd-modal-sch-id').value = '';
+    }
+
+    function resetCourseForm() {
+      document.getElementById('form-course-main').reset();
+      document.getElementById('c-modal-course-id').value = '';
+    }
+
+    async function saveCourseDetailRecord(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btn-save-course-detail');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const payload = {
+        scheduleId: document.getElementById('cd-modal-sch-id').value,
+        courseId: document.getElementById('cd-modal-course-id').value,
+        fiscalYear: document.getElementById('cd-modal-year').value.trim(),
+        applyDate: document.getElementById('cd-modal-apply').value.trim(),
+        trainDate: document.getElementById('cd-modal-train').value.trim(),
+        examDate: document.getElementById('cd-modal-exam').value.trim(),
+        location: document.getElementById('cd-modal-location').value.trim()
+      };
+
+      try {
+        const res = await sendToAppsScript({
+          action: 'saveCourseDetail',
+          email: currentUser ? currentUser.email : '',
+          courseDetailData: payload
+        });
+        const assignedId = (res && res.scheduleId) ? res.scheduleId : ('SCH-' + Date.now().toString().slice(-6));
+        sheetData.courseDetails.push({ scheduleId: assignedId, ...payload });
+        resetCourseDetailForm();
+        renderCourseModalTables();
+        renderCgiaScheduleTable();
+        alert('บันทึกรอบการอบรมสำเร็จ');
+      } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกรอบอบรม';
+      }
+    }
+
+    async function deleteCourseDetailRecord(scheduleId) {
+      if (!confirm('ต้องการลบกำหนดการรอบอบรมนี้ใช่หรือไม่?')) return;
+      try {
+        await sendToAppsScript({
+          action: 'deleteCourseDetail',
+          email: currentUser ? currentUser.email : '',
+          courseDetailData: { scheduleId }
+        });
+        sheetData.courseDetails = (sheetData.courseDetails || []).filter(d => d.scheduleId !== scheduleId);
+        renderCourseModalTables();
+        renderCgiaScheduleTable();
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการลบ: ' + err.message);
+      }
+    }
+
+    async function saveCourseRecord(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btn-save-course');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const payload = {
+        courseId: document.getElementById('c-modal-course-id').value,
+        name: document.getElementById('c-modal-name').value.trim(),
+        institute: document.getElementById('c-modal-institute').value.trim(),
+        level: document.getElementById('c-modal-level').value
+      };
+
+      try {
+        const res = await sendToAppsScript({
+          action: 'saveCourse',
+          email: currentUser ? currentUser.email : '',
+          courseData: payload
+        });
+        const finalId = (res && res.courseId) ? res.courseId : ('T' + (new Date().getFullYear() + 543) + '-000' + (sheetData.courses.length + 1));
+        sheetData.courses.push({ courseId: finalId, ...payload });
+        resetCourseForm();
+        populateTrainingFilters();
+        renderCourseModalTables();
+        renderTrainingDashboard();
+        alert('บันทึกหลักสูตรสำเร็จ');
+      } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกหลักสูตร';
+      }
+    }
+
+    async function deleteCourseRecord(courseId) {
+      if (!confirm('ต้องการลบหลักสูตรนี้ใช่หรือไม่?')) return;
+      try {
+        await sendToAppsScript({
+          action: 'deleteCourse',
+          email: currentUser ? currentUser.email : '',
+          courseData: { courseId }
+        });
+        sheetData.courses = (sheetData.courses || []).filter(c => c.courseId !== courseId);
+        populateTrainingFilters();
+        renderCourseModalTables();
+        renderTrainingDashboard();
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการลบ: ' + err.message);
+      }
+    }
+
+    // Modal HR Recommendation Handlers
+    function openHrRecModal() {
+      populateTrainingFilters();
+      renderHrRecTable();
+      const modal = document.getElementById('modal-hr-rec');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeHrRecModal() {
+      const modal = document.getElementById('modal-hr-rec');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderHrRecTable() {
+      const tbody = document.getElementById('modal-hr-tbody');
+      if (!tbody) return;
+      const rows = (sheetData.hrRecs || []).map(r => {
+        const aud = findAuditor(r.userCode);
+        const audName = aud ? aud.name : r.userCode;
+        const c = findCourse(r.courseId);
+        const cName = c ? c.name : r.courseId;
+        return `
+          <tr>
+            <td class="p-2 font-bold text-slate-700">${r.fiscalYear || '-'}</td>
+            <td class="p-2 font-semibold text-slate-800">${audName}</td>
+            <td class="p-2 font-bold text-purple-700">⭐ ${cName}</td>
+            <td class="p-2 text-slate-600">${r.note || '-'}</td>
+            <td class="p-2 text-center">
+              <button type="button" onclick="deleteHrRecRecord('${r.recId}')" class="text-rose-500 hover:text-rose-700 font-bold">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      tbody.innerHTML = rows || `<tr><td colspan="5" class="text-center py-4 text-slate-400">ยังไม่มีรายการที่ HR แนะนำ</td></tr>`;
+    }
+
+    async function saveHrRecRecord(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btn-save-hr-rec');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const payload = {
+        userCode: document.getElementById('hr-modal-auditor').value,
+        courseId: document.getElementById('hr-modal-course').value,
+        fiscalYear: document.getElementById('hr-modal-year').value.trim(),
+        note: document.getElementById('hr-modal-note').value.trim()
+      };
+
+      try {
+        const res = await sendToAppsScript({
+          action: 'saveHRRec',
+          email: currentUser ? currentUser.email : '',
+          hrData: payload
+        });
+        const recId = (res && res.recId) ? res.recId : ('REC-' + Date.now().toString().slice(-6));
+        sheetData.hrRecs.push({ recId, ...payload });
+        document.getElementById('hr-modal-note').value = '';
+        renderHrRecTable();
+        renderCgiaScheduleTable();
+        alert('บันทึกคำแนะนำจาก HR เรียบร้อยแล้ว');
+      } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกคำแนะนำ';
+      }
+    }
+
+    async function deleteHrRecRecord(recId) {
+      if (!confirm('ต้องการลบรายการคำแนะนำนี้ใช่หรือไม่?')) return;
+      try {
+        await sendToAppsScript({
+          action: 'deleteHRRec',
+          email: currentUser ? currentUser.email : '',
+          hrData: { recId }
+        });
+        sheetData.hrRecs = (sheetData.hrRecs || []).filter(r => r.recId !== recId);
+        renderHrRecTable();
+        renderCgiaScheduleTable();
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการลบ: ' + err.message);
+      }
+    }
+
   </script>
 
 </body>
