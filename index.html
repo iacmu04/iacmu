@@ -647,10 +647,10 @@
     <!-- VIEW 2: FINANCE REPORT PAGE (ซ้าย: ตัวกรอง + ตารางติดตาม / ขวา: การ์ดสถานะ 4 ใบ, มือถือเรียงคอลัมน์เดียว) -->
         <!-- VIEW 2: FINANCE REPORT PAGE -->
     <main id="view-finance" class="p-3 sm:p-4 pt-2 hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
 
         <!-- LEFT COLUMN: ตัวกรอง + ตารางติดตามงบการเงินรายส่วนงาน -->
-        <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4 min-w-0">
+        <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4 min-w-0 h-full">
 
           <!-- Top Filters Bar -->
           <section class="bg-white rounded-2xl p-4 card-shadow border border-slate-100 flex flex-wrap items-center gap-3">
@@ -715,8 +715,8 @@
           </section>
 
           <!-- 41 Departments Tracking Matrix -->
-          <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between min-w-0">
-        <div>
+          <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex-1 flex flex-col justify-between min-w-0 min-h-0">
+        <div class="flex-1 flex flex-col min-h-0">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100">
             <div>
               <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -737,7 +737,7 @@
           </div>
 
           <!-- Scrollable Table -->
-          <div class="overflow-x-auto max-h-[580px]">
+          <div class="overflow-auto flex-1 min-h-[480px]">
             <table class="w-full text-left text-xs whitespace-nowrap">
               <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
                 <tr>
@@ -1458,8 +1458,9 @@
             <div id="dean-edit-section" class="col-span-12 lg:col-span-7 p-3 bg-amber-50/60 border border-amber-200/80 rounded-2xl flex flex-col justify-between">
               <div class="flex items-center justify-between mb-2">
                 <div>
-                  <h4 class="font-bold text-amber-900 text-xs flex items-center gap-1.5">
-                    <span>🔄</span> บันทึกการส่งกลับแก้ไข (ชีท Edit)
+                  <h4 class="font-bold text-amber-900 text-xs flex items-center gap-1.5 flex-wrap">
+                    <span>🔄</span> บันทึกการส่งกลับแก้ไข
+                    <span id="dean-edit-summary-badge" class="ml-1 text-[11px] font-bold text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded-full">(แก้ไขทั้งหมด 0 ครั้ง • รวม 0 วัน)</span>
                   </h4>
                   <p class="text-[10px] text-amber-700">สำหรับ ผอ. ในการส่งรายงานกลับให้ผู้ตรวจสอบแก้ไข</p>
                 </div>
@@ -3872,31 +3873,39 @@ function renderFinanceMatrix() {
             const retDate = formatInputDate(e.dateReturned);
             const resDate = formatInputDate(e.dateResubmitted);
             container.innerHTML += `
-              <div id="${rowId}" class="p-3 bg-white border border-amber-200 rounded-xl space-y-2 text-xs">
+              <div id="${rowId}" class="edit-round-row-item p-3 bg-white border border-amber-200 rounded-xl space-y-2 text-xs">
                 <div class="flex items-center justify-between font-bold text-amber-800">
-                  <span>แก้ไขครั้งที่ ${e.round || editRoundCounter}</span>
-                  <span class="text-[10px] text-slate-400">คำนวณวันอัตโนมัติ</span>
+                  <span class="edit-round-title">แก้ไขครั้งที่ ${e.round || editRoundCounter}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-400 font-normal">คำนวณวันอัตโนมัติ</span>
+                    <button type="button" onclick="removeEditRoundRow('${rowId}')" class="text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors border border-rose-200" title="ลบรายการแก้ไขนี้">
+                      <span>🗑️</span> ลบ
+                    </button>
+                  </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                   <div>
                     <label class="block text-[10px] text-slate-500 mb-0.5">วันที่ส่งกลับให้แก้ (Col D)</label>
-                    <input type="text" id="edit-date-return-${editRoundCounter}" value="${retDate}" placeholder="วว/ดด/ปปปป" class="datepicker w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none">
+                    <input type="text" id="edit-date-return-${editRoundCounter}" value="${retDate}" onchange="calcEditDays('${rowId}')" placeholder="วว/ดด/ปปปป" class="datepicker w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
                   </div>
                   <div>
                     <label class="block text-[10px] text-slate-500 mb-0.5">วันที่ส่งคืน ผอ. (Col E)</label>
-                    <input type="text" id="edit-date-resubmit-${editRoundCounter}" value="${resDate}" placeholder="วว/ดด/ปปปป" class="datepicker w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none">
+                    <input type="text" id="edit-date-resubmit-${editRoundCounter}" value="${resDate}" onchange="calcEditDays('${rowId}')" placeholder="วว/ดด/ปปปป" class="datepicker w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <input type="text" id="edit-note-${editRoundCounter}" value="${e.note || ''}" placeholder="หมายเหตุข้อสังเกตการแก้ไข" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-800 focus:outline-none">
+                  <input type="text" id="edit-note-${editRoundCounter}" value="${e.note || ''}" placeholder="หมายเหตุข้อสังเกตการแก้ไข" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
                   <span class="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg whitespace-nowrap">
-                    รวม: <span id="edit-days-label-${editRoundCounter}">${e.daysUsed || 0}</span> วัน
+                    รวม: <span id="edit-days-label-${editRoundCounter}" class="edit-days-value">${e.daysUsed || 0}</span> วัน
                   </span>
                 </div>
               </div>
             `;
           });
           initFlatpickr();
+          updateDeanEditSummary();
+        } else {
+          updateDeanEditSummary();
         }
       } else {
         setDateInp('modal-fin-dept-send', '');
@@ -3939,16 +3948,13 @@ function renderFinanceMatrix() {
 
       // Rule 4: ระหว่างแก้ไข (มีรอบแก้ไขที่ยังไม่ได้ส่งคืน ผอ.)
       let hasOpenEditInForm = false;
-      for (let r = 1; r <= editRoundCounter; r++) {
-        const rowEl = document.getElementById(`edit-round-row-${r}`);
-        if (rowEl) {
-          const resEl = document.getElementById(`edit-date-resubmit-${r}`);
-          if (!resEl || !resEl.value.trim()) {
-            hasOpenEditInForm = true;
-            break;
-          }
+      const currentEditRows = document.querySelectorAll('#edit-rounds-container .edit-round-row-item');
+      currentEditRows.forEach(row => {
+        const resEl = row.querySelector('input[id^="edit-date-resubmit-"]');
+        if (!resEl || !resEl.value.trim()) {
+          hasOpenEditInForm = true;
         }
-      }
+      });
       if (hasOpenEditInForm) {
         badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300';
         badge.textContent = '4. ระหว่างแก้ไข';
@@ -4005,27 +4011,32 @@ function renderFinanceMatrix() {
       const rowId = `edit-round-row-${editRoundCounter}`;
 
       const rowHtml = `
-        <div id="${rowId}" class="p-3 bg-white border border-amber-200 rounded-xl space-y-2 text-xs">
+        <div id="${rowId}" class="edit-round-row-item p-3 bg-white border border-amber-200 rounded-xl space-y-2 text-xs">
           <div class="flex items-center justify-between font-bold text-amber-800">
-            <span>แก้ไขครั้งที่ ${editRoundCounter} (ชีท Edit Col C = ${editRoundCounter})</span>
-            <span class="text-[10px] text-slate-400">คำนวณวัน D-E อัตโนมัติ (Col F)</span>
+            <span class="edit-round-title">แก้ไขครั้งที่ ${editRoundCounter}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-slate-400 font-normal">คำนวณวันอัตโนมัติ</span>
+              <button type="button" onclick="removeEditRoundRow('${rowId}')" class="text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors border border-rose-200" title="ลบรายการแก้ไขนี้">
+                <span>🗑️</span> ลบ
+              </button>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] text-slate-500 mb-0.5">วันที่ส่งกลับให้ผู้ตรวจสอบแก้ (Col D)</label>
-              <input type="text" id="edit-date-return-${editRoundCounter}" value="${todayBE}" onchange="calcEditDays(${editRoundCounter})" placeholder="วว/ดด/ปปปป" class="datepicker w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
+              <input type="text" id="edit-date-return-${editRoundCounter}" value="${todayBE}" onchange="calcEditDays('${rowId}')" placeholder="วว/ดด/ปปปป" class="datepicker w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
             </div>
             <div>
               <label class="block text-[10px] text-slate-500 mb-0.5">วันที่ส่งกลับหา ผอ. (Col E)</label>
-              <input type="text" id="edit-date-resubmit-${editRoundCounter}" onchange="calcEditDays(${editRoundCounter})" placeholder="วว/ดด/ปปปป" class="datepicker w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
+              <input type="text" id="edit-date-resubmit-${editRoundCounter}" onchange="calcEditDays('${rowId}')" placeholder="วว/ดด/ปปปป" class="datepicker w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
             </div>
           </div>
 
           <div class="flex items-center gap-2">
-            <input type="text" id="edit-note-${editRoundCounter}" placeholder="หมายเหตุข้อสังเกตการแก้ไข (Col G)" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
+            <input type="text" id="edit-note-${editRoundCounter}" placeholder="หมายเหตุข้อสังเกตการแก้ไข" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500">
             <span class="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg whitespace-nowrap">
-              รวม: <span id="edit-days-label-${editRoundCounter}">0</span> วัน
+              รวม: <span id="edit-days-label-${editRoundCounter}" class="edit-days-value">0</span> วัน
             </span>
           </div>
         </div>
@@ -4033,24 +4044,85 @@ function renderFinanceMatrix() {
 
       container.insertAdjacentHTML('beforeend', rowHtml);
       initFlatpickr();
+      updateDeanEditSummary();
       calculateAutoStatus();
     }
 
-    function calcEditDays(roundNum) {
-      const dRet = document.getElementById(`edit-date-return-${roundNum}`).value;
-      const dRes = document.getElementById(`edit-date-resubmit-${roundNum}`).value;
-      const label = document.getElementById(`edit-days-label-${roundNum}`);
-
-      if (dRet && dRes) {
-        const c1 = parseDateComponents(dRet);
-        const c2 = parseDateComponents(dRes);
-        if (c1 && c2) {
-          const t1 = new Date(c1.yearCE, c1.month - 1, c1.day);
-          const t2 = new Date(c2.yearCE, c2.month - 1, c2.day);
-          const diff = Math.max(0, Math.round((t2 - t1) / (86400000)));
-          label.textContent = diff;
+    function removeEditRoundRow(rowId) {
+      const row = typeof rowId === 'string' ? document.getElementById(rowId) : document.getElementById(`edit-round-row-${rowId}`);
+      if (row) {
+        row.remove();
+      }
+      const container = document.getElementById('edit-rounds-container');
+      if (container) {
+        const remaining = container.querySelectorAll('.edit-round-row-item');
+        if (remaining.length === 0) {
+          container.innerHTML = `
+            <div id="no-edits-notice" class="text-center py-2 text-slate-400 text-[11px]">
+              ยังไม่มีรายการส่งกลับแก้ไข (กด "+ เพิ่มข้อมูลแก้ไข" เมื่อต้องการให้ผู้ตรวจสอบแก้ไข)
+            </div>
+          `;
         }
       }
+      updateDeanEditSummary();
+      calculateAutoStatus();
+    }
+
+    function updateDeanEditSummary() {
+      const container = document.getElementById('edit-rounds-container');
+      const badge = document.getElementById('dean-edit-summary-badge');
+      if (!badge) return;
+
+      if (!container) {
+        badge.textContent = '(แก้ไขทั้งหมด 0 ครั้ง • รวม 0 วัน)';
+        return;
+      }
+
+      const rows = container.querySelectorAll('.edit-round-row-item');
+      const totalCount = rows.length;
+      let totalDays = 0;
+
+      rows.forEach((row, idx) => {
+        const titleSpan = row.querySelector('.edit-round-title');
+        if (titleSpan) {
+          titleSpan.textContent = `แก้ไขครั้งที่ ${idx + 1}`;
+        }
+        const daysSpan = row.querySelector('.edit-days-value');
+        if (daysSpan) {
+          const d = parseInt(daysSpan.textContent, 10);
+          if (!isNaN(d)) totalDays += d;
+        }
+      });
+
+      badge.textContent = `(แก้ไขทั้งหมด ${totalCount} ครั้ง • รวม ${totalDays} วัน)`;
+    }
+
+    function calcEditDays(rowIdentifier) {
+      const row = typeof rowIdentifier === 'string' ? document.getElementById(rowIdentifier) : document.getElementById(`edit-round-row-${rowIdentifier}`);
+      if (!row) return;
+
+      const retInp = row.querySelector('input[id^="edit-date-return-"]');
+      const resInp = row.querySelector('input[id^="edit-date-resubmit-"]');
+      const label = row.querySelector('.edit-days-value');
+
+      if (retInp && resInp && label) {
+        const dRet = retInp.value.trim();
+        const dRes = resInp.value.trim();
+        if (dRet && dRes) {
+          const c1 = parseDateComponents(dRet);
+          const c2 = parseDateComponents(dRes);
+          if (c1 && c2) {
+            const t1 = new Date(c1.yearCE, c1.month - 1, c1.day);
+            const t2 = new Date(c2.yearCE, c2.month - 1, c2.day);
+            const diff = Math.max(0, Math.round((t2 - t1) / 86400000));
+            label.textContent = diff;
+          }
+        } else {
+          label.textContent = '0';
+        }
+      }
+      updateDeanEditSummary();
+      calculateAutoStatus();
     }
 
     async function saveFinanceRecord(e) {
@@ -4135,10 +4207,13 @@ function renderFinanceMatrix() {
         }
 
         // 2. Save Edit Rounds if any
-        for (let r = 1; r <= editRoundCounter; r++) {
-          const retInp = document.getElementById(`edit-date-return-${r}`);
-          const resInp = document.getElementById(`edit-date-resubmit-${r}`);
-          const noteInp = document.getElementById(`edit-note-${r}`);
+        const activeEditRows = document.querySelectorAll('#edit-rounds-container .edit-round-row-item');
+        let roundSeq = 0;
+        for (const row of activeEditRows) {
+          roundSeq++;
+          const retInp = row.querySelector('input[id^="edit-date-return-"]');
+          const resInp = row.querySelector('input[id^="edit-date-resubmit-"]');
+          const noteInp = row.querySelector('input[id^="edit-note-"]');
 
           if (retInp && retInp.value) {
             const retFmt = formatInputDate(retInp.value);
@@ -4152,7 +4227,7 @@ function renderFinanceMatrix() {
                 department: deptName,
                 fiscalYear: fy,
                 period: period,
-                round: r,
+                round: roundSeq,
                 dateReturned: retFmt,
                 dateResubmitted: resFmt,
                 note: editNote
@@ -4163,11 +4238,11 @@ function renderFinanceMatrix() {
               trackingId = saveEditRes.trackingId;
               newTrackObj.trackingId = trackingId;
             }
-            const existingEditIdx = sheetData.editList.findIndex(item => (item.trackingId || '').toString().trim() === trackingId && parseInt(item.round, 10) === r);
+            const existingEditIdx = sheetData.editList.findIndex(item => (item.trackingId || '').toString().trim() === trackingId && parseInt(item.round, 10) === roundSeq);
             const newEditItem = {
-              editId: (saveEditRes && saveEditRes.editId) ? saveEditRes.editId : `ED-${r}`,
+              editId: (saveEditRes && saveEditRes.editId) ? saveEditRes.editId : `ED-${roundSeq}`,
               trackingId: trackingId,
-              round: r,
+              round: roundSeq,
               dateReturned: retFmt,
               dateResubmitted: resFmt,
               note: editNote,
@@ -4179,6 +4254,14 @@ function renderFinanceMatrix() {
               sheetData.editList.push(newEditItem);
             }
           }
+        }
+        if (trackingId && !trackingId.startsWith('TEMP-')) {
+          sheetData.editList = sheetData.editList.filter(item => {
+            if ((item.trackingId || '').toString().trim() === trackingId) {
+              return parseInt(item.round, 10) <= roundSeq;
+            }
+            return true;
+          });
         }
 
         alert(`บันทึกข้อมูลงานตรวจสอบส่วนงาน "${deptName}" (${period}) เรียบร้อยแล้ว!`);
