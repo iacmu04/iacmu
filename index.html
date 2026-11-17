@@ -737,7 +737,7 @@
           </div>
 
           <!-- Scrollable Table -->
-          <div class="overflow-x-auto max-h-[460px] min-h-[440px] overflow-y-auto">
+          <div class="overflow-x-auto max-h-[800px] overflow-y-auto" style="max-height: 800px;">
             <table class="w-full text-left text-xs whitespace-nowrap">
               <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
                 <tr>
@@ -2433,7 +2433,8 @@
               group: r[4],
               role: r[5],
               email: (r[6] || '').toString().trim().toLowerCase(),
-              status: r[7]
+              status: r[7],
+              _index: idx
             });
           }
         });
@@ -3855,6 +3856,32 @@
     // -------------------------------------------------------------
     const ALLOWED_AUDIT_GROUPS = ['งานตรวจสอบ 1', 'งานตรวจสอบ 2', 'งานตรวจสอบ 3'];
 
+    function sortAuditorsByGroupAndRole(auditorsList) {
+      const getGroupRank = (grp) => {
+        const g = (grp || '').toString().trim();
+        if (g === 'งานตรวจสอบ 1' || g.includes('1')) return 1;
+        if (g === 'งานตรวจสอบ 2' || g.includes('2')) return 2;
+        if (g === 'งานตรวจสอบ 3' || g.includes('3')) return 3;
+        return 99;
+      };
+
+      return [...auditorsList].sort((a, b) => {
+        // 1. เรียงตามงานตรวจสอบ: งานตรวจสอบ 1 -> งานตรวจสอบ 2 -> งานตรวจสอบ 3
+        const rA = getGroupRank(a.group);
+        const rB = getGroupRank(b.group);
+        if (rA !== rB) return rA - rB;
+
+        // 2. ภายในแต่ละกลุ่มงาน ให้ Leader (หัวหน้างาน ดูจาก Col F) ขึ้นก่อน
+        const isLeaderA = (a.role || '').toString().trim().toLowerCase() === 'leader';
+        const isLeaderB = (b.role || '').toString().trim().toLowerCase() === 'leader';
+        if (isLeaderA && !isLeaderB) return -1;
+        if (!isLeaderA && isLeaderB) return 1;
+
+        // 3. คงลำดับเดิมตามชีท
+        return (a._index || 0) - (b._index || 0);
+      });
+    }
+
     function isAuditorInAuditGroup(aud) {
       if (!aud) return false;
       const grp = (aud.group || '').trim();
@@ -3876,11 +3903,14 @@
       const selectedGroup = groupSel.value;
 
       audSel.innerHTML = '<option value="all">-- ผู้ตรวจสอบทั้งหมด --</option>';
-      (sheetData.auditors || []).forEach(a => {
-        // กรองเฉพาะคนที่สังกัดในงานตรวจสอบ 1, 2 และ 3 เท่านั้น ตามที่ผู้ใช้กำหนด (คอลัมน์ E ในชีท ผู้ตรวจสอบ)
-        if (!isAuditorInAuditGroup(a)) return;
+      let filteredAuditors = (sheetData.auditors || []).filter(a => isAuditorInAuditGroup(a));
+      filteredAuditors = sortAuditorsByGroupAndRole(filteredAuditors);
+
+      filteredAuditors.forEach(a => {
         if (selectedGroup === 'all' || a.group === selectedGroup) {
-          audSel.innerHTML += `<option value="${a.name}">${a.name} (${a.nickname || a.group})</option>`;
+          const isLeader = (a.role || '').toString().trim().toLowerCase() === 'leader';
+          const leaderSuffix = isLeader ? ' ★ (หัวหน้างาน)' : '';
+          audSel.innerHTML += `<option value="${a.name}">${a.name} (${a.nickname || a.group}${leaderSuffix})</option>`;
         }
       });
 
@@ -3931,6 +3961,9 @@
       if (selectedAuditor !== 'all') {
         auditors = auditors.filter(a => isAuditorMatch(a.name, selectedAuditor));
       }
+
+      // เรียงลำดับตามงานตรวจสอบ 1 -> 2 -> 3 และ Leader ขึ้นก่อนเสมอ
+      auditors = sortAuditorsByGroupAndRole(auditors);
 
       let grandTotalBudgets = 0;
       let grandTotalRounds = 0;
@@ -4046,12 +4079,16 @@
 
         const safeAudName = (r.auditor.name || '').replace(/'/g, "\\'");
 
+        const isLeader = (r.auditor.role || '').toString().trim().toLowerCase() === 'leader';
+        const leaderBadge = isLeader ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 ml-1.5 border border-purple-200">หัวหน้างาน (Leader)</span>' : '';
+
         return `
           <tr onclick="openAuditorEditDetailModal('${safeAudName}')" class="hover:bg-amber-50/70 cursor-pointer transition-colors group" title="คลิกเพื่อดูรายละเอียดงบและการแก้ไขของผู้ตรวจสอบท่านนี้">
             <td class="py-2.5 px-3">
-              <div class="font-bold text-slate-800 group-hover:text-brand-600 transition-colors flex items-center gap-1.5">
+              <div class="font-bold text-slate-800 group-hover:text-brand-600 transition-colors flex items-center flex-wrap gap-1">
                 <span>${r.auditor.name}</span>
-                <span class="text-[10px] text-brand-600 font-normal opacity-0 group-hover:opacity-100 transition-opacity">🔍 คลิกดูรายงบ</span>
+                ${leaderBadge}
+                <span class="text-[10px] text-brand-600 font-normal opacity-0 group-hover:opacity-100 transition-opacity ml-auto">🔍 คลิกดูรายงบ</span>
               </div>
               <div class="text-[10px] text-slate-400">${r.auditor.group || 'ไม่ระบุกลุ่มงาน'} ${r.auditor.nickname ? '• ' + r.auditor.nickname : ''}</div>
             </td>
