@@ -737,7 +737,7 @@
           </div>
 
           <!-- Scrollable Table -->
-          <div class="overflow-x-auto max-h-[320px] overflow-y-auto">
+          <div class="overflow-x-auto max-h-[460px] min-h-[440px] overflow-y-auto">
             <table class="w-full text-left text-xs whitespace-nowrap">
               <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
                 <tr>
@@ -840,7 +840,7 @@
               </div>
 
               <!-- Scrollable Table 2 -->
-              <div class="overflow-x-auto max-h-[220px] overflow-y-auto">
+              <div class="overflow-x-auto max-h-[340px] min-h-[310px] overflow-y-auto">
                 <table class="w-full text-left text-xs whitespace-nowrap">
                   <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
                     <tr>
@@ -1634,6 +1634,118 @@
   <!-- ============================================================== -->
   <!-- MODAL 4: รายชื่อส่วนงาน/งบการเงินตามสถานะ KPI (Item 6)             -->
   <!-- ============================================================== -->
+  <!-- MODAL: รายละเอียดการส่งกลับแก้ไขรายงบของผู้ตรวจสอบ (Auditor Edit Details) -->
+  <div id="auditor-edit-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden overflow-y-auto">
+    <div class="min-h-full flex items-center justify-center p-3 sm:p-5">
+      <div class="bg-white rounded-3xl w-full max-w-5xl p-5 sm:p-6 card-shadow border border-slate-100 shadow-2xl relative my-8">
+        
+        <!-- Header & Filters Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 mb-4">
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+              <span>📋</span> รายละเอียดการส่งกลับแก้ไข: <span id="auditor-modal-name" class="text-brand-600">ผู้ตรวจสอบ</span>
+            </h3>
+            <p id="auditor-modal-subtitle" class="text-xs text-slate-400 mt-0.5">
+              แสดงรายการงบการเงินทั้งหมดที่รับผิดชอบ จำนวนครั้งที่แก้ไข และจำนวนวันแก้ไข
+            </p>
+          </div>
+
+          <!-- Filters: ปีงบ & งวดงบ (ตามที่ผู้ใช้ร้องขอ) -->
+          <div class="flex flex-wrap items-center gap-2">
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">ปีงบประมาณ</label>
+              <select id="auditor-modal-filter-year" onchange="renderAuditorModalTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                <option value="2570">2570</option>
+                <option value="2569">2569</option>
+                <option value="2568">2568</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">งวดงบ / ไตรมาส</label>
+              <select id="auditor-modal-filter-period" onchange="renderAuditorModalTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                <optgroup label="ภาพรวมทั้งปี">
+                  <option value="all">ภาพรวมทุกงวด</option>
+                </optgroup>
+                <optgroup label="รายเดือน">
+                  <option value="ตุลาคม">ตุลาคม (ต.ค.)</option>
+                  <option value="พฤศจิกายน">พฤศจิกายน (พ.ย.)</option>
+                  <option value="ธันวาคม">ธันวาคม (ธ.ค.)</option>
+                  <option value="มกราคม">มกราคม (ม.ค.)</option>
+                  <option value="กุมภาพันธ์">กุมภาพันธ์ (ก.พ.)</option>
+                  <option value="มีนาคม">มีนาคม (มี.ค.)</option>
+                  <option value="เมษายน">เมษายน (เม.ย.)</option>
+                  <option value="พฤษภาคม">พฤษภาคม (พ.ค.)</option>
+                  <option value="มิถุนายน">มิถุนายน (มิ.ย.)</option>
+                  <option value="กรกฎาคม">กรกฎาคม (ก.ค.)</option>
+                  <option value="สิงหาคม">สิงหาคม (ส.ค.)</option>
+                  <option value="กันยายน">กันยายน (ก.ย.)</option>
+                </optgroup>
+                <optgroup label="รายไตรมาส">
+                  <option value="ไตรมาส 1">ไตรมาส 1 (ต.ค. - ธ.ค.)</option>
+                  <option value="ไตรมาส 2">ไตรมาส 2 (ม.ค. - มี.ค.)</option>
+                  <option value="ไตรมาส 3">ไตรมาส 3 (เม.ย. - มิ.ย.)</option>
+                  <option value="ไตรมาส 4">ไตรมาส 4 (ก.ค. - ก.ย.)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <button onclick="closeAuditorEditDetailModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm transition-colors ml-2 mt-3.5">&times;</button>
+          </div>
+        </div>
+
+        <!-- Summary Statistics Pills inside Modal -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4 text-xs">
+          <div class="bg-slate-50 border border-slate-200/60 rounded-xl p-2.5">
+            <span class="text-[10px] text-slate-400 font-medium block">งบทั้งหมดในงวด</span>
+            <span id="auditor-modal-stat-total" class="text-base font-extrabold text-slate-800">0</span>
+          </div>
+          <div class="bg-amber-50 border border-amber-200/60 rounded-xl p-2.5">
+            <span class="text-[10px] text-amber-700 font-medium block">งบที่เคยถูกส่งแก้</span>
+            <span id="auditor-modal-stat-edited-budgets" class="text-base font-extrabold text-amber-800">0</span>
+          </div>
+          <div class="bg-orange-50 border border-orange-200/60 rounded-xl p-2.5">
+            <span class="text-[10px] text-orange-700 font-medium block">จำนวนครั้งแก้ไขรวม</span>
+            <span id="auditor-modal-stat-total-rounds" class="text-base font-extrabold text-orange-800">0 ครั้ง</span>
+          </div>
+          <div class="bg-rose-50 border border-rose-200/60 rounded-xl p-2.5">
+            <span class="text-[10px] text-rose-700 font-medium block">จำนวนวันแก้ไขรวม</span>
+            <span id="auditor-modal-stat-total-days" class="text-base font-extrabold text-rose-800">0 วัน</span>
+          </div>
+        </div>
+
+        <!-- Table inside Modal -->
+        <div class="overflow-x-auto max-h-[420px] overflow-y-auto rounded-xl border border-slate-100">
+          <table class="w-full text-left text-xs whitespace-nowrap">
+            <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3 text-center w-12">ลำดับ</th>
+                <th class="py-2.5 px-3 min-w-[200px]">ส่วนงาน / คณะ</th>
+                <th class="py-2.5 px-3 text-center min-w-[100px]">งวดรายงาน</th>
+                <th class="py-2.5 px-3 min-w-[140px]">สถานะปัจจุบัน</th>
+                <th class="py-2.5 px-3 text-center min-w-[100px]">จำนวนครั้งที่แก้ไข</th>
+                <th class="py-2.5 px-3 text-center min-w-[110px]">จำนวนวันแก้ไขรวม</th>
+                <th class="py-2.5 px-3 min-w-[260px]">รายละเอียดการส่งกลับแก้ไข (ชีท Edit)</th>
+              </tr>
+            </thead>
+            <tbody id="auditor-modal-table-body" class="divide-y divide-slate-100">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between pt-4 border-t border-slate-100 mt-4 text-xs">
+          <span id="auditor-modal-table-footer-text" class="text-slate-400">ทั้งหมด 0 รายการ</span>
+          <button type="button" onclick="closeAuditorEditDetailModal()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors">
+            ปิด
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: รายละเอียดสถานะงบการเงินรายงวด (จาก Donut Summary Card) พร้อมตัวกรองทีม/กลุ่มงาน -->
   <div id="donut-status-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden overflow-y-auto">
     <div class="min-h-full flex items-center justify-center p-3 sm:p-5">
@@ -3741,6 +3853,14 @@
     // -------------------------------------------------------------
     // EDIT SUMMARY TABLE (ตารางสรุปการแก้ไขของผู้ตรวจสอบ)
     // -------------------------------------------------------------
+    const ALLOWED_AUDIT_GROUPS = ['งานตรวจสอบ 1', 'งานตรวจสอบ 2', 'งานตรวจสอบ 3'];
+
+    function isAuditorInAuditGroup(aud) {
+      if (!aud) return false;
+      const grp = (aud.group || '').trim();
+      return ALLOWED_AUDIT_GROUPS.includes(grp);
+    }
+
     function populateEditSummaryFilters() {
       const groupSel = document.getElementById('edit-summary-filter-group');
       const audSel = document.getElementById('edit-summary-filter-auditor');
@@ -3757,6 +3877,8 @@
 
       audSel.innerHTML = '<option value="all">-- ผู้ตรวจสอบทั้งหมด --</option>';
       (sheetData.auditors || []).forEach(a => {
+        // กรองเฉพาะคนที่สังกัดในงานตรวจสอบ 1, 2 และ 3 เท่านั้น ตามที่ผู้ใช้กำหนด (คอลัมน์ E ในชีท ผู้ตรวจสอบ)
+        if (!isAuditorInAuditGroup(a)) return;
         if (selectedGroup === 'all' || a.group === selectedGroup) {
           audSel.innerHTML += `<option value="${a.name}">${a.name} (${a.nickname || a.group})</option>`;
         }
@@ -3797,7 +3919,9 @@
       const tracksFY = (sheetData.trackingList || []).filter(t => (t.fiscalYear || '').toString().trim() === fy.toString());
       const depts = sheetData.departments || [];
 
-      let auditors = sheetData.auditors || [];
+      // แสดงเฉพาะคนที่สังกัดในงานตรวจสอบ 1, 2 และ 3 เท่านั้น (คอลัมน์ E ในชีท ผู้ตรวจสอบ)
+      let auditors = (sheetData.auditors || []).filter(a => isAuditorInAuditGroup(a));
+
       if (currentUser && (currentUser.role === 'auditor' || currentUser.role === 'supervisor')) {
         auditors = auditors.filter(a => a.group === currentUser.group);
       }
@@ -3901,8 +4025,8 @@
       if (rowsData.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="text-center py-6 text-slate-400">
-              ไม่พบข้อมูลผู้ตรวจสอบตามเงื่อนไขที่เลือก
+            <td colspan="6" class="text-center py-8 text-slate-400">
+              ไม่พบข้อมูลผู้ตรวจสอบในงานตรวจสอบ 1, 2 และ 3 ตามเงื่อนไขที่เลือก
             </td>
           </tr>
         `;
@@ -3920,10 +4044,15 @@
           ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">${r.totalDays} วัน</span>` 
           : `<span class="text-slate-400 font-medium">0 วัน</span>`;
 
+        const safeAudName = (r.auditor.name || '').replace(/'/g, "\\'");
+
         return `
-          <tr class="hover:bg-slate-50 transition-colors">
+          <tr onclick="openAuditorEditDetailModal('${safeAudName}')" class="hover:bg-amber-50/70 cursor-pointer transition-colors group" title="คลิกเพื่อดูรายละเอียดงบและการแก้ไขของผู้ตรวจสอบท่านนี้">
             <td class="py-2.5 px-3">
-              <div class="font-bold text-slate-800">${r.auditor.name}</div>
+              <div class="font-bold text-slate-800 group-hover:text-brand-600 transition-colors flex items-center gap-1.5">
+                <span>${r.auditor.name}</span>
+                <span class="text-[10px] text-brand-600 font-normal opacity-0 group-hover:opacity-100 transition-opacity">🔍 คลิกดูรายงบ</span>
+              </div>
               <div class="text-[10px] text-slate-400">${r.auditor.group || 'ไม่ระบุกลุ่มงาน'} ${r.auditor.nickname ? '• ' + r.auditor.nickname : ''}</div>
             </td>
             <td class="py-2.5 px-3 text-center font-bold text-slate-700">
@@ -3960,11 +4089,232 @@
       `;
 
       if (statusEl) {
-        statusEl.textContent = `ผู้ตรวจสอบ ${rowsData.length} ท่าน • รวม ${grandTotalBudgets} งบ • มีการแก้ไขรวม ${grandTotalRounds} ครั้ง (${grandTotalDays} วัน)`;
+        statusEl.textContent = `ผู้ตรวจสอบ ${rowsData.length} ท่าน (งานตรวจสอบ 1-3) • รวม ${grandTotalBudgets} งบ • แก้ไขรวม ${grandTotalRounds} ครั้ง (${grandTotalDays} วัน) • คลิกที่แถวเพื่อดูรายงบ`;
       }
     }
 
-function renderFinanceMatrix() {
+    // -------------------------------------------------------------
+    // MODAL: AUDITOR EDIT DETAIL MODAL (หน้ารายละเอียดแต่ละงบของผู้ตรวจสอบ)
+    // -------------------------------------------------------------
+    let currentAuditorModalName = '';
+
+    function openAuditorEditDetailModal(auditorName) {
+      currentAuditorModalName = auditorName;
+      const modal = document.getElementById('auditor-edit-detail-modal');
+      const nameEl = document.getElementById('auditor-modal-name');
+      const fyFilter = document.getElementById('auditor-modal-filter-year');
+      const periodFilter = document.getElementById('auditor-modal-filter-period');
+
+      if (nameEl) nameEl.textContent = auditorName;
+
+      // Sync default filters with Table 2's filters
+      const table2Fy = document.getElementById('edit-summary-filter-year');
+      const table2Period = document.getElementById('edit-summary-filter-period');
+      if (fyFilter && table2Fy) fyFilter.value = table2Fy.value;
+      if (periodFilter && table2Period) periodFilter.value = table2Period.value;
+
+      renderAuditorModalTable();
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeAuditorEditDetailModal() {
+      const modal = document.getElementById('auditor-edit-detail-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderAuditorModalTable() {
+      const tbody = document.getElementById('auditor-modal-table-body');
+      const footerText = document.getElementById('auditor-modal-table-footer-text');
+      const statTotal = document.getElementById('auditor-modal-stat-total');
+      const statEdited = document.getElementById('auditor-modal-stat-edited-budgets');
+      const statRounds = document.getElementById('auditor-modal-stat-total-rounds');
+      const statDays = document.getElementById('auditor-modal-stat-total-days');
+
+      if (!tbody || !currentAuditorModalName) return;
+
+      const fy = document.getElementById('auditor-modal-filter-year') ? document.getElementById('auditor-modal-filter-year').value : '2570';
+      const period = document.getElementById('auditor-modal-filter-period') ? document.getElementById('auditor-modal-filter-period').value : 'all';
+
+      const monthDefs = [
+        { key: '10', name: 'ตุลาคม', q: 'ไตรมาส 1' },
+        { key: '11', name: 'พฤศจิกายน', q: 'ไตรมาส 1' },
+        { key: '12', name: 'ธันวาคม', q: 'ไตรมาส 1' },
+        { key: '01', name: 'มกราคม', q: 'ไตรมาส 2' },
+        { key: '02', name: 'กุมภาพันธ์', q: 'ไตรมาส 2' },
+        { key: '03', name: 'มีนาคม', q: 'ไตรมาส 2' },
+        { key: '04', name: 'เมษายน', q: 'ไตรมาส 3' },
+        { key: '05', name: 'พฤษภาคม', q: 'ไตรมาส 3' },
+        { key: '06', name: 'มิถุนายน', q: 'ไตรมาส 3' },
+        { key: '07', name: 'กรกฎาคม', q: 'ไตรมาส 4' },
+        { key: '08', name: 'สิงหาคม', q: 'ไตรมาส 4' },
+        { key: '09', name: 'กันยายน', q: 'ไตรมาส 4' }
+      ];
+
+      const monthMatch = monthDefs.find(m => m.name === period);
+      const isQuarter = ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].includes(period);
+
+      const tracksFY = (sheetData.trackingList || []).filter(t => (t.fiscalYear || '').toString().trim() === fy.toString());
+      const audDepts = (sheetData.departments || []).filter(d => isAuditorMatch(currentAuditorModalName, d.auditor));
+
+      const audSlots = [];
+      audDepts.forEach(d => {
+        const isQDept = (d.cycle === 'รายไตรมาส');
+        if (monthMatch) {
+          if (!isQDept) audSlots.push({ dept: d, pLabel: monthMatch.name, mKey: monthMatch.key, isQSlot: false, qName: '' });
+        } else if (isQuarter) {
+          const qMonths = monthDefs.filter(m => m.q === period);
+          if (!isQDept) {
+            qMonths.forEach(qm => audSlots.push({ dept: d, pLabel: qm.name, mKey: qm.key, isQSlot: false, qName: '' }));
+          } else {
+            audSlots.push({ dept: d, pLabel: period, mKey: qMonths[qMonths.length - 1].key, isQSlot: true, qName: period });
+          }
+        } else if (period === 'all') {
+          if (!isQDept) {
+            monthDefs.forEach(m => audSlots.push({ dept: d, pLabel: m.name, mKey: m.key, isQSlot: false, qName: '' }));
+          } else {
+            ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].forEach(q => audSlots.push({ dept: d, pLabel: q, mKey: '', isQSlot: true, qName: q }));
+          }
+        }
+      });
+
+      let countTotal = audSlots.length;
+      let countEdited = 0;
+      let sumRounds = 0;
+      let sumDays = 0;
+
+      const items = audSlots.map(slot => {
+        let matching = null;
+        for (let i = 0; i < tracksFY.length; i++) {
+          const t = tracksFY[i];
+          if (t.department !== slot.dept.name) continue;
+          if (slot.isQSlot) {
+            if (isTrackMatchMonth(t, slot.mKey, true, true, slot.qName)) {
+              matching = t;
+              break;
+            }
+          } else {
+            if (isTrackMatchMonth(t, slot.mKey, false, false, '')) {
+              matching = t;
+              break;
+            }
+          }
+        }
+
+        const st = getStatusRule(matching);
+        let edits = [];
+        let editDays = 0;
+
+        if (matching && matching.trackingId) {
+          const tid = matching.trackingId.toString().trim();
+          edits = (sheetData.editList || []).filter(e => (e.trackingId || '').toString().trim() === tid);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          edits.forEach(e => {
+            if (e.daysUsed !== undefined && e.daysUsed !== null && !isNaN(parseFloat(e.daysUsed)) && parseFloat(e.daysUsed) > 0) {
+              editDays += parseFloat(e.daysUsed);
+            } else if (e.dateReturned) {
+              const dStart = parseDateSafe(e.dateReturned);
+              const dEnd = e.dateResubmitted ? parseDateSafe(e.dateResubmitted) : today;
+              if (dStart && dEnd) {
+                editDays += Math.max(0, Math.round((dEnd - dStart) / 86400000));
+              }
+            }
+          });
+        }
+
+        if (edits.length > 0) {
+          countEdited++;
+          sumRounds += edits.length;
+          sumDays += editDays;
+        }
+
+        return {
+          deptName: slot.dept.name,
+          cycle: slot.dept.cycle,
+          period: slot.pLabel,
+          status: st,
+          editCount: edits.length,
+          editDays: editDays,
+          edits: edits
+        };
+      });
+
+      // Update pills
+      if (statTotal) statTotal.textContent = `${countTotal} งบ`;
+      if (statEdited) statEdited.textContent = `${countEdited} งบ`;
+      if (statRounds) statRounds.textContent = `${sumRounds} ครั้ง`;
+      if (statDays) statDays.textContent = `${sumDays} วัน`;
+
+      if (items.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-8 text-slate-400">
+              ไม่พบงบการเงินที่ ${currentAuditorModalName} รับผิดชอบตามเงื่อนไขที่เลือก
+            </td>
+          </tr>
+        `;
+        if (footerText) footerText.textContent = 'ทั้งหมด 0 รายการ';
+        return;
+      }
+
+      tbody.innerHTML = items.map((item, idx) => {
+        const roundsBadge = item.editCount > 0
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">${item.editCount} ครั้ง</span>`
+          : `<span class="text-slate-400">0 ครั้ง</span>`;
+
+        const daysBadge = item.editDays > 0
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">${item.editDays} วัน</span>`
+          : `<span class="text-slate-400">0 วัน</span>`;
+
+        let editsDetailHtml = '';
+        if (item.edits.length === 0) {
+          editsDetailHtml = `<span class="text-slate-400 text-[11px]">ไม่มีการส่งกลับแก้ไข (ผ่านรอบแรก)</span>`;
+        } else {
+          editsDetailHtml = item.edits.map(e => {
+            const dRet = formatInputDate(e.dateReturned) || '-';
+            const dRes = formatInputDate(e.dateResubmitted) || 'ยังไม่ส่งคืน ผอ.';
+            const noteText = e.note ? ` • <span class="text-slate-600">${e.note}</span>` : '';
+            return `<div class="text-[11px] py-0.5"><span class="font-bold text-amber-900">รอบที่ ${e.round || 1}:</span> ส่งแก้ ${dRet} &rarr; คืน ${dRes} <span class="font-semibold text-rose-700">(${e.daysUsed || 0} วัน)</span>${noteText}</div>`;
+          }).join('');
+        }
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-2.5 px-3 text-center text-slate-400 font-medium">${idx + 1}</td>
+            <td class="py-2.5 px-3">
+              <div class="font-bold text-slate-800">${item.deptName}</div>
+              <div class="text-[10px] text-slate-400">${item.cycle}</div>
+            </td>
+            <td class="py-2.5 px-3 text-center font-semibold text-slate-700">
+              ${item.period}
+            </td>
+            <td class="py-2.5 px-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${item.status.color}">
+                <span class="w-1.5 h-1.5 rounded-full ${item.status.dot}"></span>
+                ${item.status.label}
+              </span>
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              ${roundsBadge}
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              ${daysBadge}
+            </td>
+            <td class="py-2.5 px-3">
+              ${editsDetailHtml}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (footerText) {
+        footerText.textContent = `ทั้งหมด ${items.length} รายการ (พบการแก้ไข ${countEdited} งบ, รวม ${sumRounds} ครั้ง, รวม ${sumDays} วัน)`;
+      }
+    }
+
+    function renderFinanceMatrix() {
       renderSideDonutSummaryCard();
       renderEditSummaryTable();
       const tbody = document.getElementById('finance-matrix-body');
