@@ -646,173 +646,7 @@
 
     <!-- VIEW 2: FINANCE REPORT PAGE (ซ้าย: ตัวกรอง + ตารางติดตาม / ขวา: การ์ดสถานะ 4 ใบ, มือถือเรียงคอลัมน์เดียว) -->
         <!-- VIEW 2: FINANCE REPORT PAGE -->
-    <main id="view-finance" class="p-3 sm:p-4 pt-2 space-y-4 hidden">
-
-      <!-- TOP FULL-WIDTH CARD: สรุปภาพรวมรายเดือน / รายงวดงบประมาณ -->
-      <section class="bg-white rounded-2xl p-5 card-shadow border border-slate-100">
-        <!-- Header & Filters Bar -->
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
-          <div>
-            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-              <span class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-sm shadow-xs">📊</span>
-              <span>สรุปภาพรวมงบการเงินรายงวด</span>
-            </h2>
-            <p id="monthly-summary-subtitle" class="text-xs text-slate-400 mt-0.5">
-              สรุปความคืบหน้างบการเงินรายส่วนงาน ประจำปีงบประมาณ <span id="summary-badge-year" class="font-bold text-brand-600">2570</span> • งวด <span id="summary-badge-period" class="font-bold text-brand-600">ตุลาคม</span>
-            </p>
-          </div>
-
-          <!-- Dual Filters: ปีงบประมาณ & งวดงบ/ไตรมาส -->
-          <div class="flex flex-wrap items-center gap-2.5 text-xs">
-            <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
-              <label class="text-[11px] font-semibold text-slate-500 whitespace-nowrap">ปีงบประมาณ:</label>
-              <select id="fin-summary-year" onchange="onSummaryFilterChange()" class="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
-                <option value="2570" selected>2570</option>
-                <option value="2569">2569</option>
-                <option value="2568">2568</option>
-              </select>
-            </div>
-
-            <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
-              <label class="text-[11px] font-semibold text-slate-500 whitespace-nowrap">งวดงบ / ไตรมาส:</label>
-              <select id="fin-summary-period" onchange="onSummaryFilterChange()" class="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
-                <optgroup label="รายเดือน (Monthly)">
-                  <option value="ตุลาคม" selected>ตุลาคม (ต.ค.)</option>
-                  <option value="พฤศจิกายน">พฤศจิกายน (พ.ย.)</option>
-                  <option value="ธันวาคม">ธันวาคม (ธ.ค.)</option>
-                  <option value="มกราคม">มกราคม (ม.ค.)</option>
-                  <option value="กุมภาพันธ์">กุมภาพันธ์ (ก.พ.)</option>
-                  <option value="มีนาคม">มีนาคม (มี.ค.)</option>
-                  <option value="เมษายน">เมษายน (เม.ย.)</option>
-                  <option value="พฤษภาคม">พฤษภาคม (พ.ค.)</option>
-                  <option value="มิถุนายน">มิถุนายน (มิ.ย.)</option>
-                  <option value="กรกฎาคม">กรกฎาคม (ก.ค.)</option>
-                  <option value="สิงหาคม">สิงหาคม (ส.ค.)</option>
-                  <option value="กันยายน">กันยายน (ก.ย.)</option>
-                </optgroup>
-                <optgroup label="รายไตรมาส (Quarterly)">
-                  <option value="ไตรมาส 1">ไตรมาส 1 (ต.ค. - ธ.ค.)</option>
-                  <option value="ไตรมาส 2">ไตรมาส 2 (ม.ค. - มี.ค.)</option>
-                  <option value="ไตรมาส 3">ไตรมาส 3 (เม.ย. - มิ.ย.)</option>
-                  <option value="ไตรมาส 4">ไตรมาส 4 (ก.ค. - ก.ย.)</option>
-                </optgroup>
-                <optgroup label="ภาพรวมทั้งปี">
-                  <option value="all">ภาพรวมทุกงวดทั้งปี (ต.ค. - ก.ย.)</option>
-                </optgroup>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- 6 Metrics Cards Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <!-- 1. จำนวนงบทั้งหมดในงวด -->
-          <div class="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-purple-300" onclick="showMonthlySummaryModal('total')" title="คลิกดูรายชื่อส่วนงานทั้งหมดในงวดนี้">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-purple-900">1. งบทั้งหมดในงวด</span>
-              <span class="w-6 h-6 rounded-lg bg-purple-200/80 text-purple-800 flex items-center justify-center text-xs">📋</span>
-            </div>
-            <div class="my-2">
-              <div id="summary-total-budgets" class="text-2xl sm:text-3xl font-extrabold text-purple-950 tracking-tight">40</div>
-              <div id="summary-total-sub" class="text-[10px] text-purple-700/80 mt-0.5">ส่วนงานที่ต้องส่งงวดนี้</div>
-            </div>
-            <div class="text-[10px] font-semibold text-purple-800 bg-purple-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
-              100% ครบทุกงบ
-            </div>
-          </div>
-
-          <!-- 2. ผอ.เห็นชอบแล้ว / เสนออธิการบดีแล้ว (สถานะ 5, 6) -->
-          <div class="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-emerald-300" onclick="showMonthlySummaryModal('approved')" title="คลิกดูรายชื่อส่วนงานที่ ผอ.เห็นชอบ/เสนออธิการบดีแล้ว">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-emerald-900">2. ผอ.เห็นชอบแล้ว</span>
-              <span class="w-6 h-6 rounded-lg bg-emerald-200/80 text-emerald-800 flex items-center justify-center text-xs">✅</span>
-            </div>
-            <div class="my-2">
-              <div id="summary-approved-count" class="text-2xl sm:text-3xl font-extrabold text-emerald-900 tracking-tight">0</div>
-              <div class="text-[10px] text-emerald-700/80 mt-0.5">เสนออธิการฯ / เห็นชอบ</div>
-            </div>
-            <div id="summary-approved-pct" class="text-[10px] font-semibold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
-              0.0%
-            </div>
-          </div>
-
-          <!-- 3. อยู่ระหว่างแก้ไข (สถานะ 4) -->
-          <div class="bg-rose-50/60 border border-rose-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-rose-300" onclick="showMonthlySummaryModal('editing')" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างแก้ไข">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-rose-900">3. อยู่ระหว่างแก้ไข</span>
-              <span class="w-6 h-6 rounded-lg bg-rose-200/80 text-rose-800 flex items-center justify-center text-xs">✏️</span>
-            </div>
-            <div class="my-2">
-              <div id="summary-editing-count" class="text-2xl sm:text-3xl font-extrabold text-rose-900 tracking-tight">0</div>
-              <div class="text-[10px] text-rose-700/80 mt-0.5">ผอ.ส่งกลับปรับปรุง</div>
-            </div>
-            <div id="summary-editing-pct" class="text-[10px] font-semibold text-rose-800 bg-rose-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
-              0.0%
-            </div>
-          </div>
-
-          <!-- 4. อยู่ระหว่างเสนอ ผอ. (สถานะ 3) -->
-          <div class="bg-indigo-50/60 border border-indigo-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-indigo-300" onclick="showMonthlySummaryModal('dean')" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างเสนอ ผอ.">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-indigo-900">4. อยู่ระหว่างเสนอ ผอ.</span>
-              <span class="w-6 h-6 rounded-lg bg-indigo-200/80 text-indigo-800 flex items-center justify-center text-xs">📨</span>
-            </div>
-            <div class="my-2">
-              <div id="summary-dean-count" class="text-2xl sm:text-3xl font-extrabold text-indigo-900 tracking-tight">0</div>
-              <div class="text-[10px] text-indigo-700/80 mt-0.5">รอ ผอ. ตรวจสอบ/ลงนาม</div>
-            </div>
-            <div id="summary-dean-pct" class="text-[10px] font-semibold text-indigo-800 bg-indigo-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
-              0.0%
-            </div>
-          </div>
-
-          <!-- 5. อยู่ระหว่างดำเนินการ (สถานะ 2) -->
-          <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-amber-300" onclick="showMonthlySummaryModal('progress')" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างดำเนินการ">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-amber-900">5. อยู่ระหว่างดำเนินการ</span>
-              <span class="w-6 h-6 rounded-lg bg-amber-200/80 text-amber-800 flex items-center justify-center text-xs">⏳</span>
-            </div>
-            <div class="my-2">
-              <div id="summary-progress-count" class="text-2xl sm:text-3xl font-extrabold text-amber-900 tracking-tight">0</div>
-              <div class="text-[10px] text-amber-700/80 mt-0.5">ผู้ตรวจกำลังตรวจงบ</div>
-            </div>
-            <div id="summary-progress-pct" class="text-[10px] font-semibold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-md inline-block w-fit">
-              0.0%
-            </div>
-          </div>
-
-          <!-- 6. รอเอกสาร (สถานะ 1) -->
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:shadow-md cursor-pointer hover:border-slate-300" onclick="showMonthlySummaryModal('waiting')" title="คลิกดูรายชื่อส่วนงานที่รอเอกสาร">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-slate-700">6. รอเอกสาร</span>
-              <span class="w-6 h-6 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center text-xs">📥</span>
-            </div>
-            <div class="my-2">
-              <div id="summary-waiting-count" class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">0</div>
-              <div class="text-[10px] text-slate-400 mt-0.5">ส่วนงานยังไม่ส่งงบ</div>
-            </div>
-            <div id="summary-waiting-pct" class="text-[10px] font-semibold text-slate-700 bg-slate-200/70 px-2 py-0.5 rounded-md inline-block w-fit">
-              0.0%
-            </div>
-          </div>
-        </div>
-
-        <!-- Progress Bar & Verification Banner -->
-        <div class="mt-4 pt-3 border-t border-slate-100">
-          <div class="flex items-center justify-between text-[11px] mb-1.5">
-            <span class="font-semibold text-slate-600">สัดส่วนสถานะงบการเงินในงวด:</span>
-            <span id="summary-verify-label" class="font-bold text-slate-700">รวมข้อ 2 - 6 = 40 / 40 งบ (100.0%)</span>
-          </div>
-          <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
-            <div id="summary-bar-approved" class="h-full bg-emerald-500 transition-all" style="width: 0%" title="ผอ.เห็นชอบ"></div>
-            <div id="summary-bar-editing" class="h-full bg-rose-500 transition-all" style="width: 0%" title="อยู่ระหว่างแก้ไข"></div>
-            <div id="summary-bar-dean" class="h-full bg-indigo-500 transition-all" style="width: 0%" title="อยู่ระหว่างเสนอ ผอ."></div>
-            <div id="summary-bar-progress" class="h-full bg-amber-500 transition-all" style="width: 0%" title="อยู่ระหว่างดำเนินการ"></div>
-            <div id="summary-bar-waiting" class="h-full bg-slate-300 transition-all" style="width: 100%" title="รอเอกสาร"></div>
-          </div>
-        </div>
-      </section>
-
+    <main id="view-finance" class="p-3 sm:p-4 pt-2 hidden">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
         <!-- LEFT COLUMN: ตัวกรอง + ตารางติดตามงบการเงินรายส่วนงาน -->
@@ -942,6 +776,130 @@
 
         <!-- RIGHT COLUMN: 4 KPI Cards (ผอ.เห็นชอบ, อยู่ระหว่างดำเนินการ, อยู่ระหว่างแก้ไข, แจ้งเตือน) -->
         <div class="lg:col-span-4 xl:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3.5">
+          <!-- CONSOLIDATED DONUT SUMMARY CARD: สรุปภาพรวมสถานะงบการเงินรายงวด -->
+          <div class="sm:col-span-2 lg:col-span-1 bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between">
+            <!-- Header & Dedicated Filters -->
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2.5 pb-2.5 border-b border-slate-100">
+                <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <span class="text-sm">🍩</span> สรุปภาพรวมสถานะงบการเงิน
+                </h4>
+                <span id="side-donut-period-badge" class="text-[10px] font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full">ต.ค. 2570</span>
+              </div>
+
+              <!-- Dedicated Filters for this card -->
+              <div class="grid grid-cols-2 gap-2 mb-3 text-xs">
+                <div>
+                  <label class="block text-[10px] font-semibold text-slate-500 mb-1">ปีงบประมาณ</label>
+                  <select id="side-summary-year" onchange="renderSideDonutSummaryCard()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                    <option value="2570" selected>2570</option>
+                    <option value="2569">2569</option>
+                    <option value="2568">2568</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-slate-500 mb-1">งวดงบ / ไตรมาส</label>
+                  <select id="side-summary-period" onchange="renderSideDonutSummaryCard()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                    <optgroup label="รายเดือน">
+                      <option value="ตุลาคม" selected>ตุลาคม (ต.ค.)</option>
+                      <option value="พฤศจิกายน">พฤศจิกายน (พ.ย.)</option>
+                      <option value="ธันวาคม">ธันวาคม (ธ.ค.)</option>
+                      <option value="มกราคม">มกราคม (ม.ค.)</option>
+                      <option value="กุมภาพันธ์">กุมภาพันธ์ (ก.พ.)</option>
+                      <option value="มีนาคม">มีนาคม (มี.ค.)</option>
+                      <option value="เมษายน">เมษายน (เม.ย.)</option>
+                      <option value="พฤษภาคม">พฤษภาคม (พ.ค.)</option>
+                      <option value="มิถุนายน">มิถุนายน (มิ.ย.)</option>
+                      <option value="กรกฎาคม">กรกฎาคม (ก.ค.)</option>
+                      <option value="สิงหาคม">สิงหาคม (ส.ค.)</option>
+                      <option value="กันยายน">กันยายน (ก.ย.)</option>
+                    </optgroup>
+                    <optgroup label="รายไตรมาส">
+                      <option value="ไตรมาส 1">ไตรมาส 1 (ต.ค. - ธ.ค.)</option>
+                      <option value="ไตรมาส 2">ไตรมาส 2 (ม.ค. - มี.ค.)</option>
+                      <option value="ไตรมาส 3">ไตรมาส 3 (เม.ย. - มิ.ย.)</option>
+                      <option value="ไตรมาส 4">ไตรมาส 4 (ก.ค. - ก.ย.)</option>
+                    </optgroup>
+                    <optgroup label="ภาพรวมทั้งปี">
+                      <option value="all">ภาพรวมทุกงวดทั้งปี</option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Donut Chart & Status Breakdown List (ตามรูปแนบของผู้ใช้) -->
+              <div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-3 pt-1">
+                <!-- Donut Chart with Center Number -->
+                <div class="relative shrink-0 flex items-center justify-center my-1" style="width: 130px; height: 130px;">
+                  <canvas id="sideSummaryDonutChart" width="130" height="130"></canvas>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span id="side-donut-center-num" class="text-xl font-extrabold text-slate-800 leading-none">40</span>
+                    <span class="text-[9px] text-slate-400 font-medium mt-0.5">งบทั้งหมด</span>
+                  </div>
+                </div>
+
+                <!-- Status Rows (Clickable to open detailed list popup) -->
+                <div class="flex-1 w-full space-y-1.5 text-xs">
+                  <!-- 1. งบทั้งหมด -->
+                  <div onclick="openDonutStatusPopup('total')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานทั้งหมดในงวดนี้">
+                    <span class="font-bold text-slate-800 group-hover:text-brand-600 transition-colors">งบทั้งหมด</span>
+                    <span id="side-num-total" class="font-extrabold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md text-xs">40</span>
+                  </div>
+
+                  <!-- 2. ผอ.เห็นชอบ/เสนออธิการแล้ว -->
+                  <div onclick="openDonutStatusPopup('approved')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-teal-50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่ ผอ.เห็นชอบ/เสนออธิการแล้ว">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-teal-600 shrink-0"></span>
+                      <span class="text-slate-700 font-medium group-hover:text-teal-700 transition-colors">ผอ.เห็นชอบ/เสนออธิการแล้ว</span>
+                    </div>
+                    <span id="side-num-approved" class="font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md text-xs">0</span>
+                  </div>
+
+                  <!-- 3. ระหว่างแก้ไข -->
+                  <div onclick="openDonutStatusPopup('editing')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างแก้ไข">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
+                      <span class="text-slate-700 font-medium group-hover:text-rose-700 transition-colors">ระหว่างแก้ไข</span>
+                    </div>
+                    <span id="side-num-editing" class="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md text-xs">0</span>
+                  </div>
+
+                  <!-- 4. ระหว่างเสนอผอ. -->
+                  <div onclick="openDonutStatusPopup('dean')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-purple-50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างเสนอ ผอ.">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0"></span>
+                      <span class="text-slate-700 font-medium group-hover:text-purple-700 transition-colors">ระหว่างเสนอผอ.</span>
+                    </div>
+                    <span id="side-num-dean" class="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md text-xs">0</span>
+                  </div>
+
+                  <!-- 5. ระหว่างดำเนินการ -->
+                  <div onclick="openDonutStatusPopup('progress')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-amber-50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างดำเนินการ">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                      <span class="text-slate-700 font-medium group-hover:text-amber-700 transition-colors">ระหว่างดำเนินการ</span>
+                    </div>
+                    <span id="side-num-progress" class="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md text-xs">0</span>
+                  </div>
+
+                  <!-- 6. รอเอกสาร -->
+                  <div onclick="openDonutStatusPopup('waiting')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่รอเอกสาร">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0"></span>
+                      <span class="text-slate-700 font-medium group-hover:text-slate-900 transition-colors">รอเอกสาร</span>
+                    </div>
+                    <span id="side-num-waiting" class="font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-xs">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+              <span>คลิกที่แต่ละสถานะเพื่อดูรายชื่อ</span>
+              <span class="text-brand-600 font-medium">กรองแยกตามทีมได้ 🔍</span>
+            </div>
+          </div>
+
 
           <!-- KPI 1: ผอ.เห็นชอบ (สถานะ 5 และ 6) -->
           <div onclick="showKpiListModal('ผอ.เห็นชอบ')" class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-teal-300 hover:shadow-md transition-all group">
@@ -1574,6 +1532,66 @@
   <!-- ============================================================== -->
   <!-- MODAL 4: รายชื่อส่วนงาน/งบการเงินตามสถานะ KPI (Item 6)             -->
   <!-- ============================================================== -->
+  <!-- MODAL: รายละเอียดสถานะงบการเงินรายงวด (จาก Donut Summary Card) พร้อมตัวกรองทีม/กลุ่มงาน -->
+  <div id="donut-status-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden overflow-y-auto">
+    <div class="min-h-full flex items-center justify-center p-3 sm:p-5">
+      <div class="bg-white rounded-3xl w-full max-w-5xl p-5 sm:p-6 card-shadow border border-slate-100 shadow-2xl relative my-8">
+        
+        <!-- Header & Group Filter Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 mb-4">
+          <div>
+            <h3 id="donut-modal-title" class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+              <span>📋</span> รายชื่อส่วนงานตามสถานะ
+            </h3>
+            <p id="donut-modal-subtitle" class="text-xs text-slate-400 mt-0.5">ปีงบประมาณ 2570 • งวด ตุลาคม</p>
+          </div>
+
+          <!-- Filter by Group / Team (ตามที่ผู้ใช้ต้องการ) -->
+          <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-1.5 text-xs">
+            <label class="font-semibold text-slate-600 whitespace-nowrap">กรองทีม/กลุ่มงาน:</label>
+            <select id="donut-modal-group-filter" onchange="onDonutModalGroupFilterChange()" class="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer">
+              <option value="all">-- ทุกทีม/กลุ่มงาน --</option>
+              <option value="งานตรวจสอบ 1">งานตรวจสอบ 1</option>
+              <option value="งานตรวจสอบ 2">งานตรวจสอบ 2</option>
+              <option value="งานตรวจสอบ 3">งานตรวจสอบ 3</option>
+              <option value="งานบริหารและธุรการ">งานบริหารและธุรการ</option>
+            </select>
+          </div>
+
+          <button onclick="closeDonutStatusModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-lg font-bold transition-colors">&times;</button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-x-auto max-h-[60vh] border border-slate-100 rounded-xl">
+          <table class="w-full text-left text-xs whitespace-nowrap">
+            <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 border-b border-slate-200 z-10">
+              <tr>
+                <th class="py-2.5 px-3 text-center">ลำดับ</th>
+                <th class="py-2.5 px-3">ส่วนงาน / คณะ</th>
+                <th class="py-2.5 px-3">งวดรายงาน</th>
+                <th class="py-2.5 px-3">ผู้รับผิดชอบ</th>
+                <th class="py-2.5 px-3">ทีม/กลุ่มงานที่รับผิดชอบ</th>
+                <th class="py-2.5 px-3 text-center">วันที่รับงบ</th>
+                <th class="py-2.5 px-3 text-center">สถานะปัจจุบัน</th>
+                <th class="py-2.5 px-3 text-center">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="donut-modal-tbody" class="divide-y divide-slate-100">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-4 text-xs text-slate-500">
+          <span id="donut-modal-count-label">ทั้งหมด 0 รายการ</span>
+          <button onclick="closeDonutStatusModal()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors">ปิด</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <div id="kpi-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden overflow-y-auto">
     <div class="min-h-full flex items-center justify-center p-3 sm:p-5">
       <div class="bg-white rounded-3xl w-full max-w-4xl p-5 sm:p-6 card-shadow border border-slate-100 shadow-2xl relative my-8">
@@ -2478,7 +2496,10 @@
       document.getElementById('view-other').classList.add('hidden');
 
       if (viewName === 'home') document.getElementById('view-home').classList.remove('hidden');
-      else if (viewName === 'finance') document.getElementById('view-finance').classList.remove('hidden');
+      else if (viewName === 'finance') {
+        document.getElementById('view-finance').classList.remove('hidden');
+        renderFinanceMatrix();
+      }
       else if (viewName === 'budget' && vBudget) {
         vBudget.classList.remove('hidden');
         populateBudgetViewFilters();
@@ -3280,117 +3301,26 @@
           </div>
         </td>
       `;
-    }
-
+    }    // -------------------------------------------------------------
+    // CONSOLIDATED DONUT SUMMARY CARD & GROUP-FILTERABLE POPUP
     // -------------------------------------------------------------
-    // MONTHLY & PERIOD FINANCE SUMMARY CARD (สรุปภาพรวมรายเดือน/งวดงบประมาณ)
-    // -------------------------------------------------------------
-    function onSummaryFilterChange() {
-      const yearVal = document.getElementById('fin-summary-year')?.value;
-      const periodVal = document.getElementById('fin-summary-period')?.value;
+    let sideDonutChartInstance = null;
+    let sideDonutModalStore = { total: [], approved: [], editing: [], dean: [], progress: [], waiting: [] };
+    let activeDonutModalCategory = 'total';
 
-      // Sync with table filters below
-      const finYearSel = document.getElementById('fin-filter-year');
-      if (finYearSel && yearVal) {
-        finYearSel.value = yearVal;
-      }
-      const finPeriodSel = document.getElementById('fin-filter-period');
-      if (finPeriodSel && periodVal) {
-        const hasOpt = Array.from(finPeriodSel.options).some(o => o.value === periodVal);
-        if (hasOpt) finPeriodSel.value = periodVal;
-      }
-
-      renderMonthlyFinanceSummaryCard();
-      renderFinanceMatrix();
-    }
-
-    let monthlySummaryModalData = { total: [], approved: [], editing: [], dean: [], progress: [], waiting: [] };
-
-    function showMonthlySummaryModal(category) {
-      const modal = document.getElementById('kpi-detail-modal');
-      const titleEl = document.getElementById('kpi-modal-title');
-      const subtitleEl = document.getElementById('kpi-modal-subtitle');
-      const tbody = document.getElementById('kpi-modal-tbody');
-      const countEl = document.getElementById('kpi-modal-total-count');
-
-      const fy = document.getElementById('fin-summary-year')?.value || '2570';
-      const period = document.getElementById('fin-summary-period')?.value || 'ตุลาคม';
-
-      const catMeta = {
-        total: { title: '1. จำนวนงบทั้งหมดในงวดงบนี้', icon: '📋' },
-        approved: { title: '2. งบที่ ผอ.เห็นชอบแล้ว / เสนออธิการบดีแล้ว (สถานะ 5, 6)', icon: '✅' },
-        editing: { title: '3. งบที่อยู่ระหว่างแก้ไข (สถานะ 4)', icon: '✏️' },
-        dean: { title: '4. งบที่อยู่ระหว่างเสนอ ผอ. (สถานะ 3)', icon: '📨' },
-        progress: { title: '5. งบที่อยู่ระหว่างดำเนินการ (สถานะ 2)', icon: '⏳' },
-        waiting: { title: '6. งบที่รอเอกสาร (สถานะ 1)', icon: '📥' }
-      };
-
-      const meta = catMeta[category] || catMeta.total;
-      const list = monthlySummaryModalData[category] || [];
-
-      titleEl.innerHTML = `<span>${meta.icon}</span> ${meta.title}`;
-      subtitleEl.textContent = `ปีงบประมาณ ${fy} • งวด ${period === 'all' ? 'ทุกงวดทั้งปี' : period} • ทั้งหมด ${list.length} รายการ`;
-      countEl.textContent = `ทั้งหมด ${list.length} รายการ`;
-
-      tbody.innerHTML = '';
-      if (list.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="py-8 text-center text-slate-400">
-              ไม่มีรายการในหมวดนี้สำหรับงวด ${period} ปีงบประมาณ ${fy}
-            </td>
-          </tr>
-        `;
-      } else {
-        list.forEach((item, idx) => {
-          const editCount = item.editCount || 0;
-          const editSummaryBadge = editCount > 0
-            ? `<div class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">🔄 แก้ไข ${editCount} ครั้ง</div>`
-            : '';
-
-          tbody.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-colors">
-              <td class="py-3 px-3 text-slate-400 font-mono text-[11px]">${idx + 1}</td>
-              <td class="py-3 px-3 font-semibold text-slate-800">
-                <div>${item.deptName}</div>
-                <div class="text-[10px] text-slate-400 font-normal mt-0.5">รอบ: ${item.cycle}</div>
-              </td>
-              <td class="py-3 px-3 text-slate-600 font-medium">${item.period}</td>
-              <td class="py-3 px-3 text-slate-600">${item.auditor || '-'}</td>
-              <td class="py-3 px-3 text-slate-500 whitespace-nowrap text-[11px]">${item.dateReceived || '-'}</td>
-              <td class="py-3 px-3">
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${item.status.color}">
-                  <span class="w-1.5 h-1.5 rounded-full ${item.status.dot}"></span>
-                  <span>${item.status.code}. ${item.status.label}</span>
-                </span>
-                ${editSummaryBadge}
-              </td>
-              <td class="py-3 px-3 text-right">
-                <button onclick="closeKpiListModal(); openFinanceModal('${item.deptName}', '${item.period}')" class="px-2.5 py-1 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-semibold transition-all">
-                  ตรวจดู
-                </button>
-              </td>
-            </tr>
-          `;
-        });
-      }
-
-      modal.classList.remove('hidden');
-    }
-
-    function renderMonthlyFinanceSummaryCard() {
-      const yearSel = document.getElementById('fin-summary-year');
-      const periodSel = document.getElementById('fin-summary-period');
+    function renderSideDonutSummaryCard() {
+      const yearSel = document.getElementById('side-summary-year');
+      const periodSel = document.getElementById('side-summary-period');
       if (!yearSel || !periodSel) return;
 
       const fy = (yearSel.value || '2570').toString().trim();
       const period = (periodSel.value || 'ตุลาคม').toString().trim();
 
-      // Update subtitle badges
-      const badgeY = document.getElementById('summary-badge-year');
-      const badgeP = document.getElementById('summary-badge-period');
-      if (badgeY) badgeY.textContent = fy;
-      if (badgeP) badgeP.textContent = period === 'all' ? 'ทุกงวดทั้งปี' : period;
+      // Update badge in card header
+      const badgeP = document.getElementById('side-donut-period-badge');
+      if (badgeP) {
+        badgeP.textContent = `${period === 'all' ? 'ทุกงวด' : period} ${fy}`;
+      }
 
       const monthDefs = [
         { key: '10', name: 'ตุลาคม', q: 'ไตรมาส 1' },
@@ -3422,12 +3352,10 @@
       depts.forEach(d => {
         const isQDept = (d.cycle === 'รายไตรมาส');
         if (monthMatch) {
-          // Single month: monthly departments have a budget in this month
           if (!isQDept) {
             slots.push({ dept: d, pLabel: monthMatch.name, mKey: monthMatch.key, isQSlot: false, qName: '' });
           }
         } else if (isQuarter) {
-          // Specific quarter: monthly depts have 3 budgets, quarterly dept has 1
           const qMonths = monthDefs.filter(m => m.q === period);
           if (!isQDept) {
             qMonths.forEach(qm => {
@@ -3437,7 +3365,6 @@
             slots.push({ dept: d, pLabel: period, mKey: qMonths[qMonths.length - 1].key, isQSlot: true, qName: period });
           }
         } else if (period === 'all') {
-          // All year: monthly depts have 12 budgets, quarterly dept has 4
           if (!isQDept) {
             monthDefs.forEach(m => {
               slots.push({ dept: d, pLabel: m.name, mKey: m.key, isQSlot: false, qName: '' });
@@ -3451,12 +3378,6 @@
       });
 
       const tracksFY = (sheetData.trackingList || []).filter(t => (t.fiscalYear || '').toString().trim() === fy);
-
-      let cApproved = 0; // 2. ผอ.เห็นชอบ / เสนออธิการบดี (code 5, 6)
-      let cEdit = 0;     // 3. อยู่ระหว่างแก้ไข (code 4)
-      let cDean = 0;     // 4. อยู่ระหว่างเสนอ ผอ. (code 3)
-      let cProgress = 0; // 5. อยู่ระหว่างดำเนินการ (code 2)
-      let cWait = 0;     // 6. รอเอกสาร (code 1)
 
       const listTotal = [];
       const listApproved = [];
@@ -3484,39 +3405,36 @@
         }
 
         const st = getStatusRule(matching);
-        const editStats = matching && matching.trackingId ? computeEditStatsForTracking(matching.trackingId) : { editCount: 0, totalDays: 0 };
+        const audRec = findAuditorRecord(slot.dept.auditor);
+        const teamGroup = audRec ? (audRec.group || 'ไม่ระบุ') : 'ไม่ระบุ';
+
         const itemInfo = {
           deptName: slot.dept.name,
           cycle: slot.dept.cycle,
           auditor: slot.dept.auditor,
+          group: teamGroup,
           period: slot.pLabel,
           fiscalYear: fy,
           dateReceived: matching ? (formatInputDate(matching.dateAuditorReceived || matching.dateReceivedFromDept) || '-') : '-',
-          editCount: editStats.editCount,
           status: st
         };
 
         listTotal.push(itemInfo);
 
         if (st.code === 5 || st.code === 6) {
-          cApproved++;
           listApproved.push(itemInfo);
         } else if (st.code === 4) {
-          cEdit++;
           listEditing.push(itemInfo);
         } else if (st.code === 3) {
-          cDean++;
           listDean.push(itemInfo);
         } else if (st.code === 2) {
-          cProgress++;
           listProgress.push(itemInfo);
         } else {
-          cWait++;
           listWaiting.push(itemInfo);
         }
       });
 
-      monthlySummaryModalData = {
+      sideDonutModalStore = {
         total: listTotal,
         approved: listApproved,
         editing: listEditing,
@@ -3525,65 +3443,199 @@
         waiting: listWaiting
       };
 
-      const total = slots.length;
-      const sumStatuses = cApproved + cEdit + cDean + cProgress + cWait;
+      // Update counters in card
+      const elCenter = document.getElementById('side-donut-center-num');
+      const elTotal = document.getElementById('side-num-total');
+      const elApprove = document.getElementById('side-num-approved');
+      const elEdit = document.getElementById('side-num-editing');
+      const elDean = document.getElementById('side-num-dean');
+      const elProg = document.getElementById('side-num-progress');
+      const elWait = document.getElementById('side-num-waiting');
 
-      // Update counters
-      const elTotal = document.getElementById('summary-total-budgets');
-      const elApprove = document.getElementById('summary-approved-count');
-      const elEdit = document.getElementById('summary-editing-count');
-      const elDean = document.getElementById('summary-dean-count');
-      const elProg = document.getElementById('summary-progress-count');
-      const elWait = document.getElementById('summary-waiting-count');
+      if (elCenter) elCenter.textContent = listTotal.length;
+      if (elTotal) elTotal.textContent = listTotal.length;
+      if (elApprove) elApprove.textContent = listApproved.length;
+      if (elEdit) elEdit.textContent = listEditing.length;
+      if (elDean) elDean.textContent = listDean.length;
+      if (elProg) elProg.textContent = listProgress.length;
+      if (elWait) elWait.textContent = listWaiting.length;
 
-      if (elTotal) elTotal.textContent = total;
-      if (elApprove) elApprove.textContent = cApproved;
-      if (elEdit) elEdit.textContent = cEdit;
-      if (elDean) elDean.textContent = cDean;
-      if (elProg) elProg.textContent = cProgress;
-      if (elWait) elWait.textContent = cWait;
-
-      // Update percentages
-      const calcPct = (cnt) => total > 0 ? ((cnt / total) * 100).toFixed(1) : '0.0';
-      const pctApprove = calcPct(cApproved);
-      const pctEdit = calcPct(cEdit);
-      const pctDean = calcPct(cDean);
-      const pctProg = calcPct(cProgress);
-      const pctWait = calcPct(cWait);
-
-      const elPctApprove = document.getElementById('summary-approved-pct');
-      const elPctEdit = document.getElementById('summary-editing-pct');
-      const elPctDean = document.getElementById('summary-dean-pct');
-      const elPctProg = document.getElementById('summary-progress-pct');
-      const elPctWait = document.getElementById('summary-waiting-pct');
-
-      if (elPctApprove) elPctApprove.textContent = `${pctApprove}%`;
-      if (elPctEdit) elPctEdit.textContent = `${pctEdit}%`;
-      if (elPctDean) elPctDean.textContent = `${pctDean}%`;
-      if (elPctProg) elPctProg.textContent = `${pctProg}%`;
-      if (elPctWait) elPctWait.textContent = `${pctWait}%`;
-
-      // Update Progress Bar
-      const barApprove = document.getElementById('summary-bar-approved');
-      const barEdit = document.getElementById('summary-bar-editing');
-      const barDean = document.getElementById('summary-bar-dean');
-      const barProg = document.getElementById('summary-bar-progress');
-      const barWait = document.getElementById('summary-bar-waiting');
-
-      if (barApprove) { barApprove.style.width = `${pctApprove}%`; barApprove.title = `2. ผอ.เห็นชอบ: ${cApproved} (${pctApprove}%)`; }
-      if (barEdit) { barEdit.style.width = `${pctEdit}%`; barEdit.title = `3. อยู่ระหว่างแก้ไข: ${cEdit} (${pctEdit}%)`; }
-      if (barDean) { barDean.style.width = `${pctDean}%`; barDean.title = `4. อยู่ระหว่างเสนอ ผอ.: ${cDean} (${pctDean}%)`; }
-      if (barProg) { barProg.style.width = `${pctProg}%`; barProg.title = `5. อยู่ระหว่างดำเนินการ: ${cProgress} (${pctProg}%)`; }
-      if (barWait) { barWait.style.width = `${pctWait}%`; barWait.title = `6. รอเอกสาร: ${cWait} (${pctWait}%)`; }
-
-      const verifyLabel = document.getElementById('summary-verify-label');
-      if (verifyLabel) {
-        verifyLabel.innerHTML = `รวมข้อ 2 - 6 = <span class="text-brand-600 font-extrabold">${sumStatuses}</span> / ${total} งบ (100.0%)`;
-      }
+      // Update Donut Chart
+      updateSideDonutChart({
+        total: listTotal.length,
+        approved: listApproved.length,
+        editing: listEditing.length,
+        dean: listDean.length,
+        progress: listProgress.length,
+        waiting: listWaiting.length
+      });
     }
 
-    function renderFinanceMatrix() {
-      renderMonthlyFinanceSummaryCard();
+    function updateSideDonutChart(counts) {
+      const canvas = document.getElementById('sideSummaryDonutChart');
+      if (!canvas) return;
+
+      if (sideDonutChartInstance) {
+        sideDonutChartInstance.destroy();
+      }
+
+      const vals = [
+        counts.approved || 0,
+        counts.editing || 0,
+        counts.dean || 0,
+        counts.progress || 0,
+        counts.waiting || 0
+      ];
+
+      const allZero = vals.every(v => v === 0);
+      const chartData = allZero ? [1] : vals;
+      const chartColors = allZero
+        ? ['#e2e8f0']
+        : ['#0d9488', '#f43f5e', '#8b5cf6', '#f59e0b', '#94a3b8'];
+
+      const ctx = canvas.getContext('2d');
+      sideDonutChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['ผอ.เห็นชอบ/เสนออธิการแล้ว', 'ระหว่างแก้ไข', 'ระหว่างเสนอผอ.', 'ระหว่างดำเนินการ', 'รอเอกสาร'],
+          datasets: [{
+            data: chartData,
+            backgroundColor: chartColors,
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '66%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: !allZero,
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const tot = counts.total || 1;
+                  const pct = ((val / tot) * 100).toFixed(1);
+                  return ` ${context.label}: ${val} งบ (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Modal popup functions with team/group filter
+    function openDonutStatusPopup(category) {
+      activeDonutModalCategory = category || 'total';
+
+      const fy = document.getElementById('side-summary-year')?.value || '2570';
+      const period = document.getElementById('side-summary-period')?.value || 'ตุลาคม';
+
+      const catMeta = {
+        total: { title: '1. งบทั้งหมดในงวด', icon: '📋' },
+        approved: { title: '2. ผอ.เห็นชอบ/เสนออธิการแล้ว (สถานะ 5, 6)', icon: '✅' },
+        editing: { title: '3. ระหว่างแก้ไข (สถานะ 4)', icon: '✏️' },
+        dean: { title: '4. ระหว่างเสนอผอ. (สถานะ 3)', icon: '📨' },
+        progress: { title: '5. ระหว่างดำเนินการ (สถานะ 2)', icon: '⏳' },
+        waiting: { title: '6. รอเอกสาร (สถานะ 1)', icon: '📥' }
+      };
+
+      const meta = catMeta[activeDonutModalCategory] || catMeta.total;
+
+      const titleEl = document.getElementById('donut-modal-title');
+      const subtitleEl = document.getElementById('donut-modal-subtitle');
+      if (titleEl) titleEl.innerHTML = `<span>${meta.icon}</span> ${meta.title}`;
+      if (subtitleEl) subtitleEl.textContent = `ปีงบประมาณ ${fy} • งวด ${period === 'all' ? 'ทุกงวดทั้งปี' : period}`;
+
+      // Reset group filter dropdown to 'all'
+      const grpFilter = document.getElementById('donut-modal-group-filter');
+      if (grpFilter) grpFilter.value = 'all';
+
+      renderDonutModalTable();
+
+      const modal = document.getElementById('donut-status-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeDonutStatusModal() {
+      const modal = document.getElementById('donut-status-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function onDonutModalGroupFilterChange() {
+      renderDonutModalTable();
+    }
+
+    function renderDonutModalTable() {
+      const tbody = document.getElementById('donut-modal-tbody');
+      const countLabel = document.getElementById('donut-modal-count-label');
+      if (!tbody) return;
+
+      const rawList = sideDonutModalStore[activeDonutModalCategory] || [];
+      const grpVal = document.getElementById('donut-modal-group-filter')?.value || 'all';
+
+      const filteredList = (grpVal === 'all')
+        ? rawList
+        : rawList.filter(item => item.group === grpVal);
+
+      if (countLabel) {
+        if (grpVal === 'all') {
+          countLabel.textContent = `ทั้งหมด ${filteredList.length} รายการ`;
+        } else {
+          countLabel.textContent = `แสดง ${filteredList.length} จาก ${rawList.length} รายการ (${grpVal})`;
+        }
+      }
+
+      tbody.innerHTML = '';
+      if (filteredList.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="py-8 text-center text-slate-400">
+              ไม่มีรายการในหมวดนี้สำหรับ ${grpVal !== 'all' ? grpVal : 'เงื่อนไขที่เลือก'}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      filteredList.forEach((item, idx) => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-3 px-3 text-center text-slate-400 font-mono text-[11px]">${idx + 1}</td>
+            <td class="py-3 px-3 font-semibold text-slate-800">
+              <div>${item.deptName}</div>
+              <div class="text-[10px] text-slate-400 font-normal mt-0.5">รอบ: ${item.cycle}</div>
+            </td>
+            <td class="py-3 px-3 text-slate-600 font-medium">${item.period}</td>
+            <td class="py-3 px-3 text-slate-700 font-medium">${item.auditor || '-'}</td>
+            <td class="py-3 px-3">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                ${item.group || 'ไม่ระบุ'}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-center text-slate-500 whitespace-nowrap text-[11px]">${item.dateReceived || '-'}</td>
+            <td class="py-3 px-3 text-center">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${item.status.color}">
+                <span class="w-1.5 h-1.5 rounded-full ${item.status.dot}"></span>
+                <span>${item.status.code}. ${item.status.label}</span>
+              </span>
+            </td>
+            <td class="py-3 px-3 text-center">
+              <button onclick="closeDonutStatusModal(); openFinanceModal('${item.deptName}', '${item.period}');" class="px-3 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-lg text-xs font-semibold transition-all shadow-xs">
+                เปิดงวดตรวจ
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+function renderFinanceMatrix() {
+      renderSideDonutSummaryCard();
       const tbody = document.getElementById('finance-matrix-body');
       if (!tbody) return;
       tbody.innerHTML = '';
