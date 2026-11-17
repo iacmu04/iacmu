@@ -7412,6 +7412,8 @@
     // Modal Course Management Handlers
     function openCourseManagementModal() {
       populateTrainingFilters();
+      resetCourseDetailForm();
+      resetCourseForm();
       renderCourseModalTables();
       const modal = document.getElementById('modal-course-management');
       if (modal) modal.classList.remove('hidden');
@@ -7445,7 +7447,7 @@
       // 1. Course Details Table
       const cdTbody = document.getElementById('modal-cd-tbody');
       if (cdTbody) {
-        const rows = (sheetData.courseDetails || []).map(d => {
+        const rows = (sheetData.courseDetails || []).map((d, index) => {
           const c = findCourse(d.courseId);
           const cName = c ? c.name : d.courseId;
           return `
@@ -7459,8 +7461,8 @@
               <td class="p-2 text-slate-700 font-medium">${d.fee || '-'}</td>
               <td class="p-2 text-center">
                 <div class="flex items-center justify-center gap-1.5">
-                  <button type="button" onclick="editCourseDetailRecord('${d.scheduleId}')" class="p-1 rounded text-slate-500 hover:text-brand-600 hover:bg-brand-50" title="แก้ไข">✏️</button>
-                  <button type="button" onclick="deleteCourseDetailRecord('${d.scheduleId}')" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="ลบ">🗑️</button>
+                  <button type="button" onclick="editCourseDetailRecord('${d.scheduleId}', ${index})" class="p-1 rounded text-slate-500 hover:text-brand-600 hover:bg-brand-50" title="แก้ไข">✏️</button>
+                  <button type="button" onclick="deleteCourseDetailRecord('${d.scheduleId}', ${index})" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="ลบ">🗑️</button>
                 </div>
               </td>
             </tr>
@@ -7472,7 +7474,7 @@
       // 2. Courses Table
       const cTbody = document.getElementById('modal-c-tbody');
       if (cTbody) {
-        const rows = (sheetData.courses || []).map(c => `
+        const rows = (sheetData.courses || []).map((c, index) => `
           <tr class="hover:bg-slate-50 transition-colors">
             <td class="p-2 font-mono text-[11px] text-slate-500">${c.courseId}</td>
             <td class="p-2 font-bold text-slate-800">${c.name}</td>
@@ -7480,8 +7482,8 @@
             <td class="p-2 text-center font-bold text-brand-700">ระดับ ${c.level}</td>
             <td class="p-2 text-center">
               <div class="flex items-center justify-center gap-1.5">
-                <button type="button" onclick="editCourseRecord('${c.courseId}')" class="p-1 rounded text-slate-500 hover:text-brand-600 hover:bg-brand-50" title="แก้ไข">✏️</button>
-                <button type="button" onclick="deleteCourseRecord('${c.courseId}')" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="ลบ">🗑️</button>
+                <button type="button" onclick="editCourseRecord('${c.courseId}', ${index})" class="p-1 rounded text-slate-500 hover:text-brand-600 hover:bg-brand-50" title="แก้ไข">✏️</button>
+                <button type="button" onclick="deleteCourseRecord('${c.courseId}', ${index})" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="ลบ">🗑️</button>
               </div>
             </td>
           </tr>
@@ -7490,11 +7492,32 @@
       }
     }
 
-    function editCourseDetailRecord(scheduleId) {
-      const sch = (sheetData.courseDetails || []).find(d => d.scheduleId === scheduleId);
-      if (!sch) return;
-      document.getElementById('cd-modal-sch-id').value = sch.scheduleId;
-      document.getElementById('cd-modal-course-id').value = sch.courseId;
+    function editCourseDetailRecord(scheduleId, idx) {
+      let sch = null;
+      if (scheduleId) {
+        sch = (sheetData.courseDetails || []).find(d => d.scheduleId === scheduleId);
+      }
+      if (!sch && idx !== undefined && sheetData.courseDetails && sheetData.courseDetails[idx]) {
+        sch = sheetData.courseDetails[idx];
+      }
+      if (!sch) {
+        console.warn('editCourseDetailRecord: schedule not found', scheduleId, idx);
+        return;
+      }
+
+      document.getElementById('cd-modal-sch-id').value = sch.scheduleId || '';
+      
+      const cdCourseSelect = document.getElementById('cd-modal-course-id');
+      if (cdCourseSelect) {
+        cdCourseSelect.value = sch.courseId;
+        if (!cdCourseSelect.value || cdCourseSelect.value !== sch.courseId) {
+          const matchedCourse = findCourse(sch.courseId);
+          if (matchedCourse) {
+            cdCourseSelect.value = matchedCourse.courseId;
+          }
+        }
+      }
+
       document.getElementById('cd-modal-year').value = sch.fiscalYear || '';
       document.getElementById('cd-modal-apply').value = sch.applyDate || '';
       document.getElementById('cd-modal-train').value = sch.trainDate || '';
@@ -7504,6 +7527,9 @@
 
       const btn = document.getElementById('btn-save-course-detail');
       if (btn) btn.textContent = 'บันทึกการแก้ไขรอบอบรม';
+
+      const formEl = document.getElementById('form-course-detail');
+      if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function resetCourseDetailForm() {
@@ -7513,9 +7539,16 @@
       if (btn) btn.textContent = 'บันทึกรอบอบรม';
     }
 
-    function editCourseRecord(courseId) {
-      const c = (sheetData.courses || []).find(x => x.courseId === courseId);
+    function editCourseRecord(courseId, idx) {
+      let c = null;
+      if (courseId) {
+        c = (sheetData.courses || []).find(x => x.courseId === courseId);
+      }
+      if (!c && idx !== undefined && sheetData.courses && sheetData.courses[idx]) {
+        c = sheetData.courses[idx];
+      }
       if (!c) return;
+
       document.getElementById('c-modal-course-id').value = c.courseId;
       document.getElementById('c-modal-name').value = c.name || '';
       document.getElementById('c-modal-institute').value = c.institute || 'CGIA';
@@ -7523,6 +7556,9 @@
 
       const btn = document.getElementById('btn-save-course');
       if (btn) btn.textContent = 'บันทึกการแก้ไขหลักสูตร';
+
+      const formEl = document.getElementById('form-course-main');
+      if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function resetCourseForm() {
@@ -7578,15 +7614,19 @@
       }
     }
 
-    async function deleteCourseDetailRecord(scheduleId) {
+    async function deleteCourseDetailRecord(scheduleId, idx) {
       if (!confirm('ต้องการลบกำหนดการรอบอบรมนี้ใช่หรือไม่?')) return;
+      let targetSchId = scheduleId;
+      if (!targetSchId && idx !== undefined && sheetData.courseDetails && sheetData.courseDetails[idx]) {
+        targetSchId = sheetData.courseDetails[idx].scheduleId;
+      }
       try {
         await sendToAppsScript({
           action: 'deleteCourseDetail',
           email: currentUser ? currentUser.email : '',
-          courseDetailData: { scheduleId }
+          courseDetailData: { scheduleId: targetSchId }
         });
-        sheetData.courseDetails = (sheetData.courseDetails || []).filter(d => d.scheduleId !== scheduleId);
+        sheetData.courseDetails = (sheetData.courseDetails || []).filter((d, i) => d.scheduleId !== targetSchId && i !== idx);
         renderCourseModalTables();
         renderCgiaScheduleTable();
       } catch (err) {
@@ -7684,13 +7724,28 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    function editHrRecRecord(recId) {
-      const rec = (sheetData.hrRecs || []).find(r => r.recId === recId);
+    function editHrRecRecord(recId, idx) {
+      let rec = null;
+      if (recId) {
+        rec = (sheetData.hrRecs || []).find(r => r.recId === recId);
+      }
+      if (!rec && idx !== undefined && sheetData.hrRecs && sheetData.hrRecs[idx]) {
+        rec = sheetData.hrRecs[idx];
+      }
       if (!rec) return;
 
-      document.getElementById('hr-modal-rec-id').value = rec.recId;
-      document.getElementById('hr-modal-auditor').value = rec.userCode;
-      document.getElementById('hr-modal-course').value = rec.courseId;
+      document.getElementById('hr-modal-rec-id').value = rec.recId || '';
+      document.getElementById('hr-modal-auditor').value = rec.userCode || '';
+      
+      const hrCourseSelect = document.getElementById('hr-modal-course');
+      if (hrCourseSelect) {
+        hrCourseSelect.value = rec.courseId;
+        if (!hrCourseSelect.value || hrCourseSelect.value !== rec.courseId) {
+          const matched = findCourse(rec.courseId);
+          if (matched) hrCourseSelect.value = matched.courseId;
+        }
+      }
+
       document.getElementById('hr-modal-year').value = rec.fiscalYear || '2570';
       document.getElementById('hr-modal-note').value = rec.note || '';
 
@@ -7698,6 +7753,9 @@
       if (btn) btn.textContent = 'บันทึกการแก้ไขคำแนะนำ';
       const cancelBtn = document.getElementById('btn-cancel-hr-edit');
       if (cancelBtn) cancelBtn.classList.remove('hidden');
+
+      const formEl = document.getElementById('form-hr-rec');
+      if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function resetHrRecForm() {
@@ -7713,7 +7771,7 @@
     function renderHrRecTable() {
       const tbody = document.getElementById('modal-hr-tbody');
       if (!tbody) return;
-      const rows = (sheetData.hrRecs || []).map(r => {
+      const rows = (sheetData.hrRecs || []).map((r, idx) => {
         const aud = findAuditor(r.userCode);
         const audName = aud ? aud.name : r.userCode;
         const c = findCourse(r.courseId);
@@ -7726,8 +7784,8 @@
             <td class="p-2 text-slate-600">${r.note || '-'}</td>
             <td class="p-2 text-center">
               <div class="flex items-center justify-center gap-1.5">
-                <button type="button" onclick="editHrRecRecord('${r.recId}')" class="p-1 rounded text-slate-500 hover:text-brand-600 hover:bg-brand-50" title="แก้ไข">✏️</button>
-                <button type="button" onclick="deleteHrRecRecord('${r.recId}')" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="ลบ">🗑️</button>
+                <button type="button" onclick="editHrRecRecord('${r.recId}', ${idx})" class="p-1 rounded text-slate-500 hover:text-brand-600 hover:bg-brand-50" title="แก้ไข">✏️</button>
+                <button type="button" onclick="deleteHrRecRecord('${r.recId}', ${idx})" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="ลบ">🗑️</button>
               </div>
             </td>
           </tr>
