@@ -647,10 +647,10 @@
     <!-- VIEW 2: FINANCE REPORT PAGE (ซ้าย: ตัวกรอง + ตารางติดตาม / ขวา: การ์ดสถานะ 4 ใบ, มือถือเรียงคอลัมน์เดียว) -->
         <!-- VIEW 2: FINANCE REPORT PAGE -->
     <main id="view-finance" class="p-3 sm:p-4 pt-2 hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
         <!-- LEFT COLUMN: ตัวกรอง + ตารางติดตามงบการเงินรายส่วนงาน -->
-        <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4 min-w-0 h-full">
+        <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4 min-w-0">
 
           <!-- Top Filters Bar -->
           <section class="bg-white rounded-2xl p-4 card-shadow border border-slate-100 flex flex-wrap items-center gap-3">
@@ -715,8 +715,8 @@
           </section>
 
           <!-- 41 Departments Tracking Matrix -->
-          <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex-1 flex flex-col justify-between min-w-0 min-h-0">
-        <div class="flex-1 flex flex-col min-h-0">
+          <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between min-w-0">
+        <div>
           <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100">
             <div>
               <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -737,7 +737,7 @@
           </div>
 
           <!-- Scrollable Table -->
-          <div class="overflow-auto flex-1 min-h-[480px]">
+          <div class="overflow-x-auto max-h-[320px] overflow-y-auto">
             <table class="w-full text-left text-xs whitespace-nowrap">
               <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
                 <tr>
@@ -764,7 +764,7 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-100 mt-2">
+        <div class="flex items-center justify-between text-xs text-slate-400 pt-2.5 border-t border-slate-100 mt-2">
           <span id="matrix-status-footer">กำลังเชื่อมต่อข้อมูล Google Sheet...</span>
           <div class="flex items-center gap-2">
             <span class="text-brand-600 font-medium">💡 คลิกที่แถวหรือช่องเดือนเพื่อเปิดแบบฟอร์มบันทึกงวดตรวจ</span>
@@ -772,17 +772,113 @@
         </div>
           </div>
 
+          <!-- TABLE 2: ตารางสรุปการแก้ไข (ชีท Edit) -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between min-w-0">
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs">📝</span>
+                    ตารางสรุปการแก้ไข
+                  </h3>
+                  <p class="text-[11px] text-slate-400 mt-0.5">สรุปสถิติจำนวนครั้งและจำนวนวันส่งกลับแก้ไขรายงานของผู้ตรวจสอบแต่ละท่าน</p>
+                </div>
+
+                <!-- Dedicated Filters for Table 2 -->
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                  <div>
+                    <select id="edit-summary-filter-year" onchange="renderEditSummaryTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer" title="ปีงบประมาณ">
+                      <option value="2570" selected>ปีงบ 2570</option>
+                      <option value="2569">ปีงบ 2569</option>
+                      <option value="2568">ปีงบ 2568</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <select id="edit-summary-filter-period" onchange="renderEditSummaryTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer" title="งวดงบ/ไตรมาส">
+                      <optgroup label="ภาพรวมทั้งปี">
+                        <option value="all" selected>ภาพรวมทุกงวด</option>
+                      </optgroup>
+                      <optgroup label="รายเดือน">
+                        <option value="ตุลาคม">ตุลาคม (ต.ค.)</option>
+                        <option value="พฤศจิกายน">พฤศจิกายน (พ.ย.)</option>
+                        <option value="ธันวาคม">ธันวาคม (ธ.ค.)</option>
+                        <option value="มกราคม">มกราคม (ม.ค.)</option>
+                        <option value="กุมภาพันธ์">กุมภาพันธ์ (ก.พ.)</option>
+                        <option value="มีนาคม">มีนาคม (มี.ค.)</option>
+                        <option value="เมษายน">เมษายน (เม.ย.)</option>
+                        <option value="พฤษภาคม">พฤษภาคม (พ.ค.)</option>
+                        <option value="มิถุนายน">มิถุนายน (มิ.ย.)</option>
+                        <option value="กรกฎาคม">กรกฎาคม (ก.ค.)</option>
+                        <option value="สิงหาคม">สิงหาคม (ส.ค.)</option>
+                        <option value="กันยายน">กันยายน (ก.ย.)</option>
+                      </optgroup>
+                      <optgroup label="รายไตรมาส">
+                        <option value="ไตรมาส 1">ไตรมาส 1 (ต.ค. - ธ.ค.)</option>
+                        <option value="ไตรมาส 2">ไตรมาส 2 (ม.ค. - มี.ค.)</option>
+                        <option value="ไตรมาส 3">ไตรมาส 3 (เม.ย. - มิ.ย.)</option>
+                        <option value="ไตรมาส 4">ไตรมาส 4 (ก.ค. - ก.ย.)</option>
+                      </optgroup>
+                    </select>
+                  </div>
+
+                  <div>
+                    <select id="edit-summary-filter-group" onchange="onEditSummaryGroupChange()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer" title="ทีม/กลุ่มงาน">
+                      <option value="all" selected>-- ทุกกลุ่มงาน --</option>
+                      <option value="งานตรวจสอบ 1">งานตรวจสอบ 1</option>
+                      <option value="งานตรวจสอบ 2">งานตรวจสอบ 2</option>
+                      <option value="งานตรวจสอบ 3">งานตรวจสอบ 3</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <select id="edit-summary-filter-auditor" onchange="renderEditSummaryTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer" title="ผู้ตรวจสอบ">
+                      <option value="all" selected>-- ผู้ตรวจสอบทั้งหมด --</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Scrollable Table 2 -->
+              <div class="overflow-x-auto max-h-[220px] overflow-y-auto">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                  <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
+                    <tr>
+                      <th class="py-2.5 px-3 min-w-[180px]">ชื่อผู้ตรวจสอบ</th>
+                      <th class="py-2.5 px-3 text-center min-w-[110px]">จำนวนงบทั้งหมด</th>
+                      <th class="py-2.5 px-3 text-center min-w-[100px]">จำนวนครั้งรวม</th>
+                      <th class="py-2.5 px-3 text-center min-w-[110px]">เฉลี่ยจำนวนครั้ง</th>
+                      <th class="py-2.5 px-3 text-center min-w-[100px]">จำนวนวันรวม</th>
+                      <th class="py-2.5 px-3 text-center min-w-[110px]">เฉลี่ยจำนวนวัน</th>
+                    </tr>
+                  </thead>
+                  <tbody id="edit-summary-table-body" class="divide-y divide-slate-100">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                  <tfoot id="edit-summary-table-footer" class="bg-slate-50 font-bold text-slate-700 border-t border-slate-200">
+                    <!-- Rendered dynamically -->
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-2.5 border-t border-slate-100 mt-2">
+              <span id="edit-summary-footer-status">กำลังประมวลผลข้อมูลสถิติ...</span>
+              <span class="text-brand-600 font-medium">💡 อ้างอิงตามบันทึกการส่งกลับแก้ไข (ชีท Edit)</span>
+            </div>
+          </div>
+
         </div>
 
-        <!-- RIGHT COLUMN: 4 KPI Cards (ผอ.เห็นชอบ, อยู่ระหว่างดำเนินการ, อยู่ระหว่างแก้ไข, แจ้งเตือน) -->
-        <div class="lg:col-span-4 xl:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3.5">
-          <!-- CONSOLIDATED DONUT SUMMARY CARD: สรุปภาพรวมสถานะงบการเงินรายงวด -->
+        <!-- RIGHT COLUMN: 5 KPI Cards (สรุปภาพรวม, แจ้งเตือน, ผอ.เห็นชอบ, อยู่ระหว่างแก้ไข, อยู่ระหว่างดำเนินการ) -->
+        <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-3.5">
+<!-- CONSOLIDATED DONUT SUMMARY CARD: สรุปภาพรวมสถานะงบการเงินรายงวด -->
           <div class="sm:col-span-2 lg:col-span-1 bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between">
             <!-- Header & Dedicated Filters -->
             <div>
               <div class="flex items-center justify-between gap-2 mb-2.5 pb-2.5 border-b border-slate-100">
                 <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <span class="text-sm">🍩</span> สรุปภาพรวมสถานะงบการเงิน
+                  <span class="text-sm">🍩</span> สรุปภาพรวมสถานะรายงานงบการเงิน
                 </h4>
                 <span id="side-donut-period-badge" class="text-[10px] font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full">ต.ค. 2570</span>
               </div>
@@ -901,7 +997,36 @@
           </div>
 
 
-          <!-- KPI 1: ผอ.เห็นชอบ (สถานะ 5 และ 6) -->
+          
+<!-- KPI 2: แจ้งเตือนครบกำหนด (ปรับตั้งค่าได้โดย Admin) -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between hover:border-red-300 hover:shadow-md transition-all group">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-xs font-bold text-red-600 flex items-center gap-1">
+                  <span>⚠️</span> แจ้งเตือนครบกำหนด <span id="kpi-card-title-days">20</span> วัน
+                </h4>
+                <p class="text-[11px] text-slate-400">เกณฑ์ครบกำหนด <span id="kpi-setting-display">20</span> วัน <span id="btn-open-kpi-config" onclick="event.stopPropagation(); openConfigModal();" class="text-brand-600 cursor-pointer hover:underline font-medium">(ตั้งค่า ⚙️)</span></p>
+              </div>
+              <div id="btn-bell-kpi-config" class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center font-bold text-sm cursor-pointer shrink-0" onclick="showKpiListModal('แจ้งเตือนเกินกำหนด')">
+                🔔
+              </div>
+            </div>
+
+            <div class="my-2.5 cursor-pointer" onclick="showKpiListModal('แจ้งเตือนเกินกำหนด')">
+              <div class="text-3xl font-extrabold text-red-500 tracking-tight flex items-baseline gap-1.5">
+                <span id="kpi-alert-18-count">0</span>
+                <span class="text-slate-400 text-sm font-medium">งบ</span>
+              </div>
+            </div>
+
+            <div class="text-[11px] text-slate-400 border-t border-slate-50 pt-2 flex items-center justify-between cursor-pointer" onclick="showKpiListModal('แจ้งเตือนเกินกำหนด')">
+              <span>รับงบ &ge; <span id="kpi-alert-sub-days">18</span> วัน แต่ยังไม่เสนอ ผอ.</span>
+              <span class="text-red-500 font-semibold group-hover:underline text-[10px]">ดูรายละเอียด &rarr;</span>
+            </div>
+          </div>
+
+        
+<!-- KPI 1: ผอ.เห็นชอบ (สถานะ 5 และ 6) -->
           <div onclick="showKpiListModal('ผอ.เห็นชอบ')" class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-teal-300 hover:shadow-md transition-all group">
             <div class="flex items-start justify-between">
               <div>
@@ -926,32 +1051,8 @@
             </div>
           </div>
 
-          <!-- KPI 2: อยู่ระหว่างดำเนินการ (เฉพาะสถานะ 2 และ 3) -->
-          <div onclick="showKpiListModal('อยู่ระหว่างดำเนินการ')" class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-amber-300 hover:shadow-md transition-all group">
-            <div class="flex items-start justify-between">
-              <div>
-                <h4 class="text-xs font-bold text-slate-700 group-hover:text-amber-600 transition-colors">อยู่ระหว่างดำเนินการ</h4>
-                <p class="text-[11px] text-slate-400">สถานะ 2 และ 3 (คลิกดูรายชื่อ 🔍)</p>
-              </div>
-              <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center font-bold text-sm shrink-0">
-                ⏳
-              </div>
-            </div>
-
-            <div class="my-2.5">
-              <div class="text-3xl font-extrabold text-amber-500 tracking-tight flex items-baseline gap-1.5">
-                <span id="kpi-in-progress-count">0</span>
-                <span class="text-slate-400 text-sm font-medium">งบ</span>
-              </div>
-            </div>
-
-            <div class="text-[11px] text-slate-400 border-t border-slate-50 pt-2 flex items-center justify-between">
-              <span>งวดงานที่อยู่ระหว่างตรวจและเสนอ ผอ.</span>
-              <span class="text-amber-600 font-semibold group-hover:underline text-[10px]">ดูรายละเอียด &rarr;</span>
-            </div>
-          </div>
-
-          <!-- KPI 3 (NEW): อยู่ระหว่างแก้ไข (สถานะ 4) -->
+          
+<!-- KPI 3 (NEW): อยู่ระหว่างแก้ไข (สถานะ 4) -->
           <div onclick="showKpiListModal('อยู่ระหว่างแก้ไข')" class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
             <div class="flex items-start justify-between">
               <div>
@@ -976,33 +1077,33 @@
             </div>
           </div>
 
-          <!-- KPI 4: แจ้งเตือนถึงวันที่ (ปรับตั้งค่าได้โดย Admin) -->
-          <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between hover:border-red-300 hover:shadow-md transition-all group">
+          
+<!-- KPI 2: อยู่ระหว่างดำเนินการ (เฉพาะสถานะ 2 และ 3) -->
+          <div onclick="showKpiListModal('อยู่ระหว่างดำเนินการ')" class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-amber-300 hover:shadow-md transition-all group">
             <div class="flex items-start justify-between">
               <div>
-                <h4 class="text-xs font-bold text-red-600 flex items-center gap-1">
-                  <span>⚠️</span> แจ้งเตือนถึงวันที่ <span id="kpi-alert-threshold-days">18</span>
-                </h4>
-                <p class="text-[11px] text-slate-400">เกณฑ์ครบกำหนด <span id="kpi-setting-display">20</span> วัน <span id="btn-open-kpi-config" onclick="event.stopPropagation(); openConfigModal();" class="text-brand-600 cursor-pointer hover:underline font-medium">(ตั้งค่า ⚙️)</span></p>
+                <h4 class="text-xs font-bold text-slate-700 group-hover:text-amber-600 transition-colors">อยู่ระหว่างดำเนินการ</h4>
+                <p class="text-[11px] text-slate-400">สถานะ 2 และ 3 (คลิกดูรายชื่อ 🔍)</p>
               </div>
-              <div id="btn-bell-kpi-config" class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center font-bold text-sm cursor-pointer shrink-0" onclick="showKpiListModal('แจ้งเตือนเกินกำหนด')">
-                🔔
+              <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center font-bold text-sm shrink-0">
+                ⏳
               </div>
             </div>
 
-            <div class="my-2.5 cursor-pointer" onclick="showKpiListModal('แจ้งเตือนเกินกำหนด')">
-              <div class="text-3xl font-extrabold text-red-500 tracking-tight flex items-baseline gap-1.5">
-                <span id="kpi-alert-18-count">0</span>
+            <div class="my-2.5">
+              <div class="text-3xl font-extrabold text-amber-500 tracking-tight flex items-baseline gap-1.5">
+                <span id="kpi-in-progress-count">0</span>
                 <span class="text-slate-400 text-sm font-medium">งบ</span>
               </div>
             </div>
 
-            <div class="text-[11px] text-slate-400 border-t border-slate-50 pt-2 flex items-center justify-between cursor-pointer" onclick="showKpiListModal('แจ้งเตือนเกินกำหนด')">
-              <span>รับงบ &ge; <span id="kpi-alert-sub-days">18</span> วัน แต่ยังไม่เสนอ ผอ.</span>
-              <span class="text-red-500 font-semibold group-hover:underline text-[10px]">ดูรายละเอียด &rarr;</span>
+            <div class="text-[11px] text-slate-400 border-t border-slate-50 pt-2 flex items-center justify-between">
+              <span>งวดงานที่อยู่ระหว่างตรวจและเสนอ ผอ.</span>
+              <span class="text-amber-600 font-semibold group-hover:underline text-[10px]">ดูรายละเอียด &rarr;</span>
             </div>
           </div>
 
+          
         </div>
 
       </div>
@@ -2387,6 +2488,7 @@
         populateDepartmentFilterDropdown();
         populateAuditorFilterDropdown();
         populateBudgetYearFilter();
+        populateEditSummaryFilters();
         updateKpiDisplay();
         renderCalendar();
         renderAttendanceList();
@@ -2398,6 +2500,7 @@
         renderBudgetView();
         renderRecentFinanceTable();
         calculateSummaryKPIs();
+        renderEditSummaryTable();
         initFlatpickr();
 
         document.getElementById('matrix-status-footer').textContent = `ดึงข้อมูลสำเร็จ: ${departments.length} ส่วนงาน (${new Date().toLocaleTimeString()} น.)`;
@@ -3635,8 +3738,235 @@
       });
     }
 
+    // -------------------------------------------------------------
+    // EDIT SUMMARY TABLE (ตารางสรุปการแก้ไขของผู้ตรวจสอบ)
+    // -------------------------------------------------------------
+    function populateEditSummaryFilters() {
+      const groupSel = document.getElementById('edit-summary-filter-group');
+      const audSel = document.getElementById('edit-summary-filter-auditor');
+      if (!groupSel || !audSel) return;
+
+      onEditSummaryGroupChange();
+    }
+
+    function onEditSummaryGroupChange() {
+      const groupSel = document.getElementById('edit-summary-filter-group');
+      const audSel = document.getElementById('edit-summary-filter-auditor');
+      if (!groupSel || !audSel) return;
+      const selectedGroup = groupSel.value;
+
+      audSel.innerHTML = '<option value="all">-- ผู้ตรวจสอบทั้งหมด --</option>';
+      (sheetData.auditors || []).forEach(a => {
+        if (selectedGroup === 'all' || a.group === selectedGroup) {
+          audSel.innerHTML += `<option value="${a.name}">${a.name} (${a.nickname || a.group})</option>`;
+        }
+      });
+
+      renderEditSummaryTable();
+    }
+
+    function renderEditSummaryTable() {
+      const tbody = document.getElementById('edit-summary-table-body');
+      const tfoot = document.getElementById('edit-summary-table-footer');
+      const statusEl = document.getElementById('edit-summary-footer-status');
+      if (!tbody || !tfoot) return;
+
+      const fy = document.getElementById('edit-summary-filter-year') ? document.getElementById('edit-summary-filter-year').value : '2570';
+      const period = document.getElementById('edit-summary-filter-period') ? document.getElementById('edit-summary-filter-period').value : 'all';
+      const group = document.getElementById('edit-summary-filter-group') ? document.getElementById('edit-summary-filter-group').value : 'all';
+      const selectedAuditor = document.getElementById('edit-summary-filter-auditor') ? document.getElementById('edit-summary-filter-auditor').value : 'all';
+
+      const monthDefs = [
+        { key: '10', name: 'ตุลาคม', q: 'ไตรมาส 1' },
+        { key: '11', name: 'พฤศจิกายน', q: 'ไตรมาส 1' },
+        { key: '12', name: 'ธันวาคม', q: 'ไตรมาส 1' },
+        { key: '01', name: 'มกราคม', q: 'ไตรมาส 2' },
+        { key: '02', name: 'กุมภาพันธ์', q: 'ไตรมาส 2' },
+        { key: '03', name: 'มีนาคม', q: 'ไตรมาส 2' },
+        { key: '04', name: 'เมษายน', q: 'ไตรมาส 3' },
+        { key: '05', name: 'พฤษภาคม', q: 'ไตรมาส 3' },
+        { key: '06', name: 'มิถุนายน', q: 'ไตรมาส 3' },
+        { key: '07', name: 'กรกฎาคม', q: 'ไตรมาส 4' },
+        { key: '08', name: 'สิงหาคม', q: 'ไตรมาส 4' },
+        { key: '09', name: 'กันยายน', q: 'ไตรมาส 4' }
+      ];
+
+      const monthMatch = monthDefs.find(m => m.name === period);
+      const isQuarter = ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].includes(period);
+
+      const tracksFY = (sheetData.trackingList || []).filter(t => (t.fiscalYear || '').toString().trim() === fy.toString());
+      const depts = sheetData.departments || [];
+
+      let auditors = sheetData.auditors || [];
+      if (currentUser && (currentUser.role === 'auditor' || currentUser.role === 'supervisor')) {
+        auditors = auditors.filter(a => a.group === currentUser.group);
+      }
+      if (group !== 'all') {
+        auditors = auditors.filter(a => a.group === group);
+      }
+      if (selectedAuditor !== 'all') {
+        auditors = auditors.filter(a => isAuditorMatch(a.name, selectedAuditor));
+      }
+
+      let grandTotalBudgets = 0;
+      let grandTotalRounds = 0;
+      let grandTotalDays = 0;
+      const rowsData = [];
+
+      auditors.forEach(aud => {
+        const audDepts = depts.filter(d => isAuditorMatch(aud.name, d.auditor) || isAuditorMatch(aud.nickname, d.auditor));
+
+        const audSlots = [];
+        audDepts.forEach(d => {
+          const isQDept = (d.cycle === 'รายไตรมาส');
+          if (monthMatch) {
+            if (!isQDept) audSlots.push({ dept: d, pLabel: monthMatch.name, mKey: monthMatch.key, isQSlot: false, qName: '' });
+          } else if (isQuarter) {
+            const qMonths = monthDefs.filter(m => m.q === period);
+            if (!isQDept) {
+              qMonths.forEach(qm => audSlots.push({ dept: d, pLabel: qm.name, mKey: qm.key, isQSlot: false, qName: '' }));
+            } else {
+              audSlots.push({ dept: d, pLabel: period, mKey: qMonths[qMonths.length - 1].key, isQSlot: true, qName: period });
+            }
+          } else if (period === 'all') {
+            if (!isQDept) {
+              monthDefs.forEach(m => audSlots.push({ dept: d, pLabel: m.name, mKey: m.key, isQSlot: false, qName: '' }));
+            } else {
+              ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].forEach(q => audSlots.push({ dept: d, pLabel: q, mKey: '', isQSlot: true, qName: q }));
+            }
+          }
+        });
+
+        const totalBudgets = audSlots.length;
+        let totalRounds = 0;
+        let totalDays = 0;
+
+        audSlots.forEach(slot => {
+          let matching = null;
+          for (let i = 0; i < tracksFY.length; i++) {
+            const t = tracksFY[i];
+            if (t.department !== slot.dept.name) continue;
+            if (slot.isQSlot) {
+              if (isTrackMatchMonth(t, slot.mKey, true, true, slot.qName)) {
+                matching = t;
+                break;
+              }
+            } else {
+              if (isTrackMatchMonth(t, slot.mKey, false, false, '')) {
+                matching = t;
+                break;
+              }
+            }
+          }
+
+          if (matching && matching.trackingId) {
+            const tid = matching.trackingId.toString().trim();
+            const edits = (sheetData.editList || []).filter(e => (e.trackingId || '').toString().trim() === tid);
+            totalRounds += edits.length;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            edits.forEach(e => {
+              if (e.daysUsed !== undefined && e.daysUsed !== null && !isNaN(parseFloat(e.daysUsed)) && parseFloat(e.daysUsed) > 0) {
+                totalDays += parseFloat(e.daysUsed);
+              } else if (e.dateReturned) {
+                const dStart = parseDateSafe(e.dateReturned);
+                const dEnd = e.dateResubmitted ? parseDateSafe(e.dateResubmitted) : today;
+                if (dStart && dEnd) {
+                  totalDays += Math.max(0, Math.round((dEnd - dStart) / 86400000));
+                }
+              }
+            });
+          }
+        });
+
+        const avgRounds = totalBudgets > 0 ? (totalRounds / totalBudgets).toFixed(2) : '0.00';
+        const avgDays = totalBudgets > 0 ? (totalDays / totalBudgets).toFixed(1) : '0.0';
+
+        grandTotalBudgets += totalBudgets;
+        grandTotalRounds += totalRounds;
+        grandTotalDays += totalDays;
+
+        rowsData.push({
+          auditor: aud,
+          totalBudgets,
+          totalRounds,
+          avgRounds,
+          totalDays,
+          avgDays
+        });
+      });
+
+      if (rowsData.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-6 text-slate-400">
+              ไม่พบข้อมูลผู้ตรวจสอบตามเงื่อนไขที่เลือก
+            </td>
+          </tr>
+        `;
+        tfoot.innerHTML = '';
+        if (statusEl) statusEl.textContent = 'ไม่พบข้อมูล';
+        return;
+      }
+
+      tbody.innerHTML = rowsData.map(r => {
+        const roundsBadge = r.totalRounds > 0 
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">${r.totalRounds}</span>` 
+          : `<span class="text-slate-400 font-medium">0</span>`;
+        
+        const daysBadge = r.totalDays > 0 
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">${r.totalDays} วัน</span>` 
+          : `<span class="text-slate-400 font-medium">0 วัน</span>`;
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-2.5 px-3">
+              <div class="font-bold text-slate-800">${r.auditor.name}</div>
+              <div class="text-[10px] text-slate-400">${r.auditor.group || 'ไม่ระบุกลุ่มงาน'} ${r.auditor.nickname ? '• ' + r.auditor.nickname : ''}</div>
+            </td>
+            <td class="py-2.5 px-3 text-center font-bold text-slate-700">
+              ${r.totalBudgets}
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              ${roundsBadge}
+            </td>
+            <td class="py-2.5 px-3 text-center font-semibold text-slate-600">
+              ${r.avgRounds}
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              ${daysBadge}
+            </td>
+            <td class="py-2.5 px-3 text-center font-semibold text-slate-600">
+              ${r.avgDays} วัน
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      const grandAvgRounds = grandTotalBudgets > 0 ? (grandTotalRounds / grandTotalBudgets).toFixed(2) : '0.00';
+      const grandAvgDays = grandTotalBudgets > 0 ? (grandTotalDays / grandTotalBudgets).toFixed(1) : '0.0';
+
+      tfoot.innerHTML = `
+        <tr>
+          <td class="py-2.5 px-3 text-slate-800 font-extrabold">รวม / ค่าเฉลี่ยทั้งสิ้น (${rowsData.length} ท่าน)</td>
+          <td class="py-2.5 px-3 text-center text-slate-900 font-extrabold">${grandTotalBudgets}</td>
+          <td class="py-2.5 px-3 text-center text-amber-800 font-extrabold">${grandTotalRounds}</td>
+          <td class="py-2.5 px-3 text-center text-slate-800 font-extrabold">${grandAvgRounds}</td>
+          <td class="py-2.5 px-3 text-center text-rose-800 font-extrabold">${grandTotalDays} วัน</td>
+          <td class="py-2.5 px-3 text-center text-slate-800 font-extrabold">${grandAvgDays} วัน</td>
+        </tr>
+      `;
+
+      if (statusEl) {
+        statusEl.textContent = `ผู้ตรวจสอบ ${rowsData.length} ท่าน • รวม ${grandTotalBudgets} งบ • มีการแก้ไขรวม ${grandTotalRounds} ครั้ง (${grandTotalDays} วัน)`;
+      }
+    }
+
 function renderFinanceMatrix() {
       renderSideDonutSummaryCard();
+      renderEditSummaryTable();
       const tbody = document.getElementById('finance-matrix-body');
       if (!tbody) return;
       tbody.innerHTML = '';
@@ -4290,6 +4620,7 @@ function renderFinanceMatrix() {
       const alertDays = parseInt(sheetData.configs.ALERT_DAYS, 10) || Math.max(1, kpiDays - 2);
 
       const kpiSettingEl = document.getElementById('kpi-setting-display');
+      const kpiCardTitleDays = document.getElementById('kpi-card-title-days');
       const kpiAlertThresh = document.getElementById('kpi-alert-threshold-days');
       const kpiAlertSub = document.getElementById('kpi-alert-sub-days');
       const kpiStat = document.getElementById('kpi-stat-days');
@@ -4297,6 +4628,7 @@ function renderFinanceMatrix() {
       const inputAlertDays = document.getElementById('input-alert-days');
 
       if (kpiSettingEl) kpiSettingEl.textContent = kpiDays;
+      if (kpiCardTitleDays) kpiCardTitleDays.textContent = kpiDays;
       if (kpiAlertThresh) kpiAlertThresh.textContent = alertDays;
       if (kpiAlertSub) kpiAlertSub.textContent = alertDays;
       if (kpiStat) kpiStat.textContent = kpiDays;
