@@ -1377,7 +1377,7 @@
                 <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓</span> ผ่านการอบรมและทดสอบ
               </span>
               <span class="flex items-center gap-1.5">
-                <span class="inline-flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-600 text-white">⭐ แนะนำ</span> แถบสีคอร์สที่ HR แนะนำ
+                <span class="inline-flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold text-white shadow-sm" style="background: linear-gradient(90deg, #7B6FD7 0%, #6D58DA 35%, #765AE3 70%, #825BEF 100%);">⭐ แนะนำ</span> แถบสีคอร์สที่ HR แนะนำ
               </span>
             </div>
             <span id="training-matrix-count" class="font-medium text-slate-500"></span>
@@ -1416,7 +1416,7 @@
             <!-- HR Rec Highlight Explanation -->
             <div class="mb-3 px-3 py-1.5 bg-purple-50 border border-purple-200/80 rounded-xl text-[11px] text-purple-900 flex items-center gap-2">
               <span class="text-amber-500 text-sm">⭐</span>
-              <span><b class="text-purple-800">แถบสีม่วงเข้ม</b> = หลักสูตรที่ฝ่าย HR แนะนำสำหรับ <span id="cgia-current-user-name" class="font-bold text-brand-600">คุณ</span> ในปีงบประมาณนี้</span>
+              <span><span class="inline-block px-2 py-0.5 rounded text-white text-[10px] font-bold shadow-sm" style="background: linear-gradient(90deg, #7B6FD7 0%, #6D58DA 35%, #765AE3 70%, #825BEF 100%);">แถบสีม่วง</span> = หลักสูตรที่ฝ่าย HR แนะนำสำหรับ <span id="cgia-current-user-name" class="font-bold text-brand-600">คุณ</span> ในปีงบประมาณนี้</span>
             </div>
 
             <!-- Table Container -->
@@ -7267,7 +7267,7 @@
             </td>`;
           } else if (isRecommended) {
             return `<td class="px-1.5 py-3 text-center bg-purple-100/70 border-x border-purple-200/80" title="${recTitle}">
-              <span class="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-r from-purple-600 to-brand-600 text-white font-bold text-[10px] shadow-sm tracking-tight whitespace-nowrap">
+              <span class="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-white font-bold text-[10px] shadow-sm tracking-tight whitespace-nowrap" style="background: linear-gradient(90deg, #7B6FD7 0%, #6D58DA 35%, #765AE3 70%, #825BEF 100%);">
                 ⭐ แนะนำ
               </span>
             </td>`;
@@ -7369,19 +7369,19 @@
         const locFeeText = [sch.location, sch.fee ? `ค่าลงทะเบียน ${sch.fee} บ.` : ''].filter(Boolean).join(' · ');
 
         if (isRecommended) {
-          // Deep Purple strip for HR recommended course!
+          // Signature Purple gradient matching top header bar for HR recommended course!
           return `
-            <tr class="bg-purple-900 text-white font-semibold shadow-md border-l-4 border-amber-400 transition-all">
+            <tr class="text-white font-semibold shadow-md border-l-4 border-amber-300 transition-all" style="background: linear-gradient(90deg, #7B6FD7 0%, #6D58DA 35%, #765AE3 70%, #825BEF 100%);">
               <td class="px-3 py-3">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-bold text-white text-sm">${courseName}</span>
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-purple-950 shadow-sm animate-pulse">⭐ HR แนะนำให้เรียน</span>
+                  <span class="font-bold text-white text-sm drop-shadow-sm">${courseName}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-300 text-slate-900 shadow-sm animate-pulse">⭐ HR แนะนำให้เรียน</span>
                 </div>
-                <div class="text-[10px] text-purple-200 mt-0.5">${levelText} · CGIA ${locFeeText ? `(${locFeeText})` : ''}</div>
+                <div class="text-[10px] text-purple-100 mt-0.5">${levelText} · CGIA ${locFeeText ? `(${locFeeText})` : ''}</div>
               </td>
-              <td class="px-2 py-3 text-center text-purple-100">${applyText}</td>
-              <td class="px-2 py-3 text-center text-amber-200 font-bold">${trainText}</td>
-              <td class="px-2 py-3 text-center text-purple-100">${examText}</td>
+              <td class="px-2 py-3 text-center text-white/95">${applyText}</td>
+              <td class="px-2 py-3 text-center text-amber-200 font-bold drop-shadow-sm">${trainText}</td>
+              <td class="px-2 py-3 text-center text-white/95">${examText}</td>
             </tr>
           `;
         } else {
