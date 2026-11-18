@@ -1407,7 +1407,7 @@
                 <button type="button" onclick="openCourseManagementModal()" title="จัดการหลักสูตรและรอบอบรม (ชีท Course & CourseDetail)" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all">
                   ⚙️
                 </button>
-                <button type="button" onclick="openHrRecModal()" title="HR กำหนดหลักสูตรแนะนำ (ชีท HRRec)" class="px-2.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1">
+                <button type="button" onclick="openHrRecModal()" id="btn-open-hr-rec" style="display: none;" title="HR กำหนดหลักสูตรแนะนำ (ชีท HRRec)" class="px-2.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1">
                   ⭐ แนะนำ (HR)
                 </button>
               </div>
@@ -1625,6 +1625,61 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: เลือกสถานะการเข้างานตนเองด่วน (เมื่อคลิกที่ เข้า Office) -->
+  <!-- ============================================================== -->
+  <div id="modal-self-att-picker" class="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 card-shadow border border-slate-100 shadow-2xl">
+      <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 mb-3">
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+            <span>📝</span> <span id="self-att-picker-title">เลือกสถานะการเข้างาน</span>
+          </h3>
+          <p id="self-att-picker-date" class="text-[11px] text-brand-600 font-semibold mt-0.5"></p>
+        </div>
+        <button type="button" onclick="closeSelfAttendancePicker()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 font-bold flex items-center justify-center text-sm">&times;</button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <button type="button" onclick="selectSelfAttendanceStatus('เข้า Office')" class="w-full p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-left flex items-center justify-between transition-all group">
+          <span class="flex items-center gap-2 font-semibold text-slate-700 group-hover:text-emerald-700">
+            <span class="status-dot bg-status-office"></span>
+            <span>เข้า Office</span>
+          </span>
+          <span class="text-[11px] text-slate-400 group-hover:text-emerald-600">ปฏิบัติงานที่สำนักงาน</span>
+        </button>
+
+        <button type="button" onclick="selectSelfAttendanceStatus('WFA')" class="w-full p-2.5 rounded-xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50 text-left flex items-center justify-between transition-all group">
+          <span class="flex items-center gap-2 font-semibold text-slate-700 group-hover:text-amber-700">
+            <span class="status-dot bg-status-wfa"></span>
+            <span>WFA</span>
+          </span>
+          <span class="text-[11px] text-slate-400 group-hover:text-amber-600">ทำงานนอกสถานที่</span>
+        </button>
+
+        <button type="button" onclick="selectSelfAttendanceStatus('ลา')" class="w-full p-2.5 rounded-xl border border-slate-200 hover:border-rose-500 hover:bg-rose-50 text-left flex items-center justify-between transition-all group">
+          <span class="flex items-center gap-2 font-semibold text-slate-700 group-hover:text-rose-700">
+            <span class="status-dot bg-status-leave"></span>
+            <span>ลา</span>
+          </span>
+          <span class="text-[11px] text-slate-400 group-hover:text-rose-600">ลากิจ / พักผ่อน / ป่วย</span>
+        </button>
+
+        <button type="button" onclick="selectSelfAttendanceStatus('ประชุม/อบรม')" class="w-full p-2.5 rounded-xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50 text-left flex items-center justify-between transition-all group">
+          <span class="flex items-center gap-2 font-semibold text-slate-700 group-hover:text-brand-700">
+            <span class="status-dot bg-brand-400"></span>
+            <span>ประชุม/อบรม</span>
+          </span>
+          <span class="text-[11px] text-slate-400 group-hover:text-brand-600">ประชุม / สัมมนา / อบรม</span>
+        </button>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 mt-3 flex justify-end">
+        <button type="button" onclick="closeSelfAttendancePicker()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 text-xs font-medium">ยกเลิก</button>
       </div>
     </div>
   </div>
@@ -3455,11 +3510,15 @@
 
       const notice = document.getElementById('role-view-notice');
       if (notice) {
-        if (currentUser.role === 'dean' || currentUser.role === 'admin') {
-          notice.textContent = 'มุมมองผู้บริหาร: แสดงบุคลากรทุกกลุ่มงาน';
-        } else {
-          notice.textContent = `มุมมองประจำทีม: แสดงเฉพาะ ${currentUser.group}`;
-        }
+        notice.textContent = 'แสดงบุคลากรทุกกลุ่มงาน (คลิกที่ตัวหนังสือ เช้า/บ่าย เพื่อแก้ไขสถานะของตนเอง)';
+      }
+
+      // ปุ่ม ⭐ แนะนำ (HR) แสดงเฉพาะกลุ่มงานบริหารและธุรการเท่านั้น (ชีท ผู้ตรวจสอบ Col E)
+      const hrRecBtn = document.getElementById('btn-open-hr-rec');
+      if (hrRecBtn) {
+        const grp = (currentUser.group || '').trim();
+        const isHRAdmin = grp.includes('งานบริหารและธุรการ');
+        hrRecBtn.style.display = isHRAdmin ? 'inline-flex' : 'none';
       }
 
       // Update role selector active value
@@ -3715,10 +3774,8 @@
         headerTitle.textContent = `รายชื่อบุคลากร (แยกตามกลุ่มงาน) - ${dateLabel}`;
       }
 
-      let visible = sheetData.auditors;
-      if (currentUser && currentUser.role !== 'dean' && currentUser.role !== 'admin') {
-        visible = sheetData.auditors.filter(p => p.group === currentUser.group || (p.role && p.role.toLowerCase() === 'dean'));
-      }
+      // แสดงรายชื่อบุคลากรทุกคนให้ทุกคนเห็น (ชีท ผู้ตรวจสอบ)
+      const visible = sheetData.auditors || [];
 
       // ดึงรายชื่อกลุ่มงานจาก sheet "ผู้ตรวจสอบ" Col E
       const allGroups = [...new Set(sheetData.auditors.map(a => a.group).filter(Boolean))];
@@ -3762,8 +3819,21 @@
           const amStatus = amRec ? amRec.workType : 'เข้า Office';
           const pmStatus = pmRec ? pmRec.workType : 'เข้า Office';
 
-          const isMe = currentUser && (p.code === currentUser.code || p.email === currentUser.email);
+          const isMe = currentUser && (
+            p.code === currentUser.code || 
+            p.email === currentUser.email ||
+            (currentUser.name && p.name === currentUser.name) ||
+            (currentUser.nickname && p.nickname === currentUser.nickname)
+          );
           const dotColor = getWorkTypeDotColor(amStatus);
+
+          const amInteractive = isMe
+            ? `<button type="button" onclick="openSelfAttendancePicker('เช้า', '${amStatus}', '${pmStatus}', '${p.code}')" class="${getWorkTypeTextColor(amStatus)} truncate py-0.5 px-1.5 rounded-lg bg-white border border-brand-300 hover:border-brand-600 hover:bg-brand-50 shadow-sm transition-all cursor-pointer font-bold flex items-center justify-center gap-1 group/btn" title="คลิกเพื่อเปลี่ยนสถานะภาคเช้าของตนเอง">${amStatus} <span class="text-[9px] text-brand-400 group-hover/btn:text-brand-600">▾</span></button>`
+            : `<span class="${getWorkTypeTextColor(amStatus)} truncate py-0.5 rounded bg-slate-50/80">${amStatus}</span>`;
+
+          const pmInteractive = isMe
+            ? `<button type="button" onclick="openSelfAttendancePicker('บ่าย', '${pmStatus}', '${amStatus}', '${p.code}')" class="${getWorkTypeTextColor(pmStatus)} truncate py-0.5 px-1.5 rounded-lg bg-white border border-brand-300 hover:border-brand-600 hover:bg-brand-50 shadow-sm transition-all cursor-pointer font-bold flex items-center justify-center gap-1 group/btn" title="คลิกเพื่อเปลี่ยนสถานะภาคบ่ายของตนเอง">${pmStatus} <span class="text-[9px] text-brand-400 group-hover/btn:text-brand-600">▾</span></button>`
+            : `<span class="${getWorkTypeTextColor(pmStatus)} truncate py-0.5 rounded bg-slate-50/80">${pmStatus}</span>`;
 
           gHtml += `
             <div class="flex items-center justify-between py-1 text-xs hover:bg-slate-50 px-1.5 rounded-lg transition-all ${isMe ? 'bg-brand-50/70 border-l-2 border-brand-500' : ''}">
@@ -3773,8 +3843,8 @@
                 ${isMe ? '<span class="text-[9px] bg-brand-200 text-brand-900 px-1 rounded font-bold shrink-0">ฉัน</span>' : ''}
               </div>
               <div class="grid grid-cols-2 gap-2 w-36 sm:w-44 text-center shrink-0 text-[11px]">
-                <span class="${getWorkTypeTextColor(amStatus)} truncate py-0.5 rounded bg-slate-50/80">${amStatus}</span>
-                <span class="${getWorkTypeTextColor(pmStatus)} truncate py-0.5 rounded bg-slate-50/80">${pmStatus}</span>
+                ${amInteractive}
+                ${pmInteractive}
               </div>
             </div>
           `;
@@ -3783,6 +3853,93 @@
         gHtml += `</div></div>`;
         container.innerHTML += gHtml;
       });
+    }
+
+    let currentSelfAttTarget = {
+      session: 'เช้า',
+      otherVal: 'เข้า Office',
+      userCode: ''
+    };
+
+    function openSelfAttendancePicker(session, currentVal, otherVal, userCode) {
+      currentSelfAttTarget = {
+        session: session,
+        otherVal: otherVal,
+        userCode: userCode || (currentUser ? currentUser.code : '')
+      };
+
+      const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+      const targetDate = selectedCalendarDate || {
+        day: new Date().getDate(),
+        month: new Date().getMonth() + 1,
+        yearBE: new Date().getFullYear() + 543
+      };
+
+      const titleEl = document.getElementById('self-att-picker-title');
+      if (titleEl) titleEl.textContent = `เลือกสถานะภาค${session}`;
+
+      const dateEl = document.getElementById('self-att-picker-date');
+      if (dateEl) {
+        dateEl.textContent = `วันที่ ${targetDate.day} ${monthNames[targetDate.month - 1]} ${targetDate.yearBE}`;
+      }
+
+      const modal = document.getElementById('modal-self-att-picker');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeSelfAttendancePicker() {
+      const modal = document.getElementById('modal-self-att-picker');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function selectSelfAttendanceStatus(newStatus) {
+      closeSelfAttendancePicker();
+      if (!currentUser) return;
+
+      const userCode = currentSelfAttTarget.userCode || currentUser.code;
+      const targetDate = selectedCalendarDate || {
+        day: new Date().getDate(),
+        month: new Date().getMonth() + 1,
+        yearBE: new Date().getFullYear() + 543
+      };
+
+      const d = ('0' + targetDate.day).slice(-2);
+      const m = ('0' + targetDate.month).slice(-2);
+      const dateVal = `${d}/${m}/${targetDate.yearBE}`;
+
+      const session = currentSelfAttTarget.session; // 'เช้า' หรือ 'บ่าย'
+      let workAm, workPm;
+      if (session === 'เช้า') {
+        workAm = newStatus;
+        workPm = currentSelfAttTarget.otherVal || 'เข้า Office';
+      } else {
+        workAm = currentSelfAttTarget.otherVal || 'เข้า Office';
+        workPm = newStatus;
+      }
+
+      // Update local memory list immediately for snappy responsiveness
+      updateLocalOfficeMemory(userCode, dateVal, 'เช้า', workAm);
+      updateLocalOfficeMemory(userCode, dateVal, 'บ่าย', workPm);
+
+      renderAttendanceList();
+      renderCalendar();
+      renderTodaySummaryCard();
+
+      try {
+        const combinedPayload = {
+          action: 'saveOfficeAttendance',
+          email: currentUser.email || '',
+          officeData: {
+            userCode: userCode,
+            date: dateVal,
+            workAm: workAm,
+            workPm: workPm
+          }
+        };
+        await sendToAppsScript(combinedPayload);
+      } catch (err) {
+        console.error('Error saving self attendance:', err);
+      }
     }
 
     function renderTodaySummaryCard() {
@@ -7015,6 +7172,12 @@
       if (uNameEl) {
         uNameEl.textContent = currentUser ? (currentUser.nickname || currentUser.name) : 'คุณ';
       }
+      const hrRecBtn = document.getElementById('btn-open-hr-rec');
+      if (hrRecBtn) {
+        const grp = (currentUser?.group || '').trim();
+        const isHRAdmin = grp.includes('งานบริหารและธุรการ');
+        hrRecBtn.style.display = isHRAdmin ? 'inline-flex' : 'none';
+      }
       renderTrainingMatrixTable();
       renderCgiaScheduleTable();
       renderTrainingHistoryTable();
@@ -7803,6 +7966,11 @@
     }
 
     function openHrRecModal() {
+      const grp = (currentUser?.group || '').trim();
+      if (!grp.includes('งานบริหารและธุรการ')) {
+        alert('ขออภัย คุณไม่มีสิทธิ์จัดการข้อมูลหลักสูตรแนะนำ (เฉพาะบุคลากรกลุ่มงานบริหารและธุรการเท่านั้น โดยดูจากคอลัมน์ E ในชีท ผู้ตรวจสอบ)');
+        return;
+      }
       populateTrainingFilters();
       resetHrRecForm();
       renderHrRecTable();
