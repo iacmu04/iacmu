@@ -1341,7 +1341,7 @@
                 </div>
                 <div>
                   <h2 class="text-base font-bold text-slate-800">ตารางสรุปภาพรวมการอบรมผู้ตรวจสอบภายใน</h2>
-                  <p class="text-xs text-slate-500">ผลการสอบผ่านหลักสูตรวุฒิบัตร CGIA ระดับ 1 - 3 (อ้างอิงชีท Training)</p>
+                  <p class="text-xs text-slate-500">ผลการสอบผ่านหลักสูตรวุฒิบัตร CGIA ระดับ 1 - 3 (อ้างอิงชีท Training · ระดับ 2 รองรับเทียบเท่าจาก Intermediate + Advance)</p>
                 </div>
               </div>
             </div>
@@ -1372,13 +1372,15 @@
             </div>
           </div>
           <div class="mt-3 flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100 flex-wrap gap-2">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-wrap">
               <span class="flex items-center gap-1.5">
                 <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓</span> ผ่านการอบรมและทดสอบ
               </span>
               <span class="flex items-center gap-1.5">
                 <span class="inline-flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold text-white shadow-sm" style="background: linear-gradient(90deg, #7B6FD7 0%, #6D58DA 35%, #765AE3 70%, #825BEF 100%);">⭐ แนะนำ</span> แถบสีคอร์สที่ HR แนะนำ
               </span>
+              <span class="text-slate-300 hidden sm:inline">|</span>
+              <span class="text-slate-500">💡 ระดับ 2: เรียนครบ Intermediate + Advance เทียบเท่าหลักสูตรปัจจุบัน</span>
             </div>
             <span id="training-matrix-count" class="font-medium text-slate-500"></span>
           </div>
@@ -3239,14 +3241,22 @@
             });
           }
         });
-        if (courses.length === 0) {
+                if (courses.length === 0) {
           courses.push(
             { courseId: 'T2569-0001', name: 'Fundamental', institute: 'CGIA', level: '1' },
             { courseId: 'T2569-0002', name: 'Performance', institute: 'CGIA', level: '2' },
             { courseId: 'T2569-0003', name: 'Information', institute: 'CGIA', level: '2' },
             { courseId: 'T2569-0004', name: 'Governance', institute: 'CGIA', level: '2' },
             { courseId: 'T2569-0005', name: 'Financial', institute: 'CGIA', level: '2' },
-            { courseId: 'T2569-0006', name: 'Expert', institute: 'CGIA', level: '3' }
+            { courseId: 'T2569-0006', name: 'Expert', institute: 'CGIA', level: '3' },
+            { courseId: 'T2569-0007', name: 'Intermediate Performance', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0008', name: 'Advance Performance', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0009', name: 'Intermediate Consulting', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0010', name: 'Advance Consulting', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0011', name: 'Intermediate Finance', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0012', name: 'Advance Finance', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0013', name: 'Intermediate Information', institute: 'CGIA', level: '2' },
+            { courseId: 'T2569-0014', name: 'Advance Information', institute: 'CGIA', level: '2' }
           );
         }
 
@@ -7184,6 +7194,102 @@
     }
 
     /**
+     * ตรวจสอบว่าผู้ตรวจสอบได้ผ่านหลักสูตรตามชื่อที่กำหนดหรือไม่ (เทียบจากชีท Training โดย result = 'ผ่าน')
+     */
+    function hasAuditorPassedCourseVariant(aud, targetVariants) {
+      if (!aud) return false;
+      const variants = (Array.isArray(targetVariants) ? targetVariants : [targetVariants])
+        .map(v => (v || '').toString().trim().toLowerCase().replace(/\s+/g, ' ').replace(/\badvanced\b/g, 'advance'));
+
+      return (sheetData.trainings || []).some(t => {
+        const uCode = (t.userCode || '').toString().trim().toLowerCase();
+        const aCode = (aud.code || '').toString().trim().toLowerCase();
+        const aName = (aud.name || '').toString().trim().toLowerCase();
+        const aNick = (aud.nickname || '').toString().trim().toLowerCase();
+        const matchUser = (uCode && (uCode === aCode || uCode === aName || (aNick && uCode === aNick)));
+        if (!matchUser) return false;
+        if ((t.result || '').toString().trim() !== 'ผ่าน') return false;
+
+        const courseObj = findCourse(t.courseId);
+        const rawName = (courseObj ? courseObj.name : t.courseId) || '';
+        const normName = rawName.toString().trim().toLowerCase().replace(/\s+/g, ' ').replace(/\badvanced\b/g, 'advance');
+        const normId = (t.courseId || '').toString().trim().toLowerCase().replace(/\s+/g, ' ').replace(/\badvanced\b/g, 'advance');
+
+        return variants.some(v => normName === v || normId === v);
+      });
+    }
+
+    /**
+     * ประเมินผลการผ่านหลักสูตรมาตรฐาน CGIA โดยรองรับการเทียบเท่าจากหลักสูตรระดับ 2 รุ่นเก่า:
+     * 1. Performance: ผ่าน Performance หรือ เรียนครบ Intermediate Performance + Advance Performance
+     * 2. Governance: ผ่าน Governance หรือ เรียนครบ Intermediate Consulting + Advance Consulting
+     * 3. Financial: ผ่าน Financial/Finance หรือ เรียนครบ Intermediate Finance + Advance Finance
+     * 4. Information: ผ่าน Information หรือ เรียนครบ Intermediate Information + Advance Information
+     */
+    function evaluateAuditorCoursePassed(aud, standardCourseKey) {
+      if (!aud || !standardCourseKey) return { passed: false };
+      const key = standardCourseKey.toString().trim().toLowerCase();
+
+      // 1. Performance (ระดับ 2)
+      if (key === 'performance') {
+        if (hasAuditorPassedCourseVariant(aud, ['Performance'])) {
+          return { passed: true, note: 'ผ่านหลักสูตร Performance' };
+        }
+        const hasInter = hasAuditorPassedCourseVariant(aud, ['Intermediate Performance']);
+        const hasAdv = hasAuditorPassedCourseVariant(aud, ['Advance Performance', 'Advanced Performance']);
+        if (hasInter && hasAdv) {
+          return { passed: true, note: 'เทียบเท่าผ่าน Performance (เรียนครบ Intermediate + Advance Performance)' };
+        }
+        return { passed: false };
+      }
+
+      // 2. Governance (ระดับ 2)
+      if (key === 'governance') {
+        if (hasAuditorPassedCourseVariant(aud, ['Governance'])) {
+          return { passed: true, note: 'ผ่านหลักสูตร Governance' };
+        }
+        const hasInter = hasAuditorPassedCourseVariant(aud, ['Intermediate Consulting']);
+        const hasAdv = hasAuditorPassedCourseVariant(aud, ['Advance Consulting', 'Advanced Consulting']);
+        if (hasInter && hasAdv) {
+          return { passed: true, note: 'เทียบเท่าผ่าน Governance (เรียนครบ Intermediate + Advance Consulting)' };
+        }
+        return { passed: false };
+      }
+
+      // 3. Financial (ระดับ 2)
+      if (key === 'financial') {
+        if (hasAuditorPassedCourseVariant(aud, ['Financial', 'Finance'])) {
+          return { passed: true, note: 'ผ่านหลักสูตร Financial' };
+        }
+        const hasInter = hasAuditorPassedCourseVariant(aud, ['Intermediate Finance', 'Intermediate Financial']);
+        const hasAdv = hasAuditorPassedCourseVariant(aud, ['Advance Finance', 'Advanced Finance', 'Advance Financial', 'Advanced Financial']);
+        if (hasInter && hasAdv) {
+          return { passed: true, note: 'เทียบเท่าผ่าน Financial (เรียนครบ Intermediate + Advance Finance)' };
+        }
+        return { passed: false };
+      }
+
+      // 4. Information (ระดับ 2)
+      if (key === 'information') {
+        if (hasAuditorPassedCourseVariant(aud, ['Information'])) {
+          return { passed: true, note: 'ผ่านหลักสูตร Information' };
+        }
+        const hasInter = hasAuditorPassedCourseVariant(aud, ['Intermediate Information']);
+        const hasAdv = hasAuditorPassedCourseVariant(aud, ['Advance Information', 'Advanced Information']);
+        if (hasInter && hasAdv) {
+          return { passed: true, note: 'เทียบเท่าผ่าน Information (เรียนครบ Intermediate + Advance Information)' };
+        }
+        return { passed: false };
+      }
+
+      // Fundamental (ระดับ 1), Expert (ระดับ 3) หรือหลักสูตรอื่น
+      if (hasAuditorPassedCourseVariant(aud, [standardCourseKey])) {
+        return { passed: true, note: `ผ่านหลักสูตร ${standardCourseKey}` };
+      }
+      return { passed: false };
+    }
+
+    /**
      * Card 1: ตารางสรุปภาพรวมการอบรมผู้ตรวจสอบภายใน
      * แสดงชื่อเล่นบรรทัดแรก บรรทัดต่อมาเป็นทีม/กลุ่มงาน (ไม่มีชื่อจริง)
      */
@@ -7235,17 +7341,17 @@
       let totalPassedCount = 0;
       const rowsHtml = displayAuditors.map(aud => {
         const cellsHtml = standardCourses.map(sc => {
-          const isPassed = (sheetData.trainings || []).some(t => {
-            const matchUser = (t.userCode === aud.code) || (t.userCode === aud.name) || (aud.nickname && t.userCode === aud.nickname);
-            const courseObj = findCourse(t.courseId);
-            const courseName = courseObj ? courseObj.name : t.courseId;
-            const matchCourse = (courseName || '').toLowerCase() === sc.key.toLowerCase() || (t.courseId || '').toLowerCase() === sc.key.toLowerCase();
-            return matchUser && matchCourse && ((t.result || '').trim() === 'ผ่าน');
-          });
+          const passResult = evaluateAuditorCoursePassed(aud, sc.key);
+          const isPassed = passResult.passed;
+          const passTitle = passResult.note || 'ผ่านการอบรมแล้ว';
 
           // Check HR Recommendation for this user and course
           const recObj = (sheetData.hrRecs || []).find(r => {
-            const matchUser = (r.userCode === aud.code) || (r.userCode === aud.name) || (aud.nickname && r.userCode === aud.nickname);
+            const rUser = (r.userCode || '').toString().trim().toLowerCase();
+            const aCode = (aud.code || '').toString().trim().toLowerCase();
+            const aName = (aud.name || '').toString().trim().toLowerCase();
+            const aNick = (aud.nickname || '').toString().trim().toLowerCase();
+            const matchUser = (rUser && (rUser === aCode || rUser === aName || (aNick && rUser === aNick)));
             if (!matchUser) return false;
             const courseObj = findCourse(r.courseId);
             const courseName = courseObj ? courseObj.name : r.courseId;
@@ -7257,13 +7363,13 @@
           if (isPassed) {
             totalPassedCount++;
             if (isRecommended) {
-              return `<td class="px-2 py-3 text-center bg-emerald-50/40 relative" title="ผ่านการอบรมแล้ว (${recTitle})">
-                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="ผ่านการอบรมแล้ว">✓</span>
+              return `<td class="px-2 py-3 text-center bg-emerald-50/40 relative" title="${passTitle} (${recTitle})">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="${passTitle}">✓</span>
                 <span class="absolute top-1 right-1 text-[9px] text-amber-500 font-bold" title="HR แนะนำ">⭐</span>
               </td>`;
             }
-            return `<td class="px-2 py-3 text-center bg-emerald-50/40">
-              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="ผ่านการอบรมแล้ว">✓</span>
+            return `<td class="px-2 py-3 text-center bg-emerald-50/40" title="${passTitle}">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="${passTitle}">✓</span>
             </td>`;
           } else if (isRecommended) {
             return `<td class="px-1.5 py-3 text-center bg-purple-100/70 border-x border-purple-200/80" title="${recTitle}">
