@@ -880,25 +880,25 @@
             <!-- Header & Dedicated Filters -->
             <div>
               <div class="flex items-center justify-between gap-2 mb-2.5 pb-2.5 border-b border-indigo-200/80">
-                <h4 class="text-sm font-black text-indigo-950 flex items-center gap-1.5">
-                  <span class="text-base">🍩</span> สรุปภาพรวมสถานะรายงานงบการเงิน
+                <h4 class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                  <span class="text-sm">🍩</span> สรุปภาพรวมสถานะรายงานงบการเงิน
                 </h4>
-                <span id="side-donut-period-badge" class="text-xs font-black text-indigo-950 bg-white px-3 py-0.5 rounded-full shadow-sm ring-1 ring-indigo-200/60 whitespace-nowrap">ต.ค. 2570</span>
+                <span id="side-donut-period-badge" class="text-xs font-bold text-indigo-950 bg-white px-2.5 py-0.5 rounded-full shadow-sm ring-1 ring-indigo-200/60 whitespace-nowrap">ต.ค. 2570</span>
               </div>
 
-              <!-- Dedicated Filters for this card -->
-              <div class="grid grid-cols-2 gap-2 mb-3 text-xs">
-                <div>
-                  <label class="block text-xs font-bold text-indigo-950 mb-1">ปีงบประมาณ</label>
-                  <select id="side-summary-year" onchange="renderSideDonutSummaryCard()" class="w-full bg-white border border-indigo-200/80 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer shadow-sm">
+              <!-- Dedicated Filters for this card: 3 filters in responsive grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-3 text-xs">
+                <div class="sm:col-span-3">
+                  <label class="block text-xs font-bold text-indigo-950 mb-1">ปีงบ</label>
+                  <select id="side-summary-year" onchange="renderSideDonutSummaryCard()" class="w-full bg-white border border-indigo-200/80 rounded-xl px-2 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer shadow-sm">
                     <option value="2570" selected>2570</option>
                     <option value="2569">2569</option>
                     <option value="2568">2568</option>
                   </select>
                 </div>
-                <div>
+                <div class="sm:col-span-5">
                   <label class="block text-xs font-bold text-indigo-950 mb-1">งวดงบ / ไตรมาส</label>
-                  <select id="side-summary-period" onchange="renderSideDonutSummaryCard()" class="w-full bg-white border border-indigo-200/80 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer shadow-sm">
+                  <select id="side-summary-period" onchange="renderSideDonutSummaryCard()" class="w-full bg-white border border-indigo-200/80 rounded-xl px-2 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer shadow-sm">
                     <optgroup label="รายเดือน">
                       <option value="ตุลาคม" selected>ตุลาคม (ต.ค.)</option>
                       <option value="พฤศจิกายน">พฤศจิกายน (พ.ย.)</option>
@@ -924,6 +924,15 @@
                     </optgroup>
                   </select>
                 </div>
+                <div class="sm:col-span-4">
+                  <label class="block text-xs font-bold text-indigo-950 mb-1">ทีม/กลุ่มงาน</label>
+                  <select id="side-summary-group" onchange="renderSideDonutSummaryCard()" class="w-full bg-white border border-indigo-200/80 rounded-xl px-2 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer shadow-sm">
+                    <option value="all">ทุกทีม/กลุ่มงาน</option>
+                    <option value="งานตรวจสอบ 1">งานตรวจสอบ 1</option>
+                    <option value="งานตรวจสอบ 2">งานตรวจสอบ 2</option>
+                    <option value="งานตรวจสอบ 3">งานตรวจสอบ 3</option>
+                  </select>
+                </div>
               </div>
 
               <!-- Donut Chart & Status Breakdown List (ตามรูปแนบของผู้ใช้) -->
@@ -931,9 +940,9 @@
                 <!-- Donut Chart with Center Number (Floating White Disc Badge) -->
                 <div class="relative shrink-0 flex items-center justify-center my-1" style="width: 130px; height: 130px;">
                   <canvas id="sideSummaryDonutChart" width="130" height="130"></canvas>
-                  <div class="absolute w-[76px] h-[76px] rounded-full bg-white shadow-md flex flex-col items-center justify-center pointer-events-none border border-indigo-100">
-                    <span id="side-donut-center-num" class="text-2xl font-black text-indigo-950 leading-none">40</span>
-                    <span class="text-[11px] text-indigo-900/80 font-bold mt-0.5">งบทั้งหมด</span>
+                  <div class="absolute w-[74px] h-[74px] rounded-full bg-white shadow-md flex flex-col items-center justify-center pointer-events-none border border-indigo-100">
+                    <span id="side-donut-center-num" class="text-xl font-black text-indigo-950 leading-none">40</span>
+                    <span class="text-[10px] text-indigo-900/80 font-bold mt-0.5">งบทั้งหมด</span>
                   </div>
                 </div>
 
@@ -941,53 +950,53 @@
                 <div class="flex-1 w-full space-y-1.5 text-xs">
                   <!-- 1. งบทั้งหมด -->
                   <div onclick="openDonutStatusPopup('total')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-white/50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานทั้งหมดในงวดนี้">
-                    <span class="text-sm font-black text-indigo-950 group-hover:text-purple-900 transition-colors">งบทั้งหมด</span>
-                    <span id="side-num-total" class="text-sm font-black text-indigo-950 bg-white px-3 py-0.5 rounded-md shadow-sm ring-1 ring-indigo-200/60">40</span>
+                    <span class="text-xs font-bold text-indigo-950 group-hover:text-purple-900 transition-colors">งบทั้งหมด</span>
+                    <span id="side-num-total" class="text-xs font-black text-indigo-950 bg-white px-2.5 py-0.5 rounded-md shadow-sm ring-1 ring-indigo-200/60">40</span>
                   </div>
 
                   <!-- 2. ผอ.เห็นชอบ/เสนออธิการแล้ว -->
                   <div onclick="openDonutStatusPopup('approved')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-white/50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่ ผอ.เห็นชอบ/เสนออธิการแล้ว">
                     <div class="flex items-center gap-2">
-                      <span class="w-3.5 h-3.5 rounded-full bg-teal-500 ring-2 ring-white shadow-sm shrink-0"></span>
-                      <span class="text-sm text-indigo-950 font-bold group-hover:text-teal-900 transition-colors">ผอ.เห็นชอบ/เสนออธิการแล้ว</span>
+                      <span class="w-3 h-3 rounded-full bg-teal-500 ring-2 ring-white shadow-sm shrink-0"></span>
+                      <span class="text-xs text-indigo-950 font-bold group-hover:text-teal-900 transition-colors">ผอ.เห็นชอบ/เสนออธิการแล้ว</span>
                     </div>
-                    <span id="side-num-approved" class="text-sm font-black text-teal-800 bg-white px-3 py-0.5 rounded-md shadow-sm ring-1 ring-teal-200/60">0</span>
+                    <span id="side-num-approved" class="text-xs font-black text-teal-800 bg-white px-2.5 py-0.5 rounded-md shadow-sm ring-1 ring-teal-200/60">0</span>
                   </div>
 
                   <!-- 3. ระหว่างแก้ไข -->
                   <div onclick="openDonutStatusPopup('editing')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-white/50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างแก้ไข">
                     <div class="flex items-center gap-2">
-                      <span class="w-3.5 h-3.5 rounded-full bg-rose-500 ring-2 ring-white shadow-sm shrink-0"></span>
-                      <span class="text-sm text-indigo-950 font-bold group-hover:text-rose-900 transition-colors">ระหว่างแก้ไข</span>
+                      <span class="w-3 h-3 rounded-full bg-rose-500 ring-2 ring-white shadow-sm shrink-0"></span>
+                      <span class="text-xs text-indigo-950 font-bold group-hover:text-rose-900 transition-colors">ระหว่างแก้ไข</span>
                     </div>
-                    <span id="side-num-editing" class="text-sm font-black text-rose-800 bg-white px-3 py-0.5 rounded-md shadow-sm ring-1 ring-rose-200/60">0</span>
+                    <span id="side-num-editing" class="text-xs font-black text-rose-800 bg-white px-2.5 py-0.5 rounded-md shadow-sm ring-1 ring-rose-200/60">0</span>
                   </div>
 
                   <!-- 4. ระหว่างเสนอผอ. -->
                   <div onclick="openDonutStatusPopup('dean')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-white/50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างเสนอ ผอ.">
                     <div class="flex items-center gap-2">
-                      <span class="w-3.5 h-3.5 rounded-full bg-purple-600 ring-2 ring-white shadow-sm shrink-0"></span>
-                      <span class="text-sm text-indigo-950 font-bold group-hover:text-purple-900 transition-colors">ระหว่างเสนอผอ.</span>
+                      <span class="w-3 h-3 rounded-full bg-purple-600 ring-2 ring-white shadow-sm shrink-0"></span>
+                      <span class="text-xs text-indigo-950 font-bold group-hover:text-purple-900 transition-colors">ระหว่างเสนอผอ.</span>
                     </div>
-                    <span id="side-num-dean" class="text-sm font-black text-purple-900 bg-white px-3 py-0.5 rounded-md shadow-md ring-1 ring-purple-200/60">0</span>
+                    <span id="side-num-dean" class="text-xs font-black text-purple-900 bg-white px-2.5 py-0.5 rounded-md shadow-md ring-1 ring-purple-200/60">0</span>
                   </div>
 
                   <!-- 5. ระหว่างดำเนินการ -->
                   <div onclick="openDonutStatusPopup('progress')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-white/50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่อยู่ระหว่างดำเนินการ">
                     <div class="flex items-center gap-2">
-                      <span class="w-3.5 h-3.5 rounded-full bg-amber-500 ring-2 ring-white shadow-sm shrink-0"></span>
-                      <span class="text-sm text-indigo-950 font-bold group-hover:text-amber-900 transition-colors">ระหว่างดำเนินการ</span>
+                      <span class="w-3 h-3 rounded-full bg-amber-500 ring-2 ring-white shadow-sm shrink-0"></span>
+                      <span class="text-xs text-indigo-950 font-bold group-hover:text-amber-900 transition-colors">ระหว่างดำเนินการ</span>
                     </div>
-                    <span id="side-num-progress" class="text-sm font-black text-amber-800 bg-white px-3 py-0.5 rounded-md shadow-sm ring-1 ring-amber-200/60">0</span>
+                    <span id="side-num-progress" class="text-xs font-black text-amber-800 bg-white px-2.5 py-0.5 rounded-md shadow-sm ring-1 ring-amber-200/60">0</span>
                   </div>
 
                   <!-- 6. รอเอกสาร -->
                   <div onclick="openDonutStatusPopup('waiting')" class="flex items-center justify-between p-1.5 rounded-lg hover:bg-white/50 cursor-pointer transition-colors group" title="คลิกดูรายชื่อส่วนงานที่รอเอกสาร">
                     <div class="flex items-center gap-2">
-                      <span class="w-3.5 h-3.5 rounded-full bg-slate-400 ring-2 ring-white shadow-sm shrink-0"></span>
-                      <span class="text-sm text-indigo-950 font-bold group-hover:text-slate-900 transition-colors">รอเอกสาร</span>
+                      <span class="w-3 h-3 rounded-full bg-slate-400 ring-2 ring-white shadow-sm shrink-0"></span>
+                      <span class="text-xs text-indigo-950 font-bold group-hover:text-slate-900 transition-colors">รอเอกสาร</span>
                     </div>
-                    <span id="side-num-waiting" class="text-sm font-black text-slate-700 bg-white px-3 py-0.5 rounded-md shadow-sm ring-1 ring-slate-200">0</span>
+                    <span id="side-num-waiting" class="text-xs font-black text-slate-700 bg-white px-2.5 py-0.5 rounded-md shadow-sm ring-1 ring-slate-200">0</span>
                   </div>
                 </div>
               </div>
@@ -995,7 +1004,7 @@
 
             <div class="mt-2.5 pt-2 border-t border-indigo-200/80 flex items-center justify-between text-xs">
               <span class="text-indigo-950/80 font-bold">คลิกที่แต่ละสถานะเพื่อดูรายชื่อ</span>
-              <span class="text-indigo-950 font-bold bg-white/70 hover:bg-white px-3 py-1 rounded-lg cursor-pointer transition-all shadow-sm ring-1 ring-indigo-200/80" onclick="openMatrixFilterPopup()">กรองแยกตามทีมได้ 🔍</span>
+              <span class="text-indigo-950 font-bold bg-white/70 hover:bg-white px-3 py-1 rounded-lg cursor-pointer transition-all shadow-sm ring-1 ring-indigo-200/80" onclick="openMatrixFilterPopup()">กรองละเอียด 🔍</span>
             </div>
           </div>
 
@@ -2009,7 +2018,7 @@
             <p id="donut-modal-subtitle" class="text-xs text-slate-400 mt-0.5">ปีงบประมาณ 2570 • งวด ตุลาคม</p>
           </div>
 
-          <!-- Filter by Group / Team (ตามที่ผู้ใช้ต้องการ) -->
+          <!-- Filter by Group / Team (เฉพาะกลุ่มงานตรวจสอบ 1, 2, 3) -->
           <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-1.5 text-xs">
             <label class="font-semibold text-slate-600 whitespace-nowrap">กรองทีม/กลุ่มงาน:</label>
             <select id="donut-modal-group-filter" onchange="onDonutModalGroupFilterChange()" class="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer">
@@ -2017,7 +2026,6 @@
               <option value="งานตรวจสอบ 1">งานตรวจสอบ 1</option>
               <option value="งานตรวจสอบ 2">งานตรวจสอบ 2</option>
               <option value="งานตรวจสอบ 3">งานตรวจสอบ 3</option>
-              <option value="งานบริหารและธุรการ">งานบริหารและธุรการ</option>
             </select>
           </div>
 
@@ -2804,6 +2812,23 @@
           const matchKey = Object.keys(THAI_MONTHS_MAP).find(k => mName.includes(k) || k.includes(mName));
           if (matchKey) m = THAI_MONTHS_MAP[matchKey];
         }
+        if (m) {
+          return { ...normalizeYearPair(y), month: m, day: d };
+        }
+      }
+
+      // English text e.g. "1-Jun-2569", "1-Oct-2568", "01-Jun-2026", "1 Jun 2569"
+      const enMatch = str.match(/^(\d{1,2})[\s\-\/\.]+([a-zA-Z]+)[\s\-\/\.]+(\d{4})$/);
+      if (enMatch) {
+        const d = parseInt(enMatch[1], 10);
+        const mStr = enMatch[2].toLowerCase();
+        const y = parseInt(enMatch[3], 10);
+        const EN_MONTHS = {
+          jan: 1, january: 1, feb: 2, february: 2, mar: 3, march: 3, apr: 4, april: 4,
+          may: 5, jun: 6, june: 6, jul: 7, july: 7, aug: 8, august: 8, sep: 9, september: 9,
+          oct: 10, october: 10, nov: 11, november: 11, dec: 12, december: 12
+        };
+        const m = EN_MONTHS[mStr];
         if (m) {
           return { ...normalizeYearPair(y), month: m, day: d };
         }
@@ -4255,13 +4280,120 @@
     }
 
     // -------------------------------------------------------------
-    // FINANCE MATRIX (41 ส่วนงาน จากชีท ส่วนงาน)
+    // FINANCE MATRIX (41 ส่วนงาน จากชีท ส่วนงาน) & EFFECTIVE AUDITOR ENGINE
     // -------------------------------------------------------------
+
+    // Helper: ดึงรายชื่อส่วนงานที่ไม่ซ้ำกัน 41 ส่วนงาน (แม้ในชีทส่วนงานจะมีหลายแถวตามประวัติคำสั่งแต่งตั้ง)
+    function getUniqueDepartmentsList() {
+      const map = new Map();
+      (sheetData.departments || []).forEach(d => {
+        const key = (d.name || '').trim();
+        if (!key) return;
+        if (!map.has(key)) {
+          map.set(key, d);
+        } else if ((d.status || '').trim() === 'ใช้งาน') {
+          // หากมีหลายแถว ให้ถือแถวสถานะใช้งานเป็นตัวแทนหลักของส่วนงาน
+          map.set(key, d);
+        }
+      });
+      return Array.from(map.values());
+    }
+
+    // Helper: แปลงปีงบประมาณและงวดรายงานเป็นวันที่เปรียบเทียบคำสั่งแต่งตั้ง (Effective Date)
+    function getFiscalPeriodDate(fiscalYear, period) {
+      const fyNum = parseInt(fiscalYear, 10) || 2570;
+      const fyCE = (fyNum > 2400) ? (fyNum - 543) : fyNum;
+      const p = (period || '').toString().trim();
+
+      const monthMap = {
+        'ตุลาคม': { m: 10, prevYear: true },
+        'พฤศจิกายน': { m: 11, prevYear: true },
+        'ธันวาคม': { m: 12, prevYear: true },
+        'มกราคม': { m: 1, prevYear: false },
+        'กุมภาพันธ์': { m: 2, prevYear: false },
+        'มีนาคม': { m: 3, prevYear: false },
+        'เมษายน': { m: 4, prevYear: false },
+        'พฤษภาคม': { m: 5, prevYear: false },
+        'มิถุนายน': { m: 6, prevYear: false },
+        'กรกฎาคม': { m: 7, prevYear: false },
+        'สิงหาคม': { m: 8, prevYear: false },
+        'กันยายน': { m: 9, prevYear: false },
+        'ไตรมาส 1': { m: 12, prevYear: true },
+        'ไตรมาส 2': { m: 3, prevYear: false },
+        'ไตรมาส 3': { m: 6, prevYear: false },
+        'ไตรมาส 4': { m: 9, prevYear: false },
+        'ต.ค.': { m: 10, prevYear: true },
+        'พ.ย.': { m: 11, prevYear: true },
+        'ธ.ค.': { m: 12, prevYear: true },
+        'ม.ค.': { m: 1, prevYear: false },
+        'ก.พ.': { m: 2, prevYear: false },
+        'มี.ค.': { m: 3, prevYear: false },
+        'เม.ย.': { m: 4, prevYear: false },
+        'พ.ค.': { m: 5, prevYear: false },
+        'มิ.ย.': { m: 6, prevYear: false },
+        'ก.ค.': { m: 7, prevYear: false },
+        'ส.ค.': { m: 8, prevYear: false },
+        'ก.ย.': { m: 9, prevYear: false }
+      };
+
+      let info = monthMap[p];
+      if (!info) {
+        const foundKey = Object.keys(monthMap).find(k => p.includes(k) || k.includes(p));
+        if (foundKey) info = monthMap[foundKey];
+      }
+
+      if (info) {
+        const year = info.prevYear ? (fyCE - 1) : fyCE;
+        return new Date(year, info.m - 1, 1);
+      }
+
+      // Default to end of fiscal year (30 September)
+      return new Date(fyCE, 8, 30);
+    }
+
+    // Helper: วิเคราะห์คำสั่งแต่งตั้งตามช่วงเวลา (Assignment History based on Effective Date)
+    function getEffectiveDepartmentRecord(deptName, fiscalYear, period) {
+      if (!deptName) return null;
+      const allMatching = (sheetData.departments || []).filter(d => (d.name || '').trim() === deptName.trim());
+      if (allMatching.length === 0) return null;
+      if (allMatching.length === 1) return allMatching[0];
+
+      const targetDate = getFiscalPeriodDate(fiscalYear, period);
+
+      const parsedRecords = allMatching.map(d => {
+        let sDate = parseDateSafe(d.startDate);
+        if (!sDate) {
+          sDate = (d.status === 'ใช้งาน') ? new Date(2000, 0, 1) : new Date(1970, 0, 1);
+        }
+        return { dept: d, startDate: sDate };
+      });
+
+      // กรองเฉพาะคำสั่งที่เริ่มรับผิดชอบก่อนหรือตรงกับวันที่ของงวดงบนั้น
+      const eligible = parsedRecords.filter(r => r.startDate <= targetDate);
+      if (eligible.length > 0) {
+        // เรียงจากวันที่เริ่มล่าสุดไปยังอดีต เพื่อเลือกคำสั่งที่มีผลบังคับใช้ ณ เวลานั้น
+        eligible.sort((a, b) => b.startDate - a.startDate);
+        return eligible[0].dept;
+      }
+
+      // หากไม่มีคำสั่งใดเริ่มก่อนหน้านั้น ให้เลือกคำสั่งที่เก่าแก่ที่สุด หรือคำสั่งที่ใช้งานอยู่
+      const activeOne = allMatching.find(d => (d.status || '').trim() === 'ใช้งาน');
+      if (activeOne) return activeOne;
+
+      parsedRecords.sort((a, b) => a.startDate - b.startDate);
+      return parsedRecords[0].dept;
+    }
+
+    function getEffectiveDepartmentAuditor(deptName, fiscalYear, period) {
+      const rec = getEffectiveDepartmentRecord(deptName, fiscalYear, period);
+      return rec ? (rec.auditor || '') : '';
+    }
+
     function populateDepartmentFilterDropdown() {
       const sel = document.getElementById('fin-filter-dept');
       if (!sel) return;
       sel.innerHTML = '<option value="all">-- ส่วนงาน/คณะทั้งหมด (41 ส่วนงาน) --</option>';
-      sheetData.departments.forEach(d => {
+      getUniqueDepartmentsList().forEach(d => {
         sel.innerHTML += `<option value="${d.name}">${d.name}</option>`;
       });
     }
@@ -4377,15 +4509,18 @@
     function renderSideDonutSummaryCard() {
       const yearSel = document.getElementById('side-summary-year');
       const periodSel = document.getElementById('side-summary-period');
+      const groupSel = document.getElementById('side-summary-group');
       if (!yearSel || !periodSel) return;
 
       const fy = (yearSel.value || '2570').toString().trim();
       const period = (periodSel.value || 'ตุลาคม').toString().trim();
+      const selectedGroup = groupSel ? groupSel.value : 'all';
 
       // Update badge in card header
       const badgeP = document.getElementById('side-donut-period-badge');
       if (badgeP) {
-        badgeP.textContent = `${period === 'all' ? 'ทุกงวด' : period} ${fy}`;
+        const grpSuffix = (selectedGroup !== 'all') ? ` • ${selectedGroup}` : '';
+        badgeP.textContent = `${period === 'all' ? 'ทุกงวด' : period} ${fy}${grpSuffix}`;
       }
 
       const monthDefs = [
@@ -4406,10 +4541,11 @@
       const monthMatch = monthDefs.find(m => m.name === period);
       const isQuarter = ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].includes(period);
 
-      let depts = sheetData.departments || [];
+      let depts = getUniqueDepartmentsList();
       if (currentUser && (currentUser.role === 'auditor' || currentUser.role === 'supervisor')) {
         depts = depts.filter(d => {
-          const aud = findAuditorRecord(d.auditor);
+          const effAuditor = getEffectiveDepartmentAuditor(d.name, fy, period);
+          const aud = findAuditorRecord(effAuditor || d.auditor);
           return aud && aud.group === currentUser.group;
         });
       }
@@ -4471,13 +4607,14 @@
         }
 
         const st = getStatusRule(matching);
-        const audRec = findAuditorRecord(slot.dept.auditor);
+        const effAuditor = getEffectiveDepartmentAuditor(slot.dept.name, fy, slot.pLabel);
+        const audRec = findAuditorRecord(effAuditor || slot.dept.auditor);
         const teamGroup = audRec ? (audRec.group || 'ไม่ระบุ') : 'ไม่ระบุ';
 
         const itemInfo = {
           deptName: slot.dept.name,
           cycle: slot.dept.cycle,
-          auditor: slot.dept.auditor,
+          auditor: effAuditor || slot.dept.auditor,
           group: teamGroup,
           period: slot.pLabel,
           fiscalYear: fy,
@@ -4509,6 +4646,15 @@
         waiting: listWaiting
       };
 
+      // Filter counters and chart by selectedGroup
+      const filterByGrp = (arr) => (selectedGroup === 'all' ? arr : arr.filter(i => i.group === selectedGroup));
+      const cardTotal = filterByGrp(listTotal);
+      const cardApproved = filterByGrp(listApproved);
+      const cardEditing = filterByGrp(listEditing);
+      const cardDean = filterByGrp(listDean);
+      const cardProgress = filterByGrp(listProgress);
+      const cardWaiting = filterByGrp(listWaiting);
+
       // Update counters in card
       const elCenter = document.getElementById('side-donut-center-num');
       const elTotal = document.getElementById('side-num-total');
@@ -4518,22 +4664,22 @@
       const elProg = document.getElementById('side-num-progress');
       const elWait = document.getElementById('side-num-waiting');
 
-      if (elCenter) elCenter.textContent = listTotal.length;
-      if (elTotal) elTotal.textContent = listTotal.length;
-      if (elApprove) elApprove.textContent = listApproved.length;
-      if (elEdit) elEdit.textContent = listEditing.length;
-      if (elDean) elDean.textContent = listDean.length;
-      if (elProg) elProg.textContent = listProgress.length;
-      if (elWait) elWait.textContent = listWaiting.length;
+      if (elCenter) elCenter.textContent = cardTotal.length;
+      if (elTotal) elTotal.textContent = cardTotal.length;
+      if (elApprove) elApprove.textContent = cardApproved.length;
+      if (elEdit) elEdit.textContent = cardEditing.length;
+      if (elDean) elDean.textContent = cardDean.length;
+      if (elProg) elProg.textContent = cardProgress.length;
+      if (elWait) elWait.textContent = cardWaiting.length;
 
       // Update Donut Chart
       updateSideDonutChart({
-        total: listTotal.length,
-        approved: listApproved.length,
-        editing: listEditing.length,
-        dean: listDean.length,
-        progress: listProgress.length,
-        waiting: listWaiting.length
+        total: cardTotal.length,
+        approved: cardApproved.length,
+        editing: cardEditing.length,
+        dean: cardDean.length,
+        progress: cardProgress.length,
+        waiting: cardWaiting.length
       });
     }
 
@@ -4617,9 +4763,10 @@
       if (titleEl) titleEl.innerHTML = `<span>${meta.icon}</span> ${meta.title}`;
       if (subtitleEl) subtitleEl.textContent = `ปีงบประมาณ ${fy} • งวด ${period === 'all' ? 'ทุกงวดทั้งปี' : period}`;
 
-      // Reset group filter dropdown to 'all'
+      // Sync group filter dropdown with side summary group filter
       const grpFilter = document.getElementById('donut-modal-group-filter');
-      if (grpFilter) grpFilter.value = 'all';
+      const sideGrp = document.getElementById('side-summary-group')?.value || 'all';
+      if (grpFilter) grpFilter.value = sideGrp;
 
       renderDonutModalTable();
 
@@ -4633,6 +4780,12 @@
     }
 
     function onDonutModalGroupFilterChange() {
+      const modalGrp = document.getElementById('donut-modal-group-filter')?.value || 'all';
+      const sideGrp = document.getElementById('side-summary-group');
+      if (sideGrp && sideGrp.value !== modalGrp) {
+        sideGrp.value = modalGrp;
+        renderSideDonutSummaryCard();
+      }
       renderDonutModalTable();
     }
 
@@ -5217,19 +5370,21 @@
       const titleYearEl = document.getElementById('matrix-title-year');
       if (titleYearEl) titleYearEl.textContent = filterYear;
 
-      const filtered = sheetData.departments.filter(d => {
+      const uniqueDepts = getUniqueDepartmentsList();
+      const filtered = uniqueDepts.filter(d => {
+        const effAuditor = getEffectiveDepartmentAuditor(d.name, filterYear, filterPeriod);
         if (filterDept !== 'all' && d.name !== filterDept) return false;
-        if (filterAuditor !== 'all' && !isAuditorMatch(d.auditor, filterAuditor)) return false;
+        if (filterAuditor !== 'all' && !isAuditorMatch(effAuditor, filterAuditor)) return false;
 
         // Group check with clean names
         if (filterGroup !== 'all') {
-          const aud = findAuditorRecord(d.auditor);
+          const aud = findAuditorRecord(effAuditor || d.auditor);
           if (!aud || aud.group !== filterGroup) return false;
         }
 
         // Role restriction for regular user/leader
         if (currentUser && (currentUser.role === 'auditor' || currentUser.role === 'supervisor')) {
-          const aud = findAuditorRecord(d.auditor);
+          const aud = findAuditorRecord(effAuditor || d.auditor);
           if (!aud || aud.group !== currentUser.group) return false;
         }
         return true;
@@ -5237,6 +5392,7 @@
 
       filtered.forEach((dept, idx) => {
         const tracks = sheetData.trackingList.filter(t => t.department === dept.name && (t.fiscalYear || '').toString() === filterYear.toString());
+        const effAuditor = getEffectiveDepartmentAuditor(dept.name, filterYear, filterPeriod);
 
         // Calculate Outstanding Budgets (Item 3)
         let pendingEditCount = 0;
@@ -5274,7 +5430,7 @@
             <td class="py-3 px-3">
               <div class="font-semibold text-slate-800 group-hover:text-brand-600 transition-colors">${dept.name}</div>
               <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span>👤 ${dept.auditor || 'ไม่ระบุ'}</span>
+                <span>👤 ${effAuditor || dept.auditor || 'ไม่ระบุ'}</span>
                 <span>•</span>
                 <span class="text-brand-600">${dept.cycle || 'รายเดือน'}</span>
               </div>
@@ -5310,7 +5466,7 @@
       
       // Populate 41 Departments in Modal
       deptSel.innerHTML = '<option value="">-- เลือกส่วนงาน / คณะ --</option>';
-      sheetData.departments.forEach(d => {
+      getUniqueDepartmentsList().forEach(d => {
         deptSel.innerHTML += `<option value="${d.name}" ${d.name === defaultDeptName ? 'selected' : ''}>${d.name}</option>`;
       });
 
@@ -5350,8 +5506,11 @@
       const dept = sheetData.departments.find(d => d.name === deptName);
       if (!dept) return;
 
-      // 1. ผู้รับผิดชอบ ดึงอัตโนมัติจากชีท ส่วนงาน คอลัมน์ C
-      audInp.value = dept.auditor || 'ไม่ระบุในชีทส่วนงาน';
+      // 1. ผู้รับผิดชอบ ดึงอัตโนมัติตามช่วงเวลาคำสั่งแต่งตั้ง (Effective Date)
+      const fyModal = document.getElementById('modal-fin-year')?.value || '2570';
+      const periodVal = targetPeriod || periodSel.value || 'ตุลาคม';
+      const effAuditor = getEffectiveDepartmentAuditor(dept.name, fyModal, periodVal);
+      audInp.value = effAuditor || dept.auditor || 'ไม่ระบุในชีทส่วนงาน';
       cycleInp.value = dept.cycle || 'รายเดือน';
 
       // 2. ปรับตัวเลือกงวดรายงานอัตโนมัติ
@@ -5418,7 +5577,12 @@
         `;
       }
 
+      const audInp = document.getElementById('modal-fin-auditor');
+
       if (found) {
+        if (found.auditor && audInp) {
+          audInp.value = found.auditor;
+        }
         setDateInp('modal-fin-dept-send', found.dateReceivedFromDept);
         setDateInp('modal-fin-aud-recv', found.dateAuditorReceived);
         setDateInp('modal-fin-submit-leader', found.dateSubmittedToLeader);
@@ -5474,6 +5638,10 @@
           updateDeanEditSummary();
         }
       } else {
+        if (audInp) {
+          const effAuditor = getEffectiveDepartmentAuditor(deptName, fy, period);
+          if (effAuditor) audInp.value = effAuditor;
+        }
         setDateInp('modal-fin-dept-send', '');
         setDateInp('modal-fin-aud-recv', '');
         setDateInp('modal-fin-submit-leader', '');
