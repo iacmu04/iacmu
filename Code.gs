@@ -1858,17 +1858,32 @@ function saveHRRec(hrData, email) {
 
     let targetRow = -1;
     const lastRow = sheet.getLastRow();
-    if (lastRow >= 2 && recId) {
-      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-      for (let i = 0; i < data.length; i++) {
-        if ((data[i][0] || '').toString().trim() === recId) {
-          targetRow = i + 2;
-          break;
+    if (lastRow >= 2) {
+      const data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
+      // 1. ค้นหาจาก Rec_ID ก่อน (ถ้ามีการส่งมา)
+      if (recId) {
+        for (let i = 0; i < data.length; i++) {
+          if ((data[i][0] || '').toString().trim().toLowerCase() === recId.toLowerCase()) {
+            targetRow = i + 2;
+            break;
+          }
+        }
+      }
+      // 2. ถ้าไม่พบจาก Rec_ID ให้ค้นหาจาก รหัสบุคลากร + ปีงบประมาณ (คนเดียวกันในปีงบเดียวกัน มีคำแนะนำได้ 1 รายการ)
+      if (targetRow <= 1 && userCode && fiscalYear) {
+        for (let i = 0; i < data.length; i++) {
+          const rowUser = (data[i][1] || '').toString().trim();
+          const rowYear = (data[i][3] || '').toString().trim();
+          if (rowUser === userCode && rowYear === fiscalYear) {
+            targetRow = i + 2;
+            break;
+          }
         }
       }
     }
 
-    const finalRecId = recId || ('REC-' + Date.now().toString().slice(-6));
+    const existingRecId = (targetRow > 1) ? (sheet.getRange(targetRow, 1).getValue() || '').toString().trim() : '';
+    const finalRecId = recId || existingRecId || ('REC-' + Date.now().toString().slice(-6));
     const rowValues = [finalRecId, userCode, courseId, fiscalYear, note];
 
     if (targetRow > 1) {
@@ -1893,7 +1908,7 @@ function saveHRRec(hrData, email) {
  * ลบคำแนะนำหลักสูตรจาก HR (Sheet: HRRec)
  */
 function deleteHRRec(hrData, email) {
-  if (!hrData || !hrData.recId) throw new Error('ไม่พบ Rec_ID ที่ต้องการลบ');
+  if (!hrData || (!hrData.recId && !hrData.userCode)) throw new Error('ไม่พบข้อมูลคำแนะนำที่ต้องการลบ');
   const lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try {
@@ -1901,22 +1916,36 @@ function deleteHRRec(hrData, email) {
     const sheet = ss.getSheetByName(SHEETS.HRREC);
     if (!sheet) throw new Error('ไม่พบชีท ' + SHEETS.HRREC);
 
-    const recId = hrData.recId.toString().trim();
+    const recId = (hrData.recId || '').toString().trim();
+    const userCode = (hrData.userCode || '').toString().trim();
+    const fiscalYear = (hrData.fiscalYear || '').toString().trim();
     const lastRow = sheet.getLastRow();
     let targetRow = -1;
     if (lastRow >= 2) {
-      const data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-      for (let i = 0; i < data.length; i++) {
-        if ((data[i][0] || '').toString().trim() === recId) {
-          targetRow = i + 2;
-          break;
+      const data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
+      if (recId) {
+        for (let i = 0; i < data.length; i++) {
+          if ((data[i][0] || '').toString().trim().toLowerCase() === recId.toLowerCase()) {
+            targetRow = i + 2;
+            break;
+          }
+        }
+      }
+      if (targetRow <= 1 && userCode) {
+        for (let i = 0; i < data.length; i++) {
+          const rowUser = (data[i][1] || '').toString().trim();
+          const rowYear = (data[i][3] || '').toString().trim();
+          if (rowUser === userCode && (!fiscalYear || rowYear === fiscalYear)) {
+            targetRow = i + 2;
+            break;
+          }
         }
       }
     }
 
-    if (targetRow < 2) throw new Error('ไม่พบรายการคำแนะนำ ' + recId + ' ในชีท HRRec');
+    if (targetRow < 2) throw new Error('ไม่พบรายการคำแนะนำ ' + (recId || userCode) + ' ในชีท HRRec');
     sheet.deleteRow(targetRow);
-    return { success: true, deletedRecId: recId };
+    return { success: true, deletedRow: targetRow, deletedRecId: recId };
   } finally {
     lock.releaseLock();
   }
