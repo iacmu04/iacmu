@@ -781,10 +781,10 @@
               <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs">📝</span>
-                    ตารางสรุปการแก้ไข
+                    <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xs">📊</span>
+                    ตารางสรุปผลการปฏิบัติงานด้านการสอบทานงบการเงิน
                   </h3>
-                  <p class="text-[11px] text-slate-400 mt-0.5">สรุปสถิติจำนวนครั้งและจำนวนวันส่งกลับแก้ไขรายงานของผู้ตรวจสอบแต่ละท่าน</p>
+                  <p class="text-[11px] text-slate-400 mt-0.5">สรุปสถิติจำนวนครั้งและจำนวนวันส่งกลับแก้ไข พร้อมระยะเวลาการสอบทานรายงานงบการเงินของผู้ตรวจสอบแต่ละท่าน</p>
                 </div>
 
                 <!-- Dedicated Filters for Table 2 -->
@@ -848,11 +848,12 @@
                   <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
                     <tr>
                       <th class="py-2.5 px-3 min-w-[180px]">ชื่อผู้ตรวจสอบ</th>
-                      <th class="py-2.5 px-3 text-center min-w-[110px]">จำนวนงบทั้งหมด</th>
-                      <th class="py-2.5 px-3 text-center min-w-[100px]">จำนวนครั้งรวม</th>
-                      <th class="py-2.5 px-3 text-center min-w-[110px]">เฉลี่ยจำนวนครั้ง</th>
-                      <th class="py-2.5 px-3 text-center min-w-[100px]">จำนวนวันรวม</th>
-                      <th class="py-2.5 px-3 text-center min-w-[110px]">เฉลี่ยจำนวนวัน</th>
+                      <th class="py-2.5 px-3 text-center min-w-[105px]">จำนวนงบทั้งหมด</th>
+                      <th class="py-2.5 px-3 text-center min-w-[130px]">ระยะเวลาสอบทานรวม</th>
+                      <th class="py-2.5 px-3 text-center min-w-[95px]">จำนวนครั้งรวม</th>
+                      <th class="py-2.5 px-3 text-center min-w-[100px]">เฉลี่ยจำนวนครั้ง</th>
+                      <th class="py-2.5 px-3 text-center min-w-[95px]">จำนวนวันรวม</th>
+                      <th class="py-2.5 px-3 text-center min-w-[100px]">เฉลี่ยจำนวนวัน</th>
                     </tr>
                   </thead>
                   <tbody id="edit-summary-table-body" class="divide-y divide-slate-100">
@@ -867,7 +868,7 @@
 
             <div class="flex items-center justify-between text-xs text-slate-400 pt-2.5 border-t border-slate-100 mt-2">
               <span id="edit-summary-footer-status">กำลังประมวลผลข้อมูลสถิติ...</span>
-              <span class="text-brand-600 font-medium">💡 อ้างอิงตามบันทึกการส่งกลับแก้ไข (ชีท Edit)</span>
+              <span class="text-brand-600 font-medium">💡 อ้างอิงตามบันทึกการรับงบและเสนองบ (ชีท Tracking) และประวัติการส่งกลับแก้ไข (ชีท Edit)</span>
             </div>
           </div>
 
@@ -1901,10 +1902,10 @@
         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 mb-4">
           <div>
             <h3 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
-              <span>📋</span> รายละเอียดการส่งกลับแก้ไข: <span id="auditor-modal-name" class="text-brand-600">ผู้ตรวจสอบ</span>
+              <span>📊</span> รายละเอียดผลการปฏิบัติงานด้านการสอบทานงบการเงิน: <span id="auditor-modal-name" class="text-brand-600">ผู้ตรวจสอบ</span>
             </h3>
             <p id="auditor-modal-subtitle" class="text-xs text-slate-400 mt-0.5">
-              แสดงรายการงบการเงินทั้งหมดที่รับผิดชอบ จำนวนครั้งที่แก้ไข และจำนวนวันแก้ไข
+              แสดงรายการงบการเงินทั้งหมดที่รับผิดชอบ ระยะเวลาการสอบทาน (รับงบ Col H &rarr; เสนอ ผอ. Col J) และสถิติการส่งกลับแก้ไข
             </p>
           </div>
 
@@ -1953,10 +1954,14 @@
         </div>
 
         <!-- Summary Statistics Pills inside Modal -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4 text-xs">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-4 text-xs">
           <div class="bg-slate-50 border border-slate-200/60 rounded-xl p-2.5">
             <span class="text-[10px] text-slate-400 font-medium block">งบทั้งหมดในงวด</span>
             <span id="auditor-modal-stat-total" class="text-base font-extrabold text-slate-800">0</span>
+          </div>
+          <div class="bg-purple-50 border border-purple-200/60 rounded-xl p-2.5">
+            <span class="text-[10px] text-purple-700 font-medium block">ระยะเวลาสอบทานรวม</span>
+            <span id="auditor-modal-stat-review-days" class="text-base font-extrabold text-purple-800">0 วัน</span>
           </div>
           <div class="bg-amber-50 border border-amber-200/60 rounded-xl p-2.5">
             <span class="text-[10px] text-amber-700 font-medium block">งบที่เคยถูกส่งแก้</span>
@@ -1978,12 +1983,13 @@
             <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
               <tr>
                 <th class="py-2.5 px-3 text-center w-12">ลำดับ</th>
-                <th class="py-2.5 px-3 min-w-[200px]">ส่วนงาน / คณะ</th>
-                <th class="py-2.5 px-3 text-center min-w-[100px]">งวดรายงาน</th>
-                <th class="py-2.5 px-3 min-w-[140px]">สถานะปัจจุบัน</th>
-                <th class="py-2.5 px-3 text-center min-w-[100px]">จำนวนครั้งที่แก้ไข</th>
-                <th class="py-2.5 px-3 text-center min-w-[110px]">จำนวนวันแก้ไขรวม</th>
-                <th class="py-2.5 px-3 min-w-[260px]">รายละเอียดการส่งกลับแก้ไข (ชีท Edit)</th>
+                <th class="py-2.5 px-3 min-w-[190px]">ส่วนงาน / คณะ</th>
+                <th class="py-2.5 px-3 text-center min-w-[95px]">งวดรายงาน</th>
+                <th class="py-2.5 px-3 min-w-[130px]">สถานะปัจจุบัน</th>
+                <th class="py-2.5 px-3 text-center min-w-[135px]">ระยะเวลาสอบทาน (รับงบ Col H &rarr; เสนอ ผอ. Col J)</th>
+                <th class="py-2.5 px-3 text-center min-w-[90px]">จำนวนครั้งที่แก้</th>
+                <th class="py-2.5 px-3 text-center min-w-[100px]">จำนวนวันแก้ไข</th>
+                <th class="py-2.5 px-3 min-w-[250px]">รายละเอียดการส่งกลับแก้ไข (ชีท Edit)</th>
               </tr>
             </thead>
             <tbody id="auditor-modal-table-body" class="divide-y divide-slate-100">
@@ -5004,6 +5010,9 @@
       auditors = sortAuditorsByGroupAndRole(auditors);
 
       let grandTotalBudgets = 0;
+      let grandTotalReviewDays = 0;
+      let grandTotalReviewed = 0;
+      let grandTotalOverdue = 0;
       let grandTotalRounds = 0;
       let grandTotalDays = 0;
       const rowsData = [];
@@ -5033,6 +5042,10 @@
         });
 
         const totalBudgets = audSlots.length;
+        let totalReviewDays = 0;
+        let countReviewed = 0;
+        let countOverdue = 0;
+        let countOngoingOverdue = 0;
         let totalRounds = 0;
         let totalDays = 0;
 
@@ -5054,38 +5067,73 @@
             }
           }
 
-          if (matching && matching.trackingId) {
-            const tid = matching.trackingId.toString().trim();
-            const edits = (sheetData.editList || []).filter(e => (e.trackingId || '').toString().trim() === tid);
-            totalRounds += edits.length;
-
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            edits.forEach(e => {
-              if (e.daysUsed !== undefined && e.daysUsed !== null && !isNaN(parseFloat(e.daysUsed)) && parseFloat(e.daysUsed) > 0) {
-                totalDays += parseFloat(e.daysUsed);
-              } else if (e.dateReturned) {
-                const dStart = parseDateSafe(e.dateReturned);
-                const dEnd = e.dateResubmitted ? parseDateSafe(e.dateResubmitted) : today;
-                if (dStart && dEnd) {
-                  totalDays += Math.max(0, Math.round((dEnd - dStart) / 86400000));
+          if (matching) {
+            // 1. คำนวณระยะเวลาสอบทาน: วันที่ผู้ตรวจรับงบ (Col H) -> วันที่เสนอ ผอ. (Col J)
+            if (matching.dateAuditorReceived) {
+              const dRecv = parseDateSafe(matching.dateAuditorReceived);
+              if (matching.dateSubmittedToDean) {
+                const dDean = parseDateSafe(matching.dateSubmittedToDean);
+                if (dRecv && dDean) {
+                  const revDays = Math.max(0, Math.round((dDean - dRecv) / 86400000));
+                  totalReviewDays += revDays;
+                  countReviewed++;
+                  if (revDays > 20) {
+                    countOverdue++;
+                  }
+                }
+              } else if (dRecv) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const passed = Math.max(0, Math.round((today - dRecv) / 86400000));
+                if (passed > 20) {
+                  countOngoingOverdue++;
                 }
               }
-            });
+            }
+
+            // 2. คำนวณสถิติการส่งกลับแก้ไข (ชีท Edit)
+            if (matching.trackingId) {
+              const tid = matching.trackingId.toString().trim();
+              const edits = (sheetData.editList || []).filter(e => (e.trackingId || '').toString().trim() === tid);
+              totalRounds += edits.length;
+
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+
+              edits.forEach(e => {
+                if (e.daysUsed !== undefined && e.daysUsed !== null && !isNaN(parseFloat(e.daysUsed)) && parseFloat(e.daysUsed) > 0) {
+                  totalDays += parseFloat(e.daysUsed);
+                } else if (e.dateReturned) {
+                  const dStart = parseDateSafe(e.dateReturned);
+                  const dEnd = e.dateResubmitted ? parseDateSafe(e.dateResubmitted) : today;
+                  if (dStart && dEnd) {
+                    totalDays += Math.max(0, Math.round((dEnd - dStart) / 86400000));
+                  }
+                }
+              });
+            }
           }
         });
 
+        const avgReviewDays = countReviewed > 0 ? (totalReviewDays / countReviewed).toFixed(1) : '0.0';
         const avgRounds = totalBudgets > 0 ? (totalRounds / totalBudgets).toFixed(2) : '0.00';
         const avgDays = totalBudgets > 0 ? (totalDays / totalBudgets).toFixed(1) : '0.0';
 
         grandTotalBudgets += totalBudgets;
+        grandTotalReviewDays += totalReviewDays;
+        grandTotalReviewed += countReviewed;
+        grandTotalOverdue += countOverdue;
         grandTotalRounds += totalRounds;
         grandTotalDays += totalDays;
 
         rowsData.push({
           auditor: aud,
           totalBudgets,
+          totalReviewDays,
+          countReviewed,
+          countOverdue,
+          countOngoingOverdue,
+          avgReviewDays,
           totalRounds,
           avgRounds,
           totalDays,
@@ -5096,7 +5144,7 @@
       if (rowsData.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="text-center py-8 text-slate-400">
+            <td colspan="7" class="text-center py-8 text-slate-400">
               ไม่พบข้อมูลผู้ตรวจสอบในงานตรวจสอบ 1, 2 และ 3 ตามเงื่อนไขที่เลือก
             </td>
           </tr>
@@ -5107,6 +5155,40 @@
       }
 
       tbody.innerHTML = rowsData.map(r => {
+        let reviewBadge = '';
+        if (r.countReviewed > 0) {
+          if (r.countOverdue > 0) {
+            reviewBadge = `
+              <div class="flex flex-col items-center justify-center">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-xs" title="พบงบที่ใช้เวลาสอบทานเกินเกณฑ์ 20 วัน จำนวน ${r.countOverdue} งบ (รวม ${r.totalReviewDays} วัน)">
+                  ⚠️ ${r.totalReviewDays} วัน
+                </span>
+                <span class="text-[10px] text-rose-600 font-bold mt-0.5">เกิน 20 วัน (${r.countOverdue} งบ)</span>
+              </div>
+            `;
+          } else {
+            reviewBadge = `
+              <div class="flex flex-col items-center justify-center">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="สอบทานเสนอ ผอ. แล้ว ${r.countReviewed} งบ (เฉลี่ย ${r.avgReviewDays} วัน/งบ) ทุกงบไม่เกิน 20 วัน">
+                  ✓ ${r.totalReviewDays} วัน
+                </span>
+                <span class="text-[10px] text-slate-400 font-normal mt-0.5">${r.countReviewed} งบ (เฉลี่ย ${r.avgReviewDays} วัน)</span>
+              </div>
+            `;
+          }
+        } else if (r.countOngoingOverdue > 0) {
+          reviewBadge = `
+            <div class="flex flex-col items-center justify-center">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                ⏳ รอเสนอ ผอ.
+              </span>
+              <span class="text-[10px] text-rose-600 font-semibold mt-0.5">⚠️ เกิน 20 วัน (${r.countOngoingOverdue} งบ)</span>
+            </div>
+          `;
+        } else {
+          reviewBadge = `<span class="text-slate-400 font-medium">-</span>`;
+        }
+
         const roundsBadge = r.totalRounds > 0 
           ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">${r.totalRounds}</span>` 
           : `<span class="text-slate-400 font-medium">0</span>`;
@@ -5115,7 +5197,7 @@
           ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">${r.totalDays} วัน</span>` 
           : `<span class="text-slate-400 font-medium">0 วัน</span>`;
 
-        const safeAudName = (r.auditor.name || '').replace(/'/g, "\\'");
+        const safeAudName = (r.auditor.name || '').replace(/'/g, "\'");
 
         const isLeader = (r.auditor.role || '').toString().trim().toLowerCase() === 'leader';
         const leaderBadge = isLeader ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 ml-1.5 border border-purple-200">หัวหน้างาน (Leader)</span>' : '';
@@ -5134,6 +5216,9 @@
               ${r.totalBudgets}
             </td>
             <td class="py-2.5 px-3 text-center">
+              ${reviewBadge}
+            </td>
+            <td class="py-2.5 px-3 text-center">
               ${roundsBadge}
             </td>
             <td class="py-2.5 px-3 text-center font-semibold text-slate-600">
@@ -5149,13 +5234,22 @@
         `;
       }).join('');
 
+      const grandAvgReviewDays = grandTotalReviewed > 0 ? (grandTotalReviewDays / grandTotalReviewed).toFixed(1) : '0.0';
       const grandAvgRounds = grandTotalBudgets > 0 ? (grandTotalRounds / grandTotalBudgets).toFixed(2) : '0.00';
       const grandAvgDays = grandTotalBudgets > 0 ? (grandTotalDays / grandTotalBudgets).toFixed(1) : '0.0';
+
+      const grandReviewHtml = grandTotalReviewed > 0
+        ? `<div class="flex flex-col items-center justify-center">
+             <span class="font-extrabold ${grandTotalOverdue > 0 ? 'text-rose-700' : 'text-emerald-700'}">${grandTotalReviewDays} วัน</span>
+             <span class="text-[10px] font-normal text-slate-500">${grandTotalReviewed} งบ (เฉลี่ย ${grandAvgReviewDays} วัน)${grandTotalOverdue > 0 ? ` • <span class="text-rose-600 font-bold">เกินเกณฑ์ ${grandTotalOverdue} งบ</span>` : ''}</span>
+           </div>`
+        : `<span class="text-slate-400 font-medium">-</span>`;
 
       tfoot.innerHTML = `
         <tr>
           <td class="py-2.5 px-3 text-slate-800 font-extrabold">รวม / ค่าเฉลี่ยทั้งสิ้น (${rowsData.length} ท่าน)</td>
           <td class="py-2.5 px-3 text-center text-slate-900 font-extrabold">${grandTotalBudgets}</td>
+          <td class="py-2.5 px-3 text-center font-extrabold">${grandReviewHtml}</td>
           <td class="py-2.5 px-3 text-center text-amber-800 font-extrabold">${grandTotalRounds}</td>
           <td class="py-2.5 px-3 text-center text-slate-800 font-extrabold">${grandAvgRounds}</td>
           <td class="py-2.5 px-3 text-center text-rose-800 font-extrabold">${grandTotalDays} วัน</td>
@@ -5164,7 +5258,7 @@
       `;
 
       if (statusEl) {
-        statusEl.textContent = `ผู้ตรวจสอบ ${rowsData.length} ท่าน (งานตรวจสอบ 1-3) • รวม ${grandTotalBudgets} งบ • แก้ไขรวม ${grandTotalRounds} ครั้ง (${grandTotalDays} วัน) • คลิกที่แถวเพื่อดูรายงบ`;
+        statusEl.textContent = `ผู้ตรวจสอบ ${rowsData.length} ท่าน (งานตรวจสอบ 1-3) • รวม ${grandTotalBudgets} งบ • สอบทานแล้ว ${grandTotalReviewed} งบ (${grandTotalReviewDays} วัน${grandTotalOverdue > 0 ? `, เกินเกณฑ์ 20 วัน ${grandTotalOverdue} งบ` : ''}) • แก้ไขรวม ${grandTotalRounds} ครั้ง (${grandTotalDays} วัน) • คลิกที่แถวเพื่อดูรายงบ`;
       }
     }
 
@@ -5202,6 +5296,7 @@
       const tbody = document.getElementById('auditor-modal-table-body');
       const footerText = document.getElementById('auditor-modal-table-footer-text');
       const statTotal = document.getElementById('auditor-modal-stat-total');
+      const statReviewDays = document.getElementById('auditor-modal-stat-review-days');
       const statEdited = document.getElementById('auditor-modal-stat-edited-budgets');
       const statRounds = document.getElementById('auditor-modal-stat-total-rounds');
       const statDays = document.getElementById('auditor-modal-stat-total-days');
@@ -5254,6 +5349,9 @@
       });
 
       let countTotal = audSlots.length;
+      let countReviewed = 0;
+      let sumReviewDays = 0;
+      let countOverdue = 0;
       let countEdited = 0;
       let sumRounds = 0;
       let sumDays = 0;
@@ -5279,24 +5377,60 @@
         const st = getStatusRule(matching);
         let edits = [];
         let editDays = 0;
+        let reviewDays = null;
+        let isReviewCompleted = false;
+        let isOverdue = false;
+        let ongoingDays = null;
+        let isOngoingOverdue = false;
+        let dateRecvStr = '';
+        let dateDeanStr = '';
 
-        if (matching && matching.trackingId) {
-          const tid = matching.trackingId.toString().trim();
-          edits = (sheetData.editList || []).filter(e => (e.trackingId || '').toString().trim() === tid);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          edits.forEach(e => {
-            if (e.daysUsed !== undefined && e.daysUsed !== null && !isNaN(parseFloat(e.daysUsed)) && parseFloat(e.daysUsed) > 0) {
-              editDays += parseFloat(e.daysUsed);
-            } else if (e.dateReturned) {
-              const dStart = parseDateSafe(e.dateReturned);
-              const dEnd = e.dateResubmitted ? parseDateSafe(e.dateResubmitted) : today;
-              if (dStart && dEnd) {
-                editDays += Math.max(0, Math.round((dEnd - dStart) / 86400000));
+        if (matching) {
+          // คำนวณระยะเวลาสอบทาน: วันที่ผู้ตรวจรับงบ (Col H) -> วันที่เสนอ ผอ. (Col J)
+          if (matching.dateAuditorReceived) {
+            dateRecvStr = formatInputDate(matching.dateAuditorReceived);
+            const dRecv = parseDateSafe(matching.dateAuditorReceived);
+            if (matching.dateSubmittedToDean) {
+              dateDeanStr = formatInputDate(matching.dateSubmittedToDean);
+              const dDean = parseDateSafe(matching.dateSubmittedToDean);
+              if (dRecv && dDean) {
+                reviewDays = Math.max(0, Math.round((dDean - dRecv) / 86400000));
+                isReviewCompleted = true;
+                sumReviewDays += reviewDays;
+                countReviewed++;
+                if (reviewDays > 20) {
+                  isOverdue = true;
+                  countOverdue++;
+                }
+              }
+            } else if (dRecv) {
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              ongoingDays = Math.max(0, Math.round((today - dRecv) / 86400000));
+              if (ongoingDays > 20) {
+                isOngoingOverdue = true;
               }
             }
-          });
+          }
+
+          if (matching.trackingId) {
+            const tid = matching.trackingId.toString().trim();
+            edits = (sheetData.editList || []).filter(e => (e.trackingId || '').toString().trim() === tid);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            edits.forEach(e => {
+              if (e.daysUsed !== undefined && e.daysUsed !== null && !isNaN(parseFloat(e.daysUsed)) && parseFloat(e.daysUsed) > 0) {
+                editDays += parseFloat(e.daysUsed);
+              } else if (e.dateReturned) {
+                const dStart = parseDateSafe(e.dateReturned);
+                const dEnd = e.dateResubmitted ? parseDateSafe(e.dateResubmitted) : today;
+                if (dStart && dEnd) {
+                  editDays += Math.max(0, Math.round((dEnd - dStart) / 86400000));
+                }
+              }
+            });
+          }
         }
 
         if (edits.length > 0) {
@@ -5310,6 +5444,13 @@
           cycle: slot.dept.cycle,
           period: slot.pLabel,
           status: st,
+          reviewDays,
+          isReviewCompleted,
+          isOverdue,
+          ongoingDays,
+          isOngoingOverdue,
+          dateRecvStr,
+          dateDeanStr,
           editCount: edits.length,
           editDays: editDays,
           edits: edits
@@ -5318,6 +5459,13 @@
 
       // Update pills
       if (statTotal) statTotal.textContent = `${countTotal} งบ`;
+      if (statReviewDays) {
+        if (countReviewed > 0) {
+          statReviewDays.innerHTML = `${sumReviewDays} วัน` + (countOverdue > 0 ? ` <span class="text-[10px] text-rose-600 font-bold block">(เกินเกณฑ์ ${countOverdue} งบ)</span>` : ` <span class="text-[10px] text-emerald-600 font-medium block">✓ ในเกณฑ์ทั้งหมด</span>`);
+        } else {
+          statReviewDays.textContent = `0 วัน`;
+        }
+      }
       if (statEdited) statEdited.textContent = `${countEdited} งบ`;
       if (statRounds) statRounds.textContent = `${sumRounds} ครั้ง`;
       if (statDays) statDays.textContent = `${sumDays} วัน`;
@@ -5325,7 +5473,7 @@
       if (items.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="text-center py-8 text-slate-400">
+            <td colspan="8" class="text-center py-8 text-slate-400">
               ไม่พบงบการเงินที่ ${currentAuditorModalName} รับผิดชอบตามเงื่อนไขที่เลือก
             </td>
           </tr>
@@ -5335,6 +5483,49 @@
       }
 
       tbody.innerHTML = items.map((item, idx) => {
+        let revDurationHtml = '';
+        if (item.isReviewCompleted) {
+          if (item.isOverdue) {
+            revDurationHtml = `
+              <div class="flex flex-col items-center justify-center">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-xs" title="รับงบ: ${item.dateRecvStr} → เสนอ ผอ.: ${item.dateDeanStr} (เกินเกณฑ์ 20 วัน)">
+                  ⚠️ ${item.reviewDays} วัน (เกินเกณฑ์)
+                </span>
+                <span class="text-[10px] text-slate-500 mt-0.5 font-mono">${item.dateRecvStr} &rarr; ${item.dateDeanStr}</span>
+              </div>
+            `;
+          } else {
+            revDurationHtml = `
+              <div class="flex flex-col items-center justify-center">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200" title="รับงบ: ${item.dateRecvStr} → เสนอ ผอ.: ${item.dateDeanStr}">
+                  ✓ ${item.reviewDays} วัน
+                </span>
+                <span class="text-[10px] text-slate-400 mt-0.5 font-mono">${item.dateRecvStr} &rarr; ${item.dateDeanStr}</span>
+              </div>
+            `;
+          }
+        } else if (item.dateRecvStr) {
+          if (item.isOngoingOverdue) {
+            revDurationHtml = `
+              <div class="flex flex-col items-center justify-center">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                  ⚠️ ${item.ongoingDays} วัน (เกิน 20 วัน)
+                </span>
+                <span class="text-[10px] text-slate-400 mt-0.5">รับ: ${item.dateRecvStr} (รอเสนอ ผอ.)</span>
+              </div>
+            `;
+          } else {
+            revDurationHtml = `
+              <div class="flex flex-col items-center justify-center">
+                <span class="text-slate-600 text-[11px] font-semibold">${item.ongoingDays} วัน</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">รับ: ${item.dateRecvStr} (รอเสนอ ผอ.)</span>
+              </div>
+            `;
+          }
+        } else {
+          revDurationHtml = `<span class="text-slate-300 font-medium">-</span>`;
+        }
+
         const roundsBadge = item.editCount > 0
           ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">${item.editCount} ครั้ง</span>`
           : `<span class="text-slate-400">0 ครั้ง</span>`;
@@ -5372,6 +5563,9 @@
               </span>
             </td>
             <td class="py-2.5 px-3 text-center">
+              ${revDurationHtml}
+            </td>
+            <td class="py-2.5 px-3 text-center">
               ${roundsBadge}
             </td>
             <td class="py-2.5 px-3 text-center">
@@ -5385,7 +5579,7 @@
       }).join('');
 
       if (footerText) {
-        footerText.textContent = `ทั้งหมด ${items.length} รายการ (พบการแก้ไข ${countEdited} งบ, รวม ${sumRounds} ครั้ง, รวม ${sumDays} วัน)`;
+        footerText.textContent = `ทั้งหมด ${items.length} รายการ (สอบทานแล้ว ${countReviewed} งบ ${countOverdue > 0 ? `[เกินเกณฑ์ 20 วัน ${countOverdue} งบ]` : ''}, พบการแก้ไข ${countEdited} งบ, รวม ${sumRounds} ครั้ง, รวม ${sumDays} วัน)`;
       }
     }
 
