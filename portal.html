@@ -165,18 +165,7 @@
         </div>
       </div>
 
-      <!-- Quick Role Selector / Registered Personnel Fast-Login -->
-      <div class="pt-4 border-t border-slate-100 text-left">
-        <div class="text-[11px] text-slate-400 mb-2 font-medium">หรือเข้าสู่ระบบด้วยบัญชีบุคลากรในชีท "ผู้ตรวจสอบ":</div>
-        <div class="flex gap-2">
-          <select id="login-personnel-select" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-700 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            <option value="">-- เลือกบัญชีบุคลากร (ทดสอบตามสิทธิ์) --</option>
-          </select>
-          <button onclick="loginWithSelectedPersonnel()" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
-            เข้าสู่ระบบ
-          </button>
-        </div>
-      </div>
+
 
       <div class="text-[10px] text-slate-400 mt-4 text-center">
         เชื่อมต่อฐานข้อมูล Google Sheets อัตโนมัติแบบ Real-time
@@ -301,8 +290,8 @@
 
         <!-- Right Side: User Profile & Role Switcher -->
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-          <!-- Role Simulator -->
-          <div class="hidden lg:flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-xl border border-white/20 text-xs">
+          <!-- Role Simulator (Visible only to Admin for testing) -->
+          <div id="role-simulator-container" class="hidden items-center gap-2 bg-white/10 px-3 py-1.5 rounded-xl border border-white/20 text-xs">
             <span class="text-white/80">มุมมองสิทธิ์:</span>
             <select id="role-selector" onchange="switchRole(this.value)" class="bg-transparent text-white font-medium focus:outline-none cursor-pointer">
               <!-- Populated dynamically -->
@@ -2663,6 +2652,7 @@
       if (savedAuth) {
         try {
           currentUser = JSON.parse(savedAuth);
+          updateRoleUI();
           dismissAuthGate();
         } catch (e) {
           sessionStorage.removeItem(AUTH_STORAGE_KEY);
@@ -2947,6 +2937,7 @@
           position: matched.position,
           group: matched.group,
           role: (matched.role || 'auditor').toLowerCase(),
+          realRole: (matched.role || 'auditor').toLowerCase(),
           email: email,
           picture: payload.picture
         };
@@ -2956,6 +2947,7 @@
         }
 
         sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
+        updateRoleUI();
         dismissAuthGate();
         alert(`ยืนยันตัวตนผ่าน Google สำเร็จ!\nยินดีต้อนรับ: ${currentUser.name} (สิทธิ์: ${currentUser.role})`);
       } catch (err) {
@@ -3515,6 +3507,7 @@
     function switchRole(userCode) {
       const p = sheetData.auditors.find(a => a.code === userCode);
       if (p) {
+        const keepRealRole = currentUser?.realRole || currentUser?.role || 'admin';
         currentUser = {
           code: p.code,
           name: p.name,
@@ -3522,7 +3515,9 @@
           position: p.position,
           group: p.group,
           role: (p.role || 'auditor').toLowerCase(),
-          email: p.email
+          realRole: keepRealRole,
+          email: p.email,
+          picture: currentUser?.picture
         };
         sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
         updateRoleUI();
@@ -3553,6 +3548,19 @@
       const kpiConfigBtn = document.getElementById('btn-open-kpi-config');
       const isAdmin = (currentUser.role || '').toLowerCase() === 'admin';
       if (kpiConfigBtn) kpiConfigBtn.style.display = isAdmin ? 'inline' : 'none';
+
+      // มุมมองสิทธิ์ (Role Switcher) แสดงเฉพาะผู้ใช้ที่เป็น Admin เท่านั้น เพื่อใช้ทดสอบระบบ
+      const isRealAdmin = ((currentUser.realRole || currentUser.role || '')).toLowerCase() === 'admin';
+      const roleSimulatorContainer = document.getElementById('role-simulator-container');
+      if (roleSimulatorContainer) {
+        if (isRealAdmin) {
+          roleSimulatorContainer.classList.remove('hidden');
+          roleSimulatorContainer.classList.add('flex');
+        } else {
+          roleSimulatorContainer.classList.add('hidden');
+          roleSimulatorContainer.classList.remove('flex');
+        }
+      }
 
       if (isAdmin) {
         if (adminNav) adminNav.style.display = 'flex';
