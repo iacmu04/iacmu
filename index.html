@@ -4389,6 +4389,19 @@
       return rec ? (rec.auditor || '') : '';
     }
 
+    // Helper: ดึงรายชื่อผู้รับผิดชอบทั้งหมดในรอบปีงบประมาณนั้น (กรณีมีคำสั่งเปลี่ยนแปลงระหว่างปี เช่น ดวงทิพย์ อวดร่าง / นงราม อภิชัย)
+    function getDepartmentAuditorsForFiscalYear(deptName, fiscalYear) {
+      const months = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน'];
+      const auditors = [];
+      months.forEach(m => {
+        const aud = (getEffectiveDepartmentAuditor(deptName, fiscalYear, m) || '').trim();
+        if (aud && !auditors.includes(aud)) {
+          auditors.push(aud);
+        }
+      });
+      return auditors;
+    }
+
     function populateDepartmentFilterDropdown() {
       const sel = document.getElementById('fin-filter-dept');
       if (!sel) return;
@@ -5372,27 +5385,51 @@
 
       const uniqueDepts = getUniqueDepartmentsList();
       const filtered = uniqueDepts.filter(d => {
-        const effAuditor = getEffectiveDepartmentAuditor(d.name, filterYear, filterPeriod);
         if (filterDept !== 'all' && d.name !== filterDept) return false;
-        if (filterAuditor !== 'all' && !isAuditorMatch(effAuditor, filterAuditor)) return false;
+
+        let deptAuditors = [];
+        if (filterPeriod === 'all') {
+          deptAuditors = getDepartmentAuditorsForFiscalYear(d.name, filterYear);
+          if (deptAuditors.length === 0 && d.auditor) deptAuditors.push(d.auditor);
+        } else {
+          const singleAud = getEffectiveDepartmentAuditor(d.name, filterYear, filterPeriod) || d.auditor;
+          if (singleAud) deptAuditors.push(singleAud);
+        }
+
+        if (filterAuditor !== 'all') {
+          const matchedAud = deptAuditors.some(a => isAuditorMatch(a, filterAuditor));
+          if (!matchedAud) return false;
+        }
 
         // Group check with clean names
         if (filterGroup !== 'all') {
-          const aud = findAuditorRecord(effAuditor || d.auditor);
-          if (!aud || aud.group !== filterGroup) return false;
+          const matchGrp = deptAuditors.some(a => {
+            const aud = findAuditorRecord(a);
+            return aud && aud.group === filterGroup;
+          });
+          if (!matchGrp) return false;
         }
 
         // Role restriction for regular user/leader
         if (currentUser && (currentUser.role === 'auditor' || currentUser.role === 'supervisor')) {
-          const aud = findAuditorRecord(effAuditor || d.auditor);
-          if (!aud || aud.group !== currentUser.group) return false;
+          const matchUserGrp = deptAuditors.some(a => {
+            const aud = findAuditorRecord(a);
+            return aud && aud.group === currentUser.group;
+          });
+          if (!matchUserGrp) return false;
         }
         return true;
       });
 
       filtered.forEach((dept, idx) => {
         const tracks = sheetData.trackingList.filter(t => t.department === dept.name && (t.fiscalYear || '').toString() === filterYear.toString());
-        const effAuditor = getEffectiveDepartmentAuditor(dept.name, filterYear, filterPeriod);
+        let displayAuditor = '';
+        if (filterPeriod === 'all') {
+          const yrAuds = getDepartmentAuditorsForFiscalYear(dept.name, filterYear);
+          displayAuditor = yrAuds.length > 0 ? yrAuds.join(' / ') : (dept.auditor || 'ไม่ระบุ');
+        } else {
+          displayAuditor = getEffectiveDepartmentAuditor(dept.name, filterYear, filterPeriod) || dept.auditor || 'ไม่ระบุ';
+        }
 
         // Calculate Outstanding Budgets (Item 3)
         let pendingEditCount = 0;
@@ -5430,7 +5467,7 @@
             <td class="py-3 px-3">
               <div class="font-semibold text-slate-800 group-hover:text-brand-600 transition-colors">${dept.name}</div>
               <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span>👤 ${effAuditor || dept.auditor || 'ไม่ระบุ'}</span>
+                <span>👤 ${displayAuditor}</span>
                 <span>•</span>
                 <span class="text-brand-600">${dept.cycle || 'รายเดือน'}</span>
               </div>
@@ -5541,7 +5578,13 @@
     function onModalPeriodChange() {
       const deptName = document.getElementById('modal-fin-dept').value;
       const period = document.getElementById('modal-fin-period').value;
+      const fy = document.getElementById('modal-fin-year')?.value || '2570';
+      const audInp = document.getElementById('modal-fin-auditor');
       if (deptName && period) {
+        if (audInp) {
+          const effAud = getEffectiveDepartmentAuditor(deptName, fy, period);
+          if (effAud) audInp.value = effAud;
+        }
         loadExistingTrackingForDept(deptName, period);
       } else {
         calculateAutoStatus();
