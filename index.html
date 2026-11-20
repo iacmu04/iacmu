@@ -687,7 +687,7 @@
 
             <div class="flex-1 min-w-[140px]">
               <label class="block text-[11px] font-medium text-slate-400 mb-1">กลุ่มงาน</label>
-              <select id="fin-filter-group" onchange="renderFinanceMatrix()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <select id="fin-filter-group" onchange="onFinGroupFilterChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
                 <option value="all">-- ทุกกลุ่มงาน --</option>
                 <option value="งานตรวจสอบ 1">งานตรวจสอบ 1</option>
                 <option value="งานตรวจสอบ 2">งานตรวจสอบ 2</option>
@@ -4428,13 +4428,67 @@
       return sheetData.auditors.find(a => isAuditorMatch(a.name, deptAuditor) || isAuditorMatch(a.nickname, deptAuditor) || a.code === deptAuditor);
     }
 
+    const ALLOWED_AUDIT_GROUPS = ['งานตรวจสอบ 1', 'งานตรวจสอบ 2', 'งานตรวจสอบ 3'];
+
+    function isAuditorInAuditGroup(aud) {
+      if (!aud) return false;
+      const grp = (aud.group || '').trim();
+      return ALLOWED_AUDIT_GROUPS.includes(grp);
+    }
+
+    function sortAuditorsByGroupAndRole(auditorsList) {
+      const getGroupRank = (grp) => {
+        const g = (grp || '').toString().trim();
+        if (g === 'งานตรวจสอบ 1' || g.includes('1')) return 1;
+        if (g === 'งานตรวจสอบ 2' || g.includes('2')) return 2;
+        if (g === 'งานตรวจสอบ 3' || g.includes('3')) return 3;
+        return 99;
+      };
+
+      return [...auditorsList].sort((a, b) => {
+        // 1. เรียงตามงานตรวจสอบ: งานตรวจสอบ 1 -> งานตรวจสอบ 2 -> งานตรวจสอบ 3
+        const rA = getGroupRank(a.group);
+        const rB = getGroupRank(b.group);
+        if (rA !== rB) return rA - rB;
+
+        // 2. ภายในแต่ละกลุ่มงาน ให้ Leader (หัวหน้างาน ดูจาก Col F) ขึ้นก่อน
+        const isLeaderA = (a.role || '').toString().trim().toLowerCase() === 'leader';
+        const isLeaderB = (b.role || '').toString().trim().toLowerCase() === 'leader';
+        if (isLeaderA && !isLeaderB) return -1;
+        if (!isLeaderA && isLeaderB) return 1;
+
+        // 3. คงลำดับเดิมตามชีท
+        return (a._index || 0) - (b._index || 0);
+      });
+    }
+
     function populateAuditorFilterDropdown() {
       const sel = document.getElementById('fin-filter-auditor');
+      const grpSel = document.getElementById('fin-filter-group');
       if (!sel) return;
+      const selectedGroup = grpSel ? grpSel.value : 'all';
+      const prevVal = sel.value;
+
       sel.innerHTML = '<option value="all">-- ผู้ตรวจสอบทั้งหมด --</option>';
-      sheetData.auditors.forEach(a => {
-        sel.innerHTML += `<option value="${a.name}">${a.name} (${a.nickname || a.group})</option>`;
+      let list = (sheetData.auditors || []).filter(a => isAuditorInAuditGroup(a));
+      list = sortAuditorsByGroupAndRole(list);
+
+      list.forEach(a => {
+        if (selectedGroup === 'all' || a.group === selectedGroup) {
+          const isLeader = (a.role || '').toString().trim().toLowerCase() === 'leader';
+          const leaderSuffix = isLeader ? ' ★ (หัวหน้างาน)' : '';
+          sel.innerHTML += `<option value="${a.name}">${a.name} (${a.nickname || a.group}${leaderSuffix})</option>`;
+        }
       });
+
+      if (prevVal && Array.from(sel.options).some(o => o.value === prevVal)) {
+        sel.value = prevVal;
+      }
+    }
+
+    function onFinGroupFilterChange() {
+      populateAuditorFilterDropdown();
+      renderFinanceMatrix();
     }
 
     const THAI_MONTH_MAP = {
@@ -4479,7 +4533,7 @@
       return false;
     }
 
-    function renderMonthCellByRule(tracks, dept, monthKey, isQuarter = false, quarterName = '') {
+    function renderMonthCellByRule(tracks, dept, monthKey, isQuarter = false, quarterName = '', fiscalYear = '') {
       const isQuarterlyDept = (dept.cycle === 'รายไตรมาส');
       const monthMeta = THAI_MONTH_MAP[monthKey] || { name: '', short: monthKey };
       const periodLabel = isQuarterlyDept && quarterName ? quarterName : monthMeta.name;
@@ -4504,8 +4558,10 @@
         }
       }
 
+      const fyArg = fiscalYear || (document.getElementById('fin-filter-year')?.value || '2570');
+
       return `
-        <td class="py-3 px-2 text-center ${bgClass}" onclick="event.stopPropagation(); openFinanceModal('${dept.name}', '${periodLabel}')" title="${dept.name} (${periodLabel}): สถานะ ${st.code} ${st.label}">
+        <td class="py-3 px-2 text-center ${bgClass}" onclick="event.stopPropagation(); openFinanceModal('${dept.name}', '${periodLabel}', '${fyArg}')" title="${dept.name} (${periodLabel}): สถานะ ${st.code} ${st.label}">
           <div class="flex flex-col items-center justify-center">
             <span class="w-2.5 h-2.5 rounded-full ${st.dot} inline-block hover:scale-125 transition-transform" role="button"></span>
             ${editBadge}
@@ -4857,7 +4913,7 @@
               </span>
             </td>
             <td class="py-3 px-3 text-center">
-              <button onclick="closeDonutStatusModal(); openFinanceModal('${item.deptName}', '${item.period}');" class="w-8 h-8 inline-flex items-center justify-center rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-900 transition-all shadow-xs hover:scale-105 active:scale-95" title="จัดการ / แก้ไขงวดตรวจ (${item.deptName})">
+              <button onclick="closeDonutStatusModal(); openFinanceModal('${item.deptName}', '${item.period}', '${item.fiscalYear || ''}');" class="w-8 h-8 inline-flex items-center justify-center rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-900 transition-all shadow-xs hover:scale-105 active:scale-95" title="จัดการ / แก้ไขงวดตรวจ (${item.deptName})">
                 ✏️
               </button>
             </td>
@@ -4869,39 +4925,6 @@
     // -------------------------------------------------------------
     // EDIT SUMMARY TABLE (ตารางสรุปการแก้ไขของผู้ตรวจสอบ)
     // -------------------------------------------------------------
-    const ALLOWED_AUDIT_GROUPS = ['งานตรวจสอบ 1', 'งานตรวจสอบ 2', 'งานตรวจสอบ 3'];
-
-    function sortAuditorsByGroupAndRole(auditorsList) {
-      const getGroupRank = (grp) => {
-        const g = (grp || '').toString().trim();
-        if (g === 'งานตรวจสอบ 1' || g.includes('1')) return 1;
-        if (g === 'งานตรวจสอบ 2' || g.includes('2')) return 2;
-        if (g === 'งานตรวจสอบ 3' || g.includes('3')) return 3;
-        return 99;
-      };
-
-      return [...auditorsList].sort((a, b) => {
-        // 1. เรียงตามงานตรวจสอบ: งานตรวจสอบ 1 -> งานตรวจสอบ 2 -> งานตรวจสอบ 3
-        const rA = getGroupRank(a.group);
-        const rB = getGroupRank(b.group);
-        if (rA !== rB) return rA - rB;
-
-        // 2. ภายในแต่ละกลุ่มงาน ให้ Leader (หัวหน้างาน ดูจาก Col F) ขึ้นก่อน
-        const isLeaderA = (a.role || '').toString().trim().toLowerCase() === 'leader';
-        const isLeaderB = (b.role || '').toString().trim().toLowerCase() === 'leader';
-        if (isLeaderA && !isLeaderB) return -1;
-        if (!isLeaderA && isLeaderB) return 1;
-
-        // 3. คงลำดับเดิมตามชีท
-        return (a._index || 0) - (b._index || 0);
-      });
-    }
-
-    function isAuditorInAuditGroup(aud) {
-      if (!aud) return false;
-      const grp = (aud.group || '').trim();
-      return ALLOWED_AUDIT_GROUPS.includes(grp);
-    }
 
     function populateEditSummaryFilters() {
       const groupSel = document.getElementById('edit-summary-filter-group');
@@ -5463,7 +5486,7 @@
         }
 
         tbody.innerHTML += `
-          <tr class="hover:bg-purple-50/40 transition-all cursor-pointer group" onclick="openFinanceModal('${dept.name}')">
+          <tr class="hover:bg-purple-50/40 transition-all cursor-pointer group" onclick="openFinanceModal('${dept.name}', '', '${filterYear}')">
             <td class="py-3 px-3">
               <div class="font-semibold text-slate-800 group-hover:text-brand-600 transition-colors">${dept.name}</div>
               <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
@@ -5472,18 +5495,18 @@
                 <span class="text-brand-600">${dept.cycle || 'รายเดือน'}</span>
               </div>
             </td>
-            ${renderMonthCellByRule(tracks, dept, '10')}
-            ${renderMonthCellByRule(tracks, dept, '11')}
-            ${renderMonthCellByRule(tracks, dept, '12', true, 'ไตรมาส 1')}
-            ${renderMonthCellByRule(tracks, dept, '01')}
-            ${renderMonthCellByRule(tracks, dept, '02')}
-            ${renderMonthCellByRule(tracks, dept, '03', true, 'ไตรมาส 2')}
-            ${renderMonthCellByRule(tracks, dept, '04')}
-            ${renderMonthCellByRule(tracks, dept, '05')}
-            ${renderMonthCellByRule(tracks, dept, '06', true, 'ไตรมาส 3')}
-            ${renderMonthCellByRule(tracks, dept, '07')}
-            ${renderMonthCellByRule(tracks, dept, '08')}
-            ${renderMonthCellByRule(tracks, dept, '09', true, 'ไตรมาส 4')}
+            ${renderMonthCellByRule(tracks, dept, '10', false, '', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '11', false, '', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '12', true, 'ไตรมาส 1', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '01', false, '', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '02', false, '', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '03', true, 'ไตรมาส 2', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '04', false, '', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '05', false, '', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '06', true, 'ไตรมาส 3', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '07', false, '', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '08', false, '', filterYear)}
+            ${renderMonthCellByRule(tracks, dept, '09', true, 'ไตรมาส 4', filterYear)}
             <td class="py-3 px-3 text-center">
               ${outstandingHtml}
             </td>
@@ -5497,9 +5520,20 @@
     // -------------------------------------------------------------
     // FINANCE FORM & MODAL (MATCHING USER SPECIFICATION)
     // -------------------------------------------------------------
-    function openFinanceModal(defaultDeptName = '', defaultPeriod = '') {
+    function openFinanceModal(defaultDeptName = '', defaultPeriod = '', defaultYear = '') {
       const modal = document.getElementById('finance-modal');
       const deptSel = document.getElementById('modal-fin-dept');
+      const yearSel = document.getElementById('modal-fin-year');
+
+      // Sync Fiscal Year with parameter or active filter on top
+      const activeFilterYear = document.getElementById('fin-filter-year')?.value || '2570';
+      const targetYear = (defaultYear || activeFilterYear).toString().trim();
+      if (yearSel) {
+        if (!Array.from(yearSel.options).some(o => o.value === targetYear)) {
+          yearSel.innerHTML += `<option value="${targetYear}">${targetYear}</option>`;
+        }
+        yearSel.value = targetYear;
+      }
       
       // Populate 41 Departments in Modal
       deptSel.innerHTML = '<option value="">-- เลือกส่วนงาน / คณะ --</option>';
@@ -6326,7 +6360,7 @@
                 </span>
               </td>
               <td class="py-2.5 px-3 text-center">
-                <button onclick="closeKpiDetailModal(); openFinanceModal('${item.department}', '${item.period}');" class="px-3 py-1 bg-brand-50 hover:bg-brand-100 text-brand-600 rounded-lg text-xs font-semibold transition-colors">
+                <button onclick="closeKpiDetailModal(); openFinanceModal('${item.department}', '${item.period}', '${item.fiscalYear || ''}');" class="px-3 py-1 bg-brand-50 hover:bg-brand-100 text-brand-600 rounded-lg text-xs font-semibold transition-colors">
                   เปิดฟอร์ม
                 </button>
               </td>
