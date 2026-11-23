@@ -1261,7 +1261,7 @@
               </div>
             </div>
 
-            <div id="budget-kpi-remain-sub" class="text-xs font-bold text-indigo-900/80 mt-1 text-center">คงเหลือ 0.00% (เบิกจ่าย 0.00%)</div>
+            <div id="budget-kpi-remain-sub" class="text-xs font-bold text-indigo-900/80 mt-1 text-center">(เบิกจ่าย 0.00%)</div>
           </div>
         </div>
       </div>
@@ -7257,7 +7257,7 @@
       const chartData = (remVal + expVal) > 0 ? [remVal, expVal] : [100, 0];
 
       // สร้าง Gradient ต่อเนื่องเหมือนในภาพ: ซ้ายสุด แดง -> กลาง เหลือง -> ขวาสุด เขียว
-      const w = el.width || 170;
+      const w = el.clientWidth || 170;
       const grad = ctx.createLinearGradient(0, 0, w, 0);
       grad.addColorStop(0, '#EF4444');    // แดง (ซ้ายสุด)
       grad.addColorStop(0.5, '#F59E0B');  // เหลือง (กลาง)
@@ -7359,7 +7359,7 @@
       document.getElementById('budget-kpi-expense').textContent = '฿' + formatMoney2(totalExpense);
       document.getElementById('budget-kpi-expense-sub').textContent = `${filteredExpenses.length} รายการเบิกจ่าย`;
       document.getElementById('budget-kpi-remain').textContent = '฿' + formatMoney2(totalRemain);
-      document.getElementById('budget-kpi-remain-sub').textContent = `คงเหลือ ${remainPct.toFixed(2)}% (เบิกจ่าย ${spentPct.toFixed(2)}%)`;
+      document.getElementById('budget-kpi-remain-sub').textContent = `(เบิกจ่าย ${spentPct.toFixed(2)}%)`;
 
       // อัปเดตกราฟครึ่งวงกลมในการ์ดเงินคงเหลือ (แสดงคงเหลือกี่% และไล่สีแบบต่อเนื่อง)
       renderBudgetGaugeChart(totalBudget, totalExpense, totalRemain);
