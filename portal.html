@@ -3881,31 +3881,25 @@
         const members = visible.filter(p => p.group === gName);
         if (members.length === 0) return;
 
-        // Group Theme: Icon, Badge Background, Border, and Monogram Gradient
+        // Group Theme: Icon, Badge Background, Border
         let gIcon = '📁';
         let gHeaderStyle = 'bg-slate-100/90 text-slate-800 border-slate-200';
-        let avatarGradient = 'from-slate-500 to-slate-700';
 
         if (gName.includes('ผู้บริหาร')) {
           gIcon = '👑';
           gHeaderStyle = 'bg-purple-100/90 text-purple-900 border-purple-200/80';
-          avatarGradient = 'from-purple-600 to-indigo-600';
         } else if (gName.includes('1')) {
           gIcon = '🔍';
           gHeaderStyle = 'bg-sky-50 text-sky-900 border-sky-200/80';
-          avatarGradient = 'from-sky-500 to-blue-600';
         } else if (gName.includes('2')) {
           gIcon = '📑';
           gHeaderStyle = 'bg-teal-50 text-teal-900 border-teal-200/80';
-          avatarGradient = 'from-teal-500 to-emerald-600';
         } else if (gName.includes('3')) {
           gIcon = '📊';
           gHeaderStyle = 'bg-indigo-50 text-indigo-900 border-indigo-200/80';
-          avatarGradient = 'from-indigo-500 to-violet-600';
         } else if (gName.includes('บริหาร') || gName.includes('ธุรการ')) {
           gIcon = '📂';
           gHeaderStyle = 'bg-amber-50 text-amber-900 border-amber-200/80';
-          avatarGradient = 'from-amber-500 to-orange-600';
         }
 
         let gHtml = `
@@ -3928,7 +3922,6 @@
           const displayName = p.nickname || p.name;
           const isLeader = (p.role || '').toLowerCase() === 'leader';
           const isDirector = (p.role || '').toLowerCase() === 'dean' || (p.position || '').includes('ผู้อำนวยการ');
-          const avatarInitial = (displayName || '?').charAt(0);
 
           // ตรวจสอบการเข้างานใน selectedCalendarDate
           const userRecords = sheetData.officeList.filter(o => 
@@ -3942,6 +3935,24 @@
           // สันนิษฐานเบื้องต้นเข้า Office ตามปกติ
           const amStatus = amRec ? amRec.workType : 'เข้า Office';
           const pmStatus = pmRec ? pmRec.workType : 'เข้า Office';
+
+          // กำหนดสีจุดวงกลมสัญลักษณ์คนตามสถานะการเข้างาน (เขียว: Office, เหลือง: WFA, แดง: ลา, ม่วง: ประชุม/อบรม)
+          let personStatusBg = 'bg-status-office';
+          let personStatusTitle = 'เข้า Office';
+
+          if (amStatus === 'ลา' || pmStatus === 'ลา') {
+            personStatusBg = 'bg-status-leave';
+            personStatusTitle = 'ลา' + (amStatus === pmStatus ? '' : ` (เช้า: ${amStatus}, บ่าย: ${pmStatus})`);
+          } else if (amStatus === 'WFA' || pmStatus === 'WFA') {
+            personStatusBg = 'bg-status-wfa';
+            personStatusTitle = 'WFA' + (amStatus === pmStatus ? '' : ` (เช้า: ${amStatus}, บ่าย: ${pmStatus})`);
+          } else if (amStatus.includes('อบรม') || amStatus.includes('ประชุม') || pmStatus.includes('อบรม') || pmStatus.includes('ประชุม')) {
+            personStatusBg = 'bg-brand-500';
+            personStatusTitle = 'ประชุม/อบรม' + (amStatus === pmStatus ? '' : ` (เช้า: ${amStatus}, บ่าย: ${pmStatus})`);
+          } else {
+            personStatusBg = 'bg-status-office';
+            personStatusTitle = 'เข้า Office';
+          }
 
           const isMe = currentUser && (
             p.code === currentUser.code || 
@@ -4000,10 +4011,12 @@
 
           gHtml += `
             <div class="flex items-center justify-between p-2 rounded-xl border ${rowClass} transition-all duration-150 group">
-              <!-- Left: Avatar & Info -->
+              <!-- Left: Avatar Icon (ตามสถานะการเข้างาน) & Info -->
               <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                <div class="w-7 h-7 rounded-full bg-gradient-to-br ${avatarGradient} text-white font-bold text-xs flex items-center justify-center shadow-2xs shrink-0 ring-1 ring-white">
-                  ${avatarInitial}
+                <div class="w-7 h-7 rounded-full ${personStatusBg} text-white flex items-center justify-center shadow-2xs shrink-0 ring-2 ring-white" title="สถานะ: ${personStatusTitle}">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                  </svg>
                 </div>
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5">
@@ -7924,15 +7937,17 @@
 
       const displayAuditors = eligibleAuditors.length > 0 ? eligibleAuditors : (sheetData.auditors || []);
 
+      const getGroupNum = (aud) => {
+        if (!aud) return -1;
+        const g = (aud.group || '').toString();
+        if (g.includes('ผู้อำนวยการ')) return 0;
+        if (g.includes('1')) return 1;
+        if (g.includes('2')) return 2;
+        if (g.includes('3')) return 3;
+        return 99;
+      };
+
       displayAuditors.sort((a, b) => {
-        const getGroupNum = (aud) => {
-          const g = (aud.group || '').toString();
-          if (g.includes('ผู้อำนวยการ')) return 0;
-          if (g.includes('1')) return 1;
-          if (g.includes('2')) return 2;
-          if (g.includes('3')) return 3;
-          return 99;
-        };
         const gA = getGroupNum(a);
         const gB = getGroupNum(b);
         if (gA !== gB) return gA - gB;
@@ -7955,7 +7970,12 @@
       ];
 
       let totalPassedCount = 0;
-      const rowsHtml = displayAuditors.map(aud => {
+      const rowsHtml = displayAuditors.map((aud, audIdx) => {
+        // ตรวจสอบเพื่อใส่เส้นกั้นระหว่างกลุ่มงาน (ผอ., งานตรวจสอบ 1, งานตรวจสอบ 2, งานตรวจสอบ 3)
+        const prevAud = audIdx > 0 ? displayAuditors[audIdx - 1] : null;
+        const isNewGroup = prevAud && (getGroupNum(prevAud) !== getGroupNum(aud));
+        const dividerStyle = isNewGroup ? 'border-top: 2.5px solid #8B5CF6 !important;' : '';
+
         const cellsHtml = standardCourses.map(sc => {
           const passResult = evaluateAuditorCoursePassed(aud, sc.key);
           const isPassed = passResult.passed;
@@ -7979,22 +7999,22 @@
           if (isPassed) {
             totalPassedCount++;
             if (isRecommended) {
-              return `<td class="px-2 py-3 text-center bg-emerald-50/40 relative" title="${passTitle} (${recTitle})">
+              return `<td class="px-2 py-3 text-center bg-emerald-50/40 relative" style="${dividerStyle}" title="${passTitle} (${recTitle})">
                 <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="${passTitle}">✓</span>
                 <span class="absolute top-1 right-1 text-[9px] text-amber-500 font-bold" title="HR แนะนำ">⭐</span>
               </td>`;
             }
-            return `<td class="px-2 py-3 text-center bg-emerald-50/40" title="${passTitle}">
+            return `<td class="px-2 py-3 text-center bg-emerald-50/40" style="${dividerStyle}" title="${passTitle}">
               <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="${passTitle}">✓</span>
             </td>`;
           } else if (isRecommended) {
-            return `<td class="px-1.5 py-3 text-center bg-purple-100/70 border-x border-purple-200/80" title="${recTitle}">
+            return `<td class="px-1.5 py-3 text-center bg-purple-100/70 border-x border-purple-200/80" style="${dividerStyle}" title="${recTitle}">
               <span class="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-white font-bold text-[10px] shadow-sm tracking-tight whitespace-nowrap" style="background: linear-gradient(90deg, #7B6FD7 0%, #6D58DA 35%, #765AE3 70%, #825BEF 100%);">
                 ⭐ แนะนำ
               </span>
             </td>`;
           } else {
-            return `<td class="px-2 py-3 text-center text-slate-300">-</td>`;
+            return `<td class="px-2 py-3 text-center text-slate-300" style="${dividerStyle}">-</td>`;
           }
         }).join('');
 
@@ -8009,8 +8029,8 @@
 
         const isCurrent = currentUser && (currentUser.code === aud.code || currentUser.name === aud.name);
         return `
-          <tr class="hover:bg-purple-50/40 transition-colors ${isCurrent ? 'bg-purple-50/70 font-semibold' : ''}">
-            <td class="px-3 py-3 border-r border-slate-200">
+          <tr class="hover:bg-purple-50/40 transition-colors ${isCurrent ? 'bg-purple-50/70 font-semibold' : ''}" style="${dividerStyle}">
+            <td class="px-3 py-3 border-r border-slate-200" style="${dividerStyle}">
               <div class="font-bold text-slate-800 flex items-center justify-between">
                 <span class="text-xs font-bold text-brand-900">${aud.nickname || aud.name}</span>
                 ${roleBadge}
