@@ -1211,6 +1211,7 @@
                   <th class="py-2.5 px-3 text-right">งบประมาณ</th>
                   <th class="py-2.5 px-3 text-right">ค่าใช้จ่าย</th>
                   <th class="py-2.5 px-3 text-right">คงเหลือ</th>
+                  <th class="py-2.5 px-3 text-center min-w-[140px]">สัดส่วนเบิกจ่าย</th>
                 </tr>
               </thead>
               <tbody id="budget-detail-tbody" class="divide-y divide-slate-100">
@@ -1240,13 +1241,26 @@
             <div id="budget-kpi-expense-sub" class="text-[11px] text-slate-400 mt-1">0 รายการเบิกจ่าย</div>
           </div>
 
-          <div class="rounded-2xl p-5 card-shadow border border-indigo-200/80 shadow-md" style="background-color: #D2D3FF;">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-black text-indigo-950 tracking-wide">เงินคงเหลือ (Remaining)</span>
-              <span class="w-8 h-8 rounded-xl bg-white text-purple-700 flex items-center justify-center text-sm shadow-md ring-1 ring-indigo-200/60">💎</span>
+          <div class="rounded-2xl p-5 card-shadow border border-indigo-200/80 shadow-md flex flex-col justify-between" style="background-color: #D2D3FF;">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-black text-indigo-950 tracking-wide">เงินคงเหลือ (Remaining)</span>
+                <span class="w-8 h-8 rounded-xl bg-white text-purple-700 flex items-center justify-center text-sm shadow-md ring-1 ring-indigo-200/60">💎</span>
+              </div>
+              <div id="budget-kpi-remain" class="text-2xl sm:text-3xl font-black text-indigo-950 tracking-tight">฿0.00</div>
+
+              <!-- Gauge Chart Container (ครึ่งวงกลมแสดงสัดส่วนการเบิกจ่าย vs งบประมาณทั้งหมด) -->
+              <div class="py-2 flex flex-col items-center justify-center">
+                <div style="width: 170px; height: 95px; position: relative;">
+                  <canvas id="budgetGaugeChart"></canvas>
+                  <div id="budget-gauge-center-text" class="absolute inset-0 flex items-end justify-center pb-1 text-sm font-black text-indigo-950">
+                    0.00%
+                  </div>
+                </div>
+              </div>
             </div>
-            <div id="budget-kpi-remain" class="text-3xl font-black text-indigo-950 tracking-tight">฿0.00</div>
-            <div id="budget-kpi-remain-sub" class="text-xs font-bold text-indigo-900/80 mt-1.5">เบิกจ่ายไปแล้ว 0.00%</div>
+
+            <div id="budget-kpi-remain-sub" class="text-xs font-bold text-indigo-900/80 mt-1 text-center">เบิกจ่ายไปแล้ว 0.00%</div>
           </div>
         </div>
       </div>
@@ -3601,12 +3615,17 @@
         notice.textContent = 'แสดงบุคลากรทุกกลุ่มงาน (คลิกที่ตัวหนังสือ เช้า/บ่าย เพื่อแก้ไขสถานะของตนเอง)';
       }
 
-      // ปุ่ม ⭐ แนะนำ (HR) แสดงเฉพาะกลุ่มงานบริหารและธุรการเท่านั้น (ชีท ผู้ตรวจสอบ Col E)
+      // ปุ่ม ⭐ แนะนำ (HR) แสดงให้กลุ่มงานบริหารและธุรการ และ ผอ. (Director/Dean) รวมถึง Admin
       const hrRecBtn = document.getElementById('btn-open-hr-rec');
       if (hrRecBtn) {
-        const grp = (currentUser.group || '').trim();
+        const grp = (currentUser?.group || '').trim();
+        const role = (currentUser?.role || '').toLowerCase();
+        const pos = (currentUser?.position || '');
         const isHRAdmin = grp.includes('งานบริหารและธุรการ');
-        hrRecBtn.style.display = isHRAdmin ? 'inline-flex' : 'none';
+        const isDirector = role === 'dean' || role === 'director' || grp.includes('ผู้บริหาร') || grp.includes('ผู้อำนวยการ') || pos.includes('ผู้อำนวยการ');
+        const isAdmin = role === 'admin' || (currentUser?.realRole || '').toLowerCase() === 'admin';
+        const canManage = isHRAdmin || isDirector || isAdmin;
+        hrRecBtn.style.display = canManage ? 'inline-flex' : 'none';
       }
 
       // Update role selector active value
@@ -7211,6 +7230,76 @@
       }
     }
 
+    let budgetGaugeChartInstance = null;
+    function renderBudgetGaugeChart(totalBudget = 0, totalExpense = 0, totalRemain = 0) {
+      const el = document.getElementById('budgetGaugeChart');
+      if (!el || typeof Chart === 'undefined') return;
+      const ctx = el.getContext('2d');
+      if (budgetGaugeChartInstance) {
+        budgetGaugeChartInstance.destroy();
+      }
+
+      const spentPct = totalBudget > 0 ? (totalExpense / totalBudget) * 100 : 0;
+      const remainPct = totalBudget > 0 ? (totalRemain / totalBudget) * 100 : 100;
+
+      const centerEl = document.getElementById('budget-gauge-center-text');
+      if (centerEl) {
+        centerEl.textContent = spentPct.toFixed(1) + '%';
+      }
+
+      const expVal = Math.max(0, totalExpense);
+      const remVal = Math.max(0, totalRemain);
+      const chartData = (expVal + remVal) > 0 ? [expVal, remVal] : [0, 100];
+
+      // สร้างสี Gradient ตามสัดส่วนงบประมาณคงเหลือ:
+      // เขียว: คงเหลือเกิน 60% (จ่ายน้อยกว่า 30%)
+      // เหลือง: ช่วงกลางๆ คงเหลือ 30% - 60%
+      // แดง: คงเหลือน้อยกว่า 30% (ใกล้หมด)
+      const grad = ctx.createLinearGradient(0, 0, el.width || 170, 0);
+      if (remainPct < 30 || spentPct > 70) {
+        grad.addColorStop(0, '#EF4444');
+        grad.addColorStop(1, '#F87171');
+      } else if (remainPct < 60 || spentPct >= 30) {
+        grad.addColorStop(0, '#F59E0B');
+        grad.addColorStop(1, '#FCD34D');
+      } else {
+        grad.addColorStop(0, '#10B981');
+        grad.addColorStop(1, '#34D399');
+      }
+
+      budgetGaugeChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['ค่าใช้จ่าย (เบิกจ่ายแล้ว)', 'เงินคงเหลือ'],
+          datasets: [{
+            data: chartData,
+            backgroundColor: [grad, 'rgba(255, 255, 255, 0.45)'],
+            borderWidth: 2,
+            borderColor: '#FFFFFF',
+            circumference: 180,
+            rotation: 270,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  return ` ${context.label}: ฿${formatMoney2(val)}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
     function renderBudgetOverviewSection() {
       const ySel = document.getElementById('budget-filter-year');
       if (!ySel) return;
@@ -7272,9 +7361,12 @@
       document.getElementById('budget-kpi-expense').textContent = '฿' + formatMoney2(totalExpense);
       document.getElementById('budget-kpi-expense-sub').textContent = `${filteredExpenses.length} รายการเบิกจ่าย`;
       document.getElementById('budget-kpi-remain').textContent = '฿' + formatMoney2(totalRemain);
-      document.getElementById('budget-kpi-remain-sub').textContent = `เบิกจ่ายไปแล้ว ${pct}%`;
+      document.getElementById('budget-kpi-remain-sub').textContent = `เบิกจ่ายไปแล้ว ${pct}% (คงเหลือ ${(100 - parseFloat(pct)).toFixed(2)}%)`;
 
-      // Render Table 1: ยอดรวมเงินแผ่นดิน/เงินรายได้ แสดงในบรรทัดเดียวกับหัวข้อกลุ่ม
+      // อัปเดตกราฟครึ่งวงกลมในการ์ดเงินคงเหลือ
+      renderBudgetGaugeChart(totalBudget, totalExpense, totalRemain);
+
+      // Render Table 1: สรุปภาพรวมงบประมาณ พร้อมแทรก Progress bar คอลัมน์ท้ายสุด
       const bTbody = document.getElementById('budget-detail-tbody');
       if (bTbody) {
         const govRows = filteredBudgets.filter(b => resolveBudgetTypeBucket(b.type, b.code) === 'แผ่นดิน');
@@ -7290,6 +7382,13 @@
             const remAmt = b.amount - expAmt;
             secBud += b.amount;
             secExp += expAmt;
+
+            const rowPct = b.amount > 0 ? (expAmt / b.amount) * 100 : 0;
+            const barWidth = Math.min(100, Math.max(0, rowPct)).toFixed(1);
+            let barColor = 'bg-brand-500';
+            if (rowPct > 100) barColor = 'bg-red-500';
+            else if (rowPct >= 80) barColor = 'bg-amber-500';
+
             rowsHtml += `
               <tr class="hover:bg-slate-50 transition-colors">
                 <td class="py-2 px-3 font-medium text-slate-700">${escapeHtmlStr(b.code)}</td>
@@ -7298,16 +7397,38 @@
                 <td class="py-2 px-3 text-right font-semibold text-slate-800">${formatMoney2(b.amount)}</td>
                 <td class="py-2 px-3 text-right font-semibold ${expAmt > 0 ? 'text-brand-700' : 'text-slate-400'}">${expAmt > 0 ? formatMoney2(expAmt) : '-'}</td>
                 <td class="py-2 px-3 text-right font-bold ${remAmt < 0 ? 'text-red-600' : 'text-slate-800'}">${formatMoney2(remAmt)}</td>
+                <td class="py-2 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 bg-purple-100/70 h-2.5 rounded-full overflow-hidden">
+                      <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${barWidth}%"></div>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700 w-12 text-right shrink-0">${rowPct.toFixed(1)}%</span>
+                  </div>
+                </td>
               </tr>
             `;
           });
           const secRem = secBud - secExp;
+          const secPct = secBud > 0 ? (secExp / secBud) * 100 : 0;
+          const secBarWidth = Math.min(100, Math.max(0, secPct)).toFixed(1);
+          let secBarColor = 'bg-brand-600';
+          if (secPct > 100) secBarColor = 'bg-red-500';
+          else if (secPct >= 80) secBarColor = 'bg-amber-500';
+
           const headerSummaryRow = `
-            <tr class="bg-purple-50/80 border-t border-purple-100">
-              <td colspan="3" class="py-2.5 px-3 font-bold text-brand-700">${title}</td>
-              <td class="py-2.5 px-3 text-right font-bold text-brand-700">${formatMoney2(secBud)}</td>
-              <td class="py-2.5 px-3 text-right font-bold text-brand-700">${formatMoney2(secExp)}</td>
-              <td class="py-2.5 px-3 text-right font-bold ${secRem < 0 ? 'text-red-600' : 'text-brand-700'}">${formatMoney2(secRem)}</td>
+            <tr class="bg-purple-50/80 border-t border-purple-100 font-bold">
+              <td colspan="3" class="py-2.5 px-3 text-brand-700">${title}</td>
+              <td class="py-2.5 px-3 text-right text-brand-700">${formatMoney2(secBud)}</td>
+              <td class="py-2.5 px-3 text-right text-brand-700">${formatMoney2(secExp)}</td>
+              <td class="py-2.5 px-3 text-right ${secRem < 0 ? 'text-red-600' : 'text-brand-700'}">${formatMoney2(secRem)}</td>
+              <td class="py-2.5 px-3">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 bg-white/80 h-2.5 rounded-full overflow-hidden border border-purple-200/60">
+                    <div class="${secBarColor} h-full rounded-full transition-all duration-300" style="width: ${secBarWidth}%"></div>
+                  </div>
+                  <span class="text-[11px] font-bold text-brand-800 w-12 text-right shrink-0">${secPct.toFixed(1)}%</span>
+                </div>
+              </td>
             </tr>
           `;
           return headerSummaryRow + rowsHtml;
@@ -7318,14 +7439,28 @@
         bodyHtml += renderSection('เงินรายได้', revRows);
 
         if (!bodyHtml) {
-          bodyHtml = `<tr><td colspan="6" class="py-8 text-center text-slate-400">ไม่พบข้อมูลงบประมาณตามเงื่อนไขที่เลือก</td></tr>`;
+          bodyHtml = `<tr><td colspan="7" class="py-8 text-center text-slate-400">ไม่พบข้อมูลงบประมาณตามเงื่อนไขที่เลือก</td></tr>`;
         } else {
+          const totalPctVal = totalBudget > 0 ? (totalExpense / totalBudget) * 100 : 0;
+          const totalBarWidth = Math.min(100, Math.max(0, totalPctVal)).toFixed(1);
+          let totalBarColor = 'bg-brand-700';
+          if (totalPctVal > 100) totalBarColor = 'bg-red-600';
+          else if (totalPctVal >= 80) totalBarColor = 'bg-amber-600';
+
           bodyHtml += `
             <tr class="bg-brand-50 font-bold text-brand-800 border-t-2 border-brand-200">
               <td colspan="3" class="py-2.5 px-3 text-right">รวมงบประมาณทั้งหมด</td>
               <td class="py-2.5 px-3 text-right">${formatMoney2(totalBudget)}</td>
               <td class="py-2.5 px-3 text-right">${formatMoney2(totalExpense)}</td>
               <td class="py-2.5 px-3 text-right">${formatMoney2(totalRemain)}</td>
+              <td class="py-2.5 px-3">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 bg-white/90 h-2.5 rounded-full overflow-hidden border border-brand-200">
+                    <div class="${totalBarColor} h-full rounded-full transition-all duration-300" style="width: ${totalBarWidth}%"></div>
+                  </div>
+                  <span class="text-[11px] font-black text-brand-900 w-12 text-right shrink-0">${totalPctVal.toFixed(1)}%</span>
+                </div>
+              </td>
             </tr>
           `;
         }
@@ -7814,8 +7949,13 @@
       const hrRecBtn = document.getElementById('btn-open-hr-rec');
       if (hrRecBtn) {
         const grp = (currentUser?.group || '').trim();
+        const role = (currentUser?.role || '').toLowerCase();
+        const pos = (currentUser?.position || '');
         const isHRAdmin = grp.includes('งานบริหารและธุรการ');
-        hrRecBtn.style.display = isHRAdmin ? 'inline-flex' : 'none';
+        const isDirector = role === 'dean' || role === 'director' || grp.includes('ผู้บริหาร') || grp.includes('ผู้อำนวยการ') || pos.includes('ผู้อำนวยการ');
+        const isAdmin = role === 'admin' || (currentUser?.realRole || '').toLowerCase() === 'admin';
+        const canManage = isHRAdmin || isDirector || isAdmin;
+        hrRecBtn.style.display = canManage ? 'inline-flex' : 'none';
       }
       renderTrainingMatrixTable();
       renderCgiaScheduleTable();
@@ -7971,10 +8111,11 @@
 
       let totalPassedCount = 0;
       const rowsHtml = displayAuditors.map((aud, audIdx) => {
-        // ตรวจสอบเพื่อใส่เส้นกั้นระหว่างกลุ่มงาน (ผอ., งานตรวจสอบ 1, งานตรวจสอบ 2, งานตรวจสอบ 3)
+        // เส้นกั้นสีเทาเข้มแบบเรียบหรู พร้อมเว้นระยะห่างแถว (padding) ให้ดูโปร่งทันสมัย
         const prevAud = audIdx > 0 ? displayAuditors[audIdx - 1] : null;
         const isNewGroup = prevAud && (getGroupNum(prevAud) !== getGroupNum(aud));
-        const dividerStyle = isNewGroup ? 'border-top: 2.5px solid #8B5CF6 !important;' : '';
+        const dividerStyle = isNewGroup ? 'border-top: 2px solid #94A3B8 !important;' : '';
+        const padClass = isNewGroup ? 'pt-4 pb-2.5' : 'py-2.5';
 
         const cellsHtml = standardCourses.map(sc => {
           const passResult = evaluateAuditorCoursePassed(aud, sc.key);
@@ -7999,22 +8140,22 @@
           if (isPassed) {
             totalPassedCount++;
             if (isRecommended) {
-              return `<td class="px-2 py-3 text-center bg-emerald-50/40 relative" style="${dividerStyle}" title="${passTitle} (${recTitle})">
+              return `<td class="px-2 ${padClass} text-center bg-emerald-50/40 relative" style="${dividerStyle}" title="${passTitle} (${recTitle})">
                 <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="${passTitle}">✓</span>
                 <span class="absolute top-1 right-1 text-[9px] text-amber-500 font-bold" title="HR แนะนำ">⭐</span>
               </td>`;
             }
-            return `<td class="px-2 py-3 text-center bg-emerald-50/40" style="${dividerStyle}" title="${passTitle}">
+            return `<td class="px-2 ${padClass} text-center bg-emerald-50/40" style="${dividerStyle}" title="${passTitle}">
               <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm shadow-sm" title="${passTitle}">✓</span>
             </td>`;
           } else if (isRecommended) {
-            return `<td class="px-1.5 py-3 text-center bg-purple-100/70 border-x border-purple-200/80" style="${dividerStyle}" title="${recTitle}">
+            return `<td class="px-1.5 ${padClass} text-center bg-purple-100/70 border-x border-purple-200/80" style="${dividerStyle}" title="${recTitle}">
               <span class="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-white font-bold text-[10px] shadow-sm tracking-tight whitespace-nowrap" style="background: linear-gradient(90deg, #7B6FD7 0%, #6D58DA 35%, #765AE3 70%, #825BEF 100%);">
                 ⭐ แนะนำ
               </span>
             </td>`;
           } else {
-            return `<td class="px-2 py-3 text-center text-slate-300" style="${dividerStyle}">-</td>`;
+            return `<td class="px-2 ${padClass} text-center text-slate-300" style="${dividerStyle}">-</td>`;
           }
         }).join('');
 
@@ -8030,7 +8171,7 @@
         const isCurrent = currentUser && (currentUser.code === aud.code || currentUser.name === aud.name);
         return `
           <tr class="hover:bg-purple-50/40 transition-colors ${isCurrent ? 'bg-purple-50/70 font-semibold' : ''}" style="${dividerStyle}">
-            <td class="px-3 py-3 border-r border-slate-200" style="${dividerStyle}">
+            <td class="px-3 ${padClass} border-r border-slate-200" style="${dividerStyle}">
               <div class="font-bold text-slate-800 flex items-center justify-between">
                 <span class="text-xs font-bold text-brand-900">${aud.nickname || aud.name}</span>
                 ${roleBadge}
