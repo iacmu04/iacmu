@@ -901,7 +901,7 @@
             <!-- Header & Dedicated Filters -->
             <div>
               <div class="flex items-center justify-between gap-2 mb-2.5 pb-2.5 border-b border-indigo-200/80">
-                <h4 class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                <h4 class="text-sm font-bold text-indigo-950 flex items-center gap-1.5">
                   <span class="text-sm">🍩</span> สรุปภาพรวมสถานะรายงานงบการเงิน
                 </h4>
                 <span id="side-donut-period-badge" class="text-xs font-bold text-indigo-950 bg-white px-2.5 py-0.5 rounded-full shadow-sm ring-1 ring-indigo-200/60 whitespace-nowrap">ต.ค. 2570</span>
@@ -3418,6 +3418,7 @@
         renderCalendar();
         renderAttendanceList();
         renderTodaySummaryCard();
+        initHomeFinanceDefaults();
         renderFinanceMatrix();
         renderHomeFinanceCard();
         renderHomeBudgetCard();
@@ -5810,6 +5811,65 @@
         return true;
       });
 
+      // เรียงลำดับแถวส่วนงานตามผู้ตรวจสอบ:
+      // หัวหน้างานตรวจสอบ 1 -> สมาชิกงานตรวจสอบ 1 -> หัวหน้างานตรวจสอบ 2 -> สมาชิกงานตรวจสอบ 2 -> หัวหน้างานตรวจสอบ 3 -> สมาชิกงานตรวจสอบ 3
+      const sortedAuditorList = sortAuditorsByGroupAndRole(
+        (sheetData.auditors || []).filter(a => isAuditorInAuditGroup(a))
+      );
+
+      const getDeptAuditorRank = (dept) => {
+        let audName = '';
+        if (filterPeriod !== 'all') {
+          audName = getEffectiveDepartmentAuditor(dept.name, filterYear, filterPeriod) || dept.auditor || '';
+        } else {
+          const effSep = getEffectiveDepartmentAuditor(dept.name, filterYear, 'กันยายน');
+          if (effSep) {
+            audName = effSep;
+          } else {
+            const yrAuds = getDepartmentAuditorsForFiscalYear(dept.name, filterYear);
+            audName = yrAuds.length > 0 ? yrAuds[yrAuds.length - 1] : (dept.auditor || '');
+          }
+        }
+
+        if (audName) {
+          for (let i = 0; i < sortedAuditorList.length; i++) {
+            const a = sortedAuditorList[i];
+            if (isAuditorMatch(a.name, audName) || isAuditorMatch(a.nickname, audName)) {
+              return i;
+            }
+          }
+        }
+
+        const allYrAuds = getDepartmentAuditorsForFiscalYear(dept.name, filterYear);
+        for (const yrA of allYrAuds) {
+          for (let i = 0; i < sortedAuditorList.length; i++) {
+            const a = sortedAuditorList[i];
+            if (isAuditorMatch(a.name, yrA) || isAuditorMatch(a.nickname, yrA)) {
+              return i;
+            }
+          }
+        }
+
+        if (dept.auditor && dept.auditor !== audName) {
+          for (let i = 0; i < sortedAuditorList.length; i++) {
+            const a = sortedAuditorList[i];
+            if (isAuditorMatch(a.name, dept.auditor) || isAuditorMatch(a.nickname, dept.auditor)) {
+              return i;
+            }
+          }
+        }
+
+        return 999;
+      };
+
+      uniqueDepts.forEach((d, idx) => { d._origIndex = idx; });
+      filtered.sort((a, b) => {
+        const rankA = getDeptAuditorRank(a);
+        const rankB = getDeptAuditorRank(b);
+        if (rankA !== rankB) return rankA - rankB;
+        return (a._origIndex || 0) - (b._origIndex || 0);
+      });
+
       filtered.forEach((dept, idx) => {
         const tracks = sheetData.trackingList.filter(t => t.department === dept.name && (t.fiscalYear || '').toString() === filterYear.toString());
         let displayAuditor = '';
@@ -6761,6 +6821,31 @@
       return (m >= 10 ? yBE + 1 : yBE).toString();
     }
 
+    // คำนวณงวดงบก่อนงบปัจจุบัน 1 งวด พร้อมปีงบประมาณที่สอดคล้อง
+    // เช่น พ.ย. 2569 -> ปีงบ 2570 งวด ต.ค. / ม.ค. 2570 -> ปีงบ 2570 งวด ธ.ค. / ต.ค. 2569 -> ปีงบ 2569 งวด ก.ย.
+    function getPreviousReportingPeriodAndFY() {
+      const now = new Date();
+      const currentMonth = now.getMonth(); // 0 = ม.ค., ..., 9 = ต.ค., 10 = พ.ย., 11 = ธ.ค.
+      const currentYearBE = now.getFullYear() + 543;
+
+      let prevMonth = currentMonth - 1;
+      let yearBE = currentYearBE;
+      if (prevMonth < 0) {
+        prevMonth = 11;
+        yearBE -= 1;
+      }
+
+      const thaiMonths = [
+        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+      ];
+      const prevPeriodName = thaiMonths[prevMonth];
+      // ปีงบประมาณไทย: เริ่มต้นเดือนตุลาคม (ดัชนี 9)
+      const fiscalYearBE = (prevMonth >= 9 ? yearBE + 1 : yearBE).toString();
+
+      return { period: prevPeriodName, fiscalYear: fiscalYearBE };
+    }
+
     function initHomeFinanceDefaults() {
       const fy = getCurrentThaiFiscalYearBE();
       const ySel = document.getElementById('home-fin-filter-year');
@@ -6777,6 +6862,22 @@
       const finYearSel = document.getElementById('fin-filter-year');
       if (finYearSel && [...finYearSel.options].some(o => o.value === fy)) {
         finYearSel.value = fy;
+      }
+
+      // ตั้งค่าเริ่มต้นตัวกรองการ์ดสรุปภาพรวมสถานะรายงานงบการเงิน: ปีปัจจุบัน และงวดงบก่อนงบปัจจุบัน 1 งวด
+      const prev = getPreviousReportingPeriodAndFY();
+      const sideYearSel = document.getElementById('side-summary-year');
+      const sidePeriodSel = document.getElementById('side-summary-period');
+      if (sideYearSel) {
+        if (![...sideYearSel.options].some(o => o.value === prev.fiscalYear)) {
+          sideYearSel.insertAdjacentHTML('afterbegin', `<option value="${prev.fiscalYear}">${prev.fiscalYear}</option>`);
+        }
+        sideYearSel.value = prev.fiscalYear;
+      }
+      if (sidePeriodSel) {
+        if ([...sidePeriodSel.options].some(o => o.value === prev.period)) {
+          sidePeriodSel.value = prev.period;
+        }
       }
     }
 
