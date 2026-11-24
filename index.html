@@ -16,6 +16,9 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- SheetJS (xlsx) CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <!-- Flatpickr (Thai Datepicker: วัน/เดือน/ปี) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
@@ -1279,6 +1282,10 @@
             <p id="expense-table-count-sub" class="text-[11px] text-slate-400">ทั้งหมด 0 รายการ</p>
           </div>
           <div class="flex items-center gap-2">
+            <button type="button" onclick="exportExpenseTableToExcel()" title="ส่งออกข้อมูลรายละเอียดการเบิกจ่ายเป็นไฟล์ Excel (.xlsx)" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shadow-xs">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>ส่งออก Excel (.xlsx)</span>
+            </button>
             <button onclick="resetExpenseTableFilters()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
               รีเซ็ตตัวกรองตาราง
             </button>
@@ -7552,6 +7559,144 @@
           eTbody.innerHTML = eHtml;
         }
       }
+    }
+
+    function exportExpenseTableToExcel() {
+      if (typeof XLSX === 'undefined') {
+        alert('กำลังโหลดโมดูล Excel กรุณารอครู่หนึ่งแล้วลองใหม่อีกครั้ง');
+        return;
+      }
+      const ySel = document.getElementById('exp-filter-year');
+      const fy = (ySel ? ySel.value : getCurrentThaiFiscalYearBE()).toString().trim();
+      const source = document.getElementById('exp-filter-source')?.value || 'all';
+      const monthVal = document.getElementById('exp-filter-month')?.value || 'all';
+      const subcat = document.getElementById('exp-filter-subcat')?.value || 'all';
+      const codeFilter = document.getElementById('exp-filter-code')?.value || 'all';
+      const itemFilter = document.getElementById('exp-filter-item')?.value || 'all';
+
+      const maps = buildBudgetTypeMaps();
+      const filteredExpenses = (sheetData.expenses || []).filter(e => {
+        if (e.fiscalYear !== fy) return false;
+        if (source !== 'all' && getExpenseBucket(e, maps) !== source) return false;
+        if (monthVal !== 'all') {
+          const parsed = parseDateComponents(e.date);
+          if (!parsed || String(parsed.month) !== String(monthVal)) return false;
+        }
+        if (subcat !== 'all' && e.subCategory !== subcat) return false;
+        if (codeFilter !== 'all' && e.code !== codeFilter) return false;
+        if (itemFilter !== 'all' && e.item !== itemFilter) return false;
+        return true;
+      });
+
+      if (filteredExpenses.length === 0) {
+        alert('ไม่พบรายการค่าใช้จ่ายที่ตรงกับเงื่อนไขในตารางที่จะส่งออก');
+        return;
+      }
+
+      // Headers for Excel
+      const headers = [
+        'ลำดับ',
+        'ใบตั้งหนี้',
+        'เลขทะเบียนส่ง',
+        'วันที่เบิกจ่าย',
+        'รายการ',
+        'รายละเอียด',
+        'จำนวนเงิน (บาท)',
+        'อ้างถึง',
+        'ลงวันที่',
+        'แหล่งเงิน',
+        'หมวดย่อย',
+        'รหัสงบประมาณ',
+        'ปีงบประมาณ',
+        'หมายเหตุ'
+      ];
+
+      const dataRows = [];
+      let totalAmount = 0;
+
+      filteredExpenses.forEach((e, idx) => {
+        const amt = typeof e.amount === 'number' ? e.amount : (parseFloat(e.amount) || 0);
+        totalAmount += amt;
+        const bucket = getExpenseBucket(e, maps);
+        const bucketLabel = bucket === 'แผ่นดิน' ? 'เงินแผ่นดิน' : (bucket === 'รายได้' ? 'เงินรายได้' : (e.category || '-'));
+
+        dataRows.push([
+          idx + 1,
+          e.debtNo || '',
+          e.docNo || '',
+          e.date || '',
+          e.item || '',
+          e.detail || '',
+          amt,
+          e.refDoc || '',
+          e.docDate || '',
+          bucketLabel,
+          e.subCategory || '',
+          e.code || '',
+          e.fiscalYear || fy,
+          e.note || ''
+        ]);
+      });
+
+      // Total summary row
+      dataRows.push([
+        'รวมค่าใช้จ่ายทั้งหมด',
+        '',
+        '',
+        '',
+        `รวม ${filteredExpenses.length} รายการ`,
+        '',
+        totalAmount,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        ''
+      ]);
+
+      const aoa = [headers, ...dataRows];
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+      // Number formatting for amount column (col index 6)
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = 1; R <= range.e.r; ++R) {
+        const cellRef = XLSX.utils.encode_cell({ r: R, c: 6 });
+        if (ws[cellRef] && typeof ws[cellRef].v === 'number') {
+          ws[cellRef].t = 'n';
+          ws[cellRef].z = '#,##0.00';
+        }
+      }
+
+      // Auto column widths
+      ws['!cols'] = [
+        { wch: 8 },  // ลำดับ
+        { wch: 15 }, // ใบตั้งหนี้
+        { wch: 16 }, // เลขทะเบียนส่ง
+        { wch: 14 }, // วันที่
+        { wch: 24 }, // รายการ
+        { wch: 40 }, // รายละเอียด
+        { wch: 18 }, // จำนวนเงิน
+        { wch: 16 }, // อ้างถึง
+        { wch: 14 }, // ลงวันที่
+        { wch: 14 }, // แหล่งเงิน
+        { wch: 22 }, // หมวดย่อย
+        { wch: 22 }, // รหัสงบ
+        { wch: 12 }, // ปีงบ
+        { wch: 16 }  // หมายเหตุ
+      ];
+
+      const wb = XLSX.utils.book_new();
+      const safeSheetName = `ค่าใช้จ่าย_ปีงบ_${fy}`;
+      XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
+
+      const d = new Date();
+      const pad2 = n => ('0' + n).slice(-2);
+      const fileDate = `${d.getFullYear() + 543}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`;
+      const fileName = `รายละเอียดการเบิกจ่าย_ปีงบประมาณ_${fy}_${fileDate}.xlsx`;
+
+      XLSX.writeFile(wb, fileName);
     }
 
     function populateExpenseModalBudgetOptions(fy, selectedCode, selectedSubCat) {
