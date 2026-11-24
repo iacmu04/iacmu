@@ -857,15 +857,20 @@
               <!-- Scrollable Table 2 -->
               <div class="overflow-x-auto max-h-[340px] min-h-[310px] overflow-y-auto">
                 <table class="w-full text-left text-xs whitespace-nowrap">
-                  <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
-                    <tr>
-                      <th class="py-2.5 px-3 min-w-[180px]">ชื่อผู้ตรวจสอบ</th>
-                      <th class="py-2.5 px-3 text-center min-w-[105px]">จำนวนงบทั้งหมด</th>
-                      <th class="py-2.5 px-3 text-center min-w-[130px]">ระยะเวลาสอบทานรวม</th>
-                      <th class="py-2.5 px-3 text-center min-w-[95px]">จำนวนครั้งรวม</th>
-                      <th class="py-2.5 px-3 text-center min-w-[100px]">เฉลี่ยจำนวนครั้ง</th>
-                      <th class="py-2.5 px-3 text-center min-w-[95px]">จำนวนวันรวม</th>
-                      <th class="py-2.5 px-3 text-center min-w-[100px]">เฉลี่ยจำนวนวัน</th>
+                  <thead class="bg-slate-50 text-slate-700 font-semibold sticky top-0 z-10 border-b border-slate-200 shadow-xs">
+                    <tr class="divide-x divide-slate-200/80">
+                      <th rowspan="2" class="py-2.5 px-3 min-w-[180px] text-left align-middle font-bold text-slate-800 bg-slate-50">ชื่อผู้ตรวจสอบ</th>
+                      <th rowspan="2" class="py-2.5 px-3 text-center min-w-[105px] align-middle font-bold text-slate-800 bg-slate-50">จำนวนงบทั้งหมด</th>
+                      <th rowspan="2" class="py-2.5 px-3 text-center min-w-[135px] align-middle font-bold text-slate-800 bg-slate-50">ระยะเวลาสอบทานรวม</th>
+                      <th colspan="4" class="py-2 px-3 text-center font-bold text-purple-900 bg-purple-100/70 border-b border-purple-200">
+                        การแก้ไข
+                      </th>
+                    </tr>
+                    <tr class="text-[11px] font-semibold text-slate-600 bg-purple-50/50 divide-x divide-purple-100/80">
+                      <th class="py-1.5 px-3 text-center min-w-[95px]">จำนวนครั้งรวม</th>
+                      <th class="py-1.5 px-3 text-center min-w-[100px]">เฉลี่ยจำนวนครั้ง</th>
+                      <th class="py-1.5 px-3 text-center min-w-[95px]">จำนวนวันรวม</th>
+                      <th class="py-1.5 px-3 text-center min-w-[100px]">เฉลี่ยจำนวนวัน</th>
                     </tr>
                   </thead>
                   <tbody id="edit-summary-table-body" class="divide-y divide-slate-100">
@@ -5614,7 +5619,12 @@
       if (statTotal) statTotal.textContent = `${countTotal} งบ`;
       if (statReviewDays) {
         if (countReviewed > 0) {
-          statReviewDays.innerHTML = `${sumReviewDays} วัน` + (countOverdue > 0 ? ` <span class="text-[10px] text-rose-600 font-bold block">(เกินเกณฑ์ ${countOverdue} งบ)</span>` : ` <span class="text-[10px] text-emerald-600 font-medium block">✓ ในเกณฑ์ทั้งหมด</span>`);
+          const avgReviewDays = (sumReviewDays / countReviewed).toFixed(1);
+          if (countOverdue > 0) {
+            statReviewDays.innerHTML = `${sumReviewDays} วัน <span class="text-[10px] text-rose-600 font-bold block">(เกินเกณฑ์ ${countOverdue} งบ • เฉลี่ย ${avgReviewDays} วัน)</span>`;
+          } else {
+            statReviewDays.innerHTML = `${sumReviewDays} วัน <span class="text-[10px] text-emerald-600 font-medium block">(เฉลี่ย ${avgReviewDays} วัน • ในเกณฑ์ทั้งหมด)</span>`;
+          }
         } else {
           statReviewDays.textContent = `0 วัน`;
         }
@@ -5732,7 +5742,9 @@
       }).join('');
 
       if (footerText) {
-        footerText.textContent = `ทั้งหมด ${items.length} รายการ (สอบทานแล้ว ${countReviewed} งบ ${countOverdue > 0 ? `[เกินเกณฑ์ 20 วัน ${countOverdue} งบ]` : ''}, พบการแก้ไข ${countEdited} งบ, รวม ${sumRounds} ครั้ง, รวม ${sumDays} วัน)`;
+        const avgText = countReviewed > 0 ? `เฉลี่ย ${(sumReviewDays / countReviewed).toFixed(1)} วัน` : '';
+        const overdueText = countOverdue > 0 ? `[เกินเกณฑ์ 20 วัน ${countOverdue} งบ${avgText ? ` • ${avgText}` : ''}]` : (avgText ? `[${avgText}]` : '');
+        footerText.textContent = `ทั้งหมด ${items.length} รายการ (สอบทานแล้ว ${countReviewed} งบ ${overdueText}, พบการแก้ไข ${countEdited} งบ, รวม ${sumRounds} ครั้ง, รวม ${sumDays} วัน)`;
       }
     }
 
