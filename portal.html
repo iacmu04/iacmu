@@ -871,9 +871,9 @@
                     </tr>
                     <tr class="text-[11px] font-semibold text-slate-600 bg-purple-50/50 divide-x divide-purple-100/80">
                       <th class="py-1.5 px-3 text-center min-w-[95px]">จำนวนครั้งรวม</th>
-                      <th class="py-1.5 px-3 text-center min-w-[100px]">เฉลี่ยจำนวนครั้ง</th>
+                      <th class="py-1.5 px-3 text-center min-w-[100px]" title="คิดเฉลี่ยจากงบที่ ผอ.เห็นชอบแล้ว (สอบทานแล้วเสร็จ)">เฉลี่ยจำนวนครั้ง</th>
                       <th class="py-1.5 px-3 text-center min-w-[95px]">จำนวนวันรวม</th>
-                      <th class="py-1.5 px-3 text-center min-w-[100px]">เฉลี่ยจำนวนวัน</th>
+                      <th class="py-1.5 px-3 text-center min-w-[100px]" title="คิดเฉลี่ยจากงบที่ ผอ.เห็นชอบแล้ว (สอบทานแล้วเสร็จ)">เฉลี่ยจำนวนวัน</th>
                     </tr>
                   </thead>
                   <tbody id="edit-summary-table-body" class="divide-y divide-slate-100">
@@ -5127,17 +5127,8 @@
       renderEditSummaryTable();
     }
 
-    function renderEditSummaryTable() {
-      const tbody = document.getElementById('edit-summary-table-body');
-      const tfoot = document.getElementById('edit-summary-table-footer');
-      const statusEl = document.getElementById('edit-summary-footer-status');
-      if (!tbody || !tfoot) return;
-
-      const fy = document.getElementById('edit-summary-filter-year') ? document.getElementById('edit-summary-filter-year').value : '2570';
-      const period = document.getElementById('edit-summary-filter-period') ? document.getElementById('edit-summary-filter-period').value : 'all';
-      const group = document.getElementById('edit-summary-filter-group') ? document.getElementById('edit-summary-filter-group').value : 'all';
-      const selectedAuditor = document.getElementById('edit-summary-filter-auditor') ? document.getElementById('edit-summary-filter-auditor').value : 'all';
-
+    // Helper: ดึงรายการงบ (slots) ที่ผู้ตรวจสอบท่านนั้นรับผิดชอบจริงตามคำสั่งแต่งตั้ง (Effective Date) ในปีงบประมาณและงวดที่เลือก
+    function getAuditorSlotsForFiscalYearAndPeriod(auditorName, fiscalYear, period) {
       const monthDefs = [
         { key: '10', name: 'ตุลาคม', q: 'ไตรมาส 1' },
         { key: '11', name: 'พฤศจิกายน', q: 'ไตรมาส 1' },
@@ -5152,12 +5143,75 @@
         { key: '08', name: 'สิงหาคม', q: 'ไตรมาส 4' },
         { key: '09', name: 'กันยายน', q: 'ไตรมาส 4' }
       ];
-
       const monthMatch = monthDefs.find(m => m.name === period);
       const isQuarter = ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].includes(period);
+      const uniqueDepts = getUniqueDepartmentsList();
+      const audRec = findAuditorRecord(auditorName);
+      const audNick = audRec ? audRec.nickname : '';
+
+      function matchesAud(effAud) {
+        if (!effAud) return false;
+        return isAuditorMatch(auditorName, effAud) || (audNick && isAuditorMatch(audNick, effAud));
+      }
+
+      const slots = [];
+      uniqueDepts.forEach(d => {
+        const isQDept = (d.cycle === 'รายไตรมาส');
+        if (monthMatch) {
+          if (!isQDept) {
+            const effAud = getEffectiveDepartmentAuditor(d.name, fiscalYear, monthMatch.name);
+            if (matchesAud(effAud)) {
+              slots.push({ dept: d, pLabel: monthMatch.name, mKey: monthMatch.key, isQSlot: false, qName: '' });
+            }
+          }
+        } else if (isQuarter) {
+          const qMonths = monthDefs.filter(m => m.q === period);
+          if (!isQDept) {
+            qMonths.forEach(qm => {
+              const effAud = getEffectiveDepartmentAuditor(d.name, fiscalYear, qm.name);
+              if (matchesAud(effAud)) {
+                slots.push({ dept: d, pLabel: qm.name, mKey: qm.key, isQSlot: false, qName: '' });
+              }
+            });
+          } else {
+            const effAud = getEffectiveDepartmentAuditor(d.name, fiscalYear, period);
+            if (matchesAud(effAud)) {
+              slots.push({ dept: d, pLabel: period, mKey: qMonths[qMonths.length - 1].key, isQSlot: true, qName: period });
+            }
+          }
+        } else if (period === 'all') {
+          if (!isQDept) {
+            monthDefs.forEach(m => {
+              const effAud = getEffectiveDepartmentAuditor(d.name, fiscalYear, m.name);
+              if (matchesAud(effAud)) {
+                slots.push({ dept: d, pLabel: m.name, mKey: m.key, isQSlot: false, qName: '' });
+              }
+            });
+          } else {
+            ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].forEach(q => {
+              const effAud = getEffectiveDepartmentAuditor(d.name, fiscalYear, q);
+              if (matchesAud(effAud)) {
+                slots.push({ dept: d, pLabel: q, mKey: '', isQSlot: true, qName: q });
+              }
+            });
+          }
+        }
+      });
+      return slots;
+    }
+
+    function renderEditSummaryTable() {
+      const tbody = document.getElementById('edit-summary-table-body');
+      const tfoot = document.getElementById('edit-summary-table-footer');
+      const statusEl = document.getElementById('edit-summary-footer-status');
+      if (!tbody || !tfoot) return;
+
+      const fy = document.getElementById('edit-summary-filter-year') ? document.getElementById('edit-summary-filter-year').value : '2570';
+      const period = document.getElementById('edit-summary-filter-period') ? document.getElementById('edit-summary-filter-period').value : 'all';
+      const group = document.getElementById('edit-summary-filter-group') ? document.getElementById('edit-summary-filter-group').value : 'all';
+      const selectedAuditor = document.getElementById('edit-summary-filter-auditor') ? document.getElementById('edit-summary-filter-auditor').value : 'all';
 
       const tracksFY = (sheetData.trackingList || []).filter(t => (t.fiscalYear || '').toString().trim() === fy.toString());
-      const depts = sheetData.departments || [];
 
       // แสดงเฉพาะคนที่สังกัดในงานตรวจสอบ 1, 2 และ 3 เท่านั้น (คอลัมน์ E ในชีท ผู้ตรวจสอบ)
       let auditors = (sheetData.auditors || []).filter(a => isAuditorInAuditGroup(a));
@@ -5184,28 +5238,7 @@
       const rowsData = [];
 
       auditors.forEach(aud => {
-        const audDepts = depts.filter(d => isAuditorMatch(aud.name, d.auditor) || isAuditorMatch(aud.nickname, d.auditor));
-
-        const audSlots = [];
-        audDepts.forEach(d => {
-          const isQDept = (d.cycle === 'รายไตรมาส');
-          if (monthMatch) {
-            if (!isQDept) audSlots.push({ dept: d, pLabel: monthMatch.name, mKey: monthMatch.key, isQSlot: false, qName: '' });
-          } else if (isQuarter) {
-            const qMonths = monthDefs.filter(m => m.q === period);
-            if (!isQDept) {
-              qMonths.forEach(qm => audSlots.push({ dept: d, pLabel: qm.name, mKey: qm.key, isQSlot: false, qName: '' }));
-            } else {
-              audSlots.push({ dept: d, pLabel: period, mKey: qMonths[qMonths.length - 1].key, isQSlot: true, qName: period });
-            }
-          } else if (period === 'all') {
-            if (!isQDept) {
-              monthDefs.forEach(m => audSlots.push({ dept: d, pLabel: m.name, mKey: m.key, isQSlot: false, qName: '' }));
-            } else {
-              ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].forEach(q => audSlots.push({ dept: d, pLabel: q, mKey: '', isQSlot: true, qName: q }));
-            }
-          }
-        });
+        const audSlots = getAuditorSlotsForFiscalYearAndPeriod(aud.name, fy, period);
 
         const totalBudgets = audSlots.length;
         let totalReviewDays = 0;
@@ -5281,9 +5314,10 @@
           }
         });
 
+        // คิดค่าเฉลี่ยจากจำนวนงบที่ ผอ.เห็นชอบแล้ว (สอบทานแล้วเสร็จ) ทั้งหมด
         const avgReviewDays = countReviewed > 0 ? (totalReviewDays / countReviewed).toFixed(1) : '0.0';
-        const avgRounds = totalBudgets > 0 ? (totalRounds / totalBudgets).toFixed(2) : '0.00';
-        const avgDays = totalBudgets > 0 ? (totalDays / totalBudgets).toFixed(1) : '0.0';
+        const avgRounds = countReviewed > 0 ? (totalRounds / countReviewed).toFixed(2) : '0.00';
+        const avgDays = countReviewed > 0 ? (totalDays / countReviewed).toFixed(1) : '0.0';
 
         grandTotalBudgets += totalBudgets;
         grandTotalReviewDays += totalReviewDays;
@@ -5401,8 +5435,8 @@
       }).join('');
 
       const grandAvgReviewDays = grandTotalReviewed > 0 ? (grandTotalReviewDays / grandTotalReviewed).toFixed(1) : '0.0';
-      const grandAvgRounds = grandTotalBudgets > 0 ? (grandTotalRounds / grandTotalBudgets).toFixed(2) : '0.00';
-      const grandAvgDays = grandTotalBudgets > 0 ? (grandTotalDays / grandTotalBudgets).toFixed(1) : '0.0';
+      const grandAvgRounds = grandTotalReviewed > 0 ? (grandTotalRounds / grandTotalReviewed).toFixed(2) : '0.00';
+      const grandAvgDays = grandTotalReviewed > 0 ? (grandTotalDays / grandTotalReviewed).toFixed(1) : '0.0';
 
       const grandReviewHtml = grandTotalReviewed > 0
         ? `<div class="flex flex-col items-center justify-center">
@@ -5424,7 +5458,7 @@
       `;
 
       if (statusEl) {
-        statusEl.textContent = `ผู้ตรวจสอบ ${rowsData.length} ท่าน (งานตรวจสอบ 1-3) • รวม ${grandTotalBudgets} งบ • สอบทานแล้ว ${grandTotalReviewed} งบ (${grandTotalReviewDays} วัน${grandTotalOverdue > 0 ? `, เกินเกณฑ์ 20 วัน ${grandTotalOverdue} งบ` : ''}) • แก้ไขรวม ${grandTotalRounds} ครั้ง (${grandTotalDays} วัน) • คลิกที่แถวเพื่อดูรายงบ`;
+        statusEl.textContent = `ผู้ตรวจสอบ ${rowsData.length} ท่าน (งานตรวจสอบ 1-3) • รวม ${grandTotalBudgets} งบ • สอบทานแล้ว ${grandTotalReviewed} งบ (${grandTotalReviewDays} วัน${grandTotalOverdue > 0 ? `, เกินเกณฑ์ 20 วัน ${grandTotalOverdue} งบ` : ''}) • ค่าเฉลี่ยการแก้ไขคิดจากงบที่สอบทานแล้วเสร็จ (${grandTotalReviewed} งบ) • คลิกที่แถวเพื่อดูรายงบ`;
       }
     }
 
@@ -5472,47 +5506,8 @@
       const fy = document.getElementById('auditor-modal-filter-year') ? document.getElementById('auditor-modal-filter-year').value : '2570';
       const period = document.getElementById('auditor-modal-filter-period') ? document.getElementById('auditor-modal-filter-period').value : 'all';
 
-      const monthDefs = [
-        { key: '10', name: 'ตุลาคม', q: 'ไตรมาส 1' },
-        { key: '11', name: 'พฤศจิกายน', q: 'ไตรมาส 1' },
-        { key: '12', name: 'ธันวาคม', q: 'ไตรมาส 1' },
-        { key: '01', name: 'มกราคม', q: 'ไตรมาส 2' },
-        { key: '02', name: 'กุมภาพันธ์', q: 'ไตรมาส 2' },
-        { key: '03', name: 'มีนาคม', q: 'ไตรมาส 2' },
-        { key: '04', name: 'เมษายน', q: 'ไตรมาส 3' },
-        { key: '05', name: 'พฤษภาคม', q: 'ไตรมาส 3' },
-        { key: '06', name: 'มิถุนายน', q: 'ไตรมาส 3' },
-        { key: '07', name: 'กรกฎาคม', q: 'ไตรมาส 4' },
-        { key: '08', name: 'สิงหาคม', q: 'ไตรมาส 4' },
-        { key: '09', name: 'กันยายน', q: 'ไตรมาส 4' }
-      ];
-
-      const monthMatch = monthDefs.find(m => m.name === period);
-      const isQuarter = ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].includes(period);
-
       const tracksFY = (sheetData.trackingList || []).filter(t => (t.fiscalYear || '').toString().trim() === fy.toString());
-      const audDepts = (sheetData.departments || []).filter(d => isAuditorMatch(currentAuditorModalName, d.auditor));
-
-      const audSlots = [];
-      audDepts.forEach(d => {
-        const isQDept = (d.cycle === 'รายไตรมาส');
-        if (monthMatch) {
-          if (!isQDept) audSlots.push({ dept: d, pLabel: monthMatch.name, mKey: monthMatch.key, isQSlot: false, qName: '' });
-        } else if (isQuarter) {
-          const qMonths = monthDefs.filter(m => m.q === period);
-          if (!isQDept) {
-            qMonths.forEach(qm => audSlots.push({ dept: d, pLabel: qm.name, mKey: qm.key, isQSlot: false, qName: '' }));
-          } else {
-            audSlots.push({ dept: d, pLabel: period, mKey: qMonths[qMonths.length - 1].key, isQSlot: true, qName: period });
-          }
-        } else if (period === 'all') {
-          if (!isQDept) {
-            monthDefs.forEach(m => audSlots.push({ dept: d, pLabel: m.name, mKey: m.key, isQSlot: false, qName: '' }));
-          } else {
-            ['ไตรมาส 1', 'ไตรมาส 2', 'ไตรมาส 3', 'ไตรมาส 4'].forEach(q => audSlots.push({ dept: d, pLabel: q, mKey: '', isQSlot: true, qName: q }));
-          }
-        }
-      });
+      const audSlots = getAuditorSlotsForFiscalYearAndPeriod(currentAuditorModalName, fy, period);
 
       let countTotal = audSlots.length;
       let countReviewed = 0;
@@ -5638,8 +5633,14 @@
         }
       }
       if (statEdited) statEdited.textContent = `${countEdited} งบ`;
-      if (statRounds) statRounds.textContent = `${sumRounds} ครั้ง`;
-      if (statDays) statDays.textContent = `${sumDays} วัน`;
+      if (statRounds) {
+        const avgRounds = countReviewed > 0 ? (sumRounds / countReviewed).toFixed(2) : '0.00';
+        statRounds.innerHTML = `${sumRounds} ครั้ง <span class="text-[10px] text-amber-700 font-medium block">(เฉลี่ย ${avgRounds} ครั้ง/งบที่ตรวจ)</span>`;
+      }
+      if (statDays) {
+        const avgDays = countReviewed > 0 ? (sumDays / countReviewed).toFixed(1) : '0.0';
+        statDays.innerHTML = `${sumDays} วัน <span class="text-[10px] text-rose-700 font-medium block">(เฉลี่ย ${avgDays} วัน/งบที่ตรวจ)</span>`;
+      }
 
       if (items.length === 0) {
         tbody.innerHTML = `
@@ -5750,9 +5751,11 @@
       }).join('');
 
       if (footerText) {
-        const avgText = countReviewed > 0 ? `เฉลี่ย ${(sumReviewDays / countReviewed).toFixed(1)} วัน` : '';
-        const overdueText = countOverdue > 0 ? `[เกินเกณฑ์ 20 วัน ${countOverdue} งบ${avgText ? ` • ${avgText}` : ''}]` : (avgText ? `[${avgText}]` : '');
-        footerText.textContent = `ทั้งหมด ${items.length} รายการ (สอบทานแล้ว ${countReviewed} งบ ${overdueText}, พบการแก้ไข ${countEdited} งบ, รวม ${sumRounds} ครั้ง, รวม ${sumDays} วัน)`;
+        const avgRevText = countReviewed > 0 ? `เฉลี่ย ${(sumReviewDays / countReviewed).toFixed(1)} วัน` : '';
+        const overdueText = countOverdue > 0 ? `[เกินเกณฑ์ 20 วัน ${countOverdue} งบ${avgRevText ? ` • ${avgRevText}` : ''}]` : (avgRevText ? `[${avgRevText}]` : '');
+        const avgRoundsText = countReviewed > 0 ? `เฉลี่ย ${(sumRounds / countReviewed).toFixed(2)} ครั้ง` : '';
+        const avgDaysText = countReviewed > 0 ? `เฉลี่ย ${(sumDays / countReviewed).toFixed(1)} วัน` : '';
+        footerText.textContent = `ทั้งหมด ${items.length} รายการ (สอบทานแล้ว ${countReviewed} งบ ${overdueText}, พบการแก้ไข ${countEdited} งบ, รวม ${sumRounds} ครั้ง${avgRoundsText ? ` [${avgRoundsText}]` : ''}, รวม ${sumDays} วัน${avgDaysText ? ` [${avgDaysText}]` : ''})`;
       }
     }
 
