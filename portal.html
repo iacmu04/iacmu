@@ -1768,7 +1768,7 @@
             </div>
             <div>
               <label class="block font-semibold text-slate-700 mb-1">ปีงบประมาณ</label>
-              <select id="modal-fin-year" onchange="onDepartmentSelectChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              <select id="modal-fin-year" onchange="onDepartmentSelectChange(document.getElementById('modal-fin-period')?.value || '')" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
                 <option value="2570">2570</option>
                 <option value="2569">2569</option>
                 <option value="2568">2568</option>
@@ -5912,7 +5912,7 @@
         }
 
         tbody.innerHTML += `
-          <tr class="hover:bg-purple-50/40 transition-all cursor-pointer group" onclick="openFinanceModal('${dept.name}', '', '${filterYear}')">
+          <tr class="hover:bg-purple-50/40 transition-all cursor-pointer group" onclick="openFinanceModal('${dept.name}', '${filterPeriod !== 'all' ? filterPeriod : ''}', '${filterYear}')">
             <td class="py-3 px-3">
               <div class="font-semibold text-slate-800 group-hover:text-brand-600 transition-colors">${dept.name}</div>
               <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
@@ -6003,14 +6003,10 @@
       const dept = sheetData.departments.find(d => d.name === deptName);
       if (!dept) return;
 
-      // 1. ผู้รับผิดชอบ ดึงอัตโนมัติตามช่วงเวลาคำสั่งแต่งตั้ง (Effective Date)
       const fyModal = document.getElementById('modal-fin-year')?.value || '2570';
-      const periodVal = targetPeriod || periodSel.value || 'ตุลาคม';
-      const effAuditor = getEffectiveDepartmentAuditor(dept.name, fyModal, periodVal);
-      audInp.value = effAuditor || dept.auditor || 'ไม่ระบุในชีทส่วนงาน';
-      cycleInp.value = dept.cycle || 'รายเดือน';
+      const desiredPeriod = targetPeriod || periodSel?.value || 'ตุลาคม';
 
-      // 2. ปรับตัวเลือกงวดรายงานอัตโนมัติ
+      // 1. ปรับตัวเลือกงวดรายงานอัตโนมัติ
       periodSel.innerHTML = '';
       if (dept.cycle === 'รายไตรมาส') {
         cycleBadge.textContent = '(รายไตรมาส)';
@@ -6027,12 +6023,19 @@
         months.forEach(m => periodSel.innerHTML += `<option value="${m}">${m}</option>`);
       }
 
-      if (targetPeriod) {
-        periodSel.value = targetPeriod;
+      if (desiredPeriod && Array.from(periodSel.options).some(o => o.value === desiredPeriod)) {
+        periodSel.value = desiredPeriod;
       }
 
+      const activePeriod = periodSel.value || desiredPeriod || 'ตุลาคม';
+
+      // 2. ผู้รับผิดชอบ ดึงอัตโนมัติตามช่วงเวลาคำสั่งแต่งตั้ง (Effective Date)
+      const effAuditor = getEffectiveDepartmentAuditor(dept.name, fyModal, activePeriod);
+      audInp.value = effAuditor || dept.auditor || 'ไม่ระบุในชีทส่วนงาน';
+      cycleInp.value = dept.cycle || 'รายเดือน';
+
       // Check if existing tracking record exists
-      loadExistingTrackingForDept(dept.name, periodSel.value);
+      loadExistingTrackingForDept(dept.name, activePeriod);
     }
 
     function onModalPeriodChange() {
@@ -6043,7 +6046,8 @@
       if (deptName && period) {
         if (audInp) {
           const effAud = getEffectiveDepartmentAuditor(deptName, fy, period);
-          if (effAud) audInp.value = effAud;
+          const dept = sheetData.departments.find(d => d.name === deptName);
+          audInp.value = effAud || (dept ? dept.auditor : '') || 'ไม่ระบุ';
         }
         loadExistingTrackingForDept(deptName, period);
       } else {
@@ -6085,6 +6089,10 @@
       if (found) {
         if (found.auditor && audInp) {
           audInp.value = found.auditor;
+        } else if (audInp) {
+          const effAuditor = getEffectiveDepartmentAuditor(deptName, fy, period);
+          const dept = sheetData.departments.find(d => d.name === deptName);
+          audInp.value = effAuditor || (dept ? dept.auditor : '') || 'ไม่ระบุในชีทส่วนงาน';
         }
         setDateInp('modal-fin-dept-send', found.dateReceivedFromDept);
         setDateInp('modal-fin-aud-recv', found.dateAuditorReceived);
@@ -6143,7 +6151,8 @@
       } else {
         if (audInp) {
           const effAuditor = getEffectiveDepartmentAuditor(deptName, fy, period);
-          if (effAuditor) audInp.value = effAuditor;
+          const dept = sheetData.departments.find(d => d.name === deptName);
+          audInp.value = effAuditor || (dept ? dept.auditor : '') || 'ไม่ระบุในชีทส่วนงาน';
         }
         setDateInp('modal-fin-dept-send', '');
         setDateInp('modal-fin-aud-recv', '');
